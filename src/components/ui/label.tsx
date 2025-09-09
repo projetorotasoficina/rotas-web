@@ -1,4 +1,4 @@
-// biome-ignore lint/performance/noNamespaceImport: <explanation>
+// biome-ignore lint/performance/noNamespaceImport: default component
 import * as LabelPrimitive from '@radix-ui/react-label'
 import type * as React from 'react'
 
