@@ -1,12 +1,10 @@
 import { useMutation } from '@tanstack/react-query'
+import { apiConfig } from '@/lib/api'
 import type {
   VerifyLoginCodeError,
   VerifyLoginCodeRequest,
   VerifyLoginCodeResponse,
 } from '@/http/types/verify-login-code'
-
-const MOCK_DELAY = 500
-const VALID_CODE = '1234'
 
 export function useVerifyLoginCode() {
   return useMutation<
@@ -14,33 +12,35 @@ export function useVerifyLoginCode() {
     VerifyLoginCodeError,
     VerifyLoginCodeRequest
   >({
-    mutationFn: (data: VerifyLoginCodeRequest) => {
-      const mockResponse = new Promise<VerifyLoginCodeResponse>(
-        (resolve, reject) => {
-          setTimeout(() => {
-            if (data.code !== VALID_CODE) {
-              reject({ erro: 'Código inválido ou expirado' })
-              return
-            }
+    mutationFn: async (data: VerifyLoginCodeRequest) => {
+      try {
+        const response = await fetch(
+          apiConfig.endpoints.auth.loginOtp,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+          }
+        )
 
-            resolve({
-              valid: true,
-              user: {
-                id: 1,
-                nome: 'Usuário Teste',
-                email: data.email,
-                cpf: '12345678901',
-                telefone: '(41) 99999-9999',
-                ativo: true,
-                roles: ['ADMIN'],
-              },
-              token: `mock-jwt-token-${Date.now()}`,
-            })
-          }, MOCK_DELAY)
+        const result = await response.json()
+
+        if (!response.ok) {
+          throw { ...result, status: response.status } as VerifyLoginCodeError
         }
-      )
 
-      return mockResponse
+        return result as VerifyLoginCodeResponse
+      } catch (error) {
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+          throw {
+            erro: 'Erro de conexão. Verifique sua internet',
+            status: 0,
+          } as VerifyLoginCodeError
+        }
+        throw error
+      }
     },
   })
 }
