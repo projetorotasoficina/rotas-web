@@ -1,3 +1,4 @@
+import { StatusCodes } from 'http-status-codes'
 import { Recycle } from 'lucide-react'
 import { useState } from 'react'
 import imgLogin from '@/assets/loginImage.svg'
@@ -10,10 +11,40 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { useSendLoginCode } from '@/http/use-send-login-code'
+import type { SendEmailLoginError } from '@/http/types/send-email-login'
+import type { VerifyLoginCodeError } from '@/http/types/verify-login-code'
+import { useSendLoginCode } from '@/http/use-send-email-login'
 import { useVerifyLoginCode } from '@/http/use-verify-login-code'
 
 const SUCCESS_REDIRECT_DELAY = 500
+
+function getEmailErrorMessage(apiError: SendEmailLoginError): string {
+  if (apiError.status === StatusCodes.BAD_REQUEST) {
+    return 'Email deve ser institucional: @utfpr.edu.br ou @alunos.utfpr.edu.br'
+  }
+
+  if (apiError.status === StatusCodes.NOT_FOUND) {
+    return 'Email não encontrado, contate o seu administrador'
+  }
+
+  if (apiError.status === StatusCodes.INTERNAL_SERVER_ERROR) {
+    return 'Erro interno do servidor. Tente novamente mais tarde'
+  }
+
+  return apiError.erro.toString()
+}
+
+function getCodeErrorMessage(apiError: VerifyLoginCodeError): string {
+  if (apiError.status === StatusCodes.INTERNAL_SERVER_ERROR) {
+    return 'Erro interno do servidor. Tente novamente mais tarde'
+  }
+
+  if (apiError.status === StatusCodes.UNPROCESSABLE_ENTITY) {
+    return 'Código inválido ou expirado'
+  }
+
+  return apiError.erro.toString()
+}
 
 export function LoginPage() {
   const [isCodeSent, setIsCodeSent] = useState(false)
@@ -21,15 +52,15 @@ export function LoginPage() {
   const [emailError, setEmailError] = useState<string | null>(null)
   const [codeError, setCodeError] = useState<string | null>(null)
 
-  const sendCodeMutation = useSendLoginCode()
+  const sendLoginCodeMutation = useSendLoginCode()
   const verifyCodeMutation = useVerifyLoginCode()
 
   function handleSubmitEmail(email: string) {
     setEmailError(null)
     setCodeError(null)
 
-    sendCodeMutation.mutate(
-      { email, type: 'OTP_AUTENTICACAO' },
+    sendLoginCodeMutation.mutate(
+      { email },
       {
         onSuccess: () => {
           setUserEmail(email)
@@ -37,7 +68,7 @@ export function LoginPage() {
           setEmailError(null)
         },
         onError: (apiError) => {
-          setEmailError(apiError.erro || 'Erro ao enviar código')
+          setEmailError(getEmailErrorMessage(apiError))
         },
       }
     )
@@ -47,10 +78,10 @@ export function LoginPage() {
     setCodeError(null)
 
     verifyCodeMutation.mutate(
-      { email: userEmail, type: 'OTP_AUTENTICACAO', code },
+      { email: userEmail, code },
       {
         onSuccess: (data) => {
-          if (data.valid && data.user && data.token) {
+          if (data.user && data.token) {
             localStorage.setItem('token', data.token)
             localStorage.setItem('user', JSON.stringify(data.user))
 
@@ -60,7 +91,7 @@ export function LoginPage() {
           }
         },
         onError: (apiError) => {
-          setCodeError(apiError.erro || 'Erro ao verificar código')
+          setCodeError(getCodeErrorMessage(apiError))
         },
       }
     )
@@ -70,7 +101,7 @@ export function LoginPage() {
     setIsCodeSent(false)
     setEmailError(null)
     setCodeError(null)
-    sendCodeMutation.reset()
+    sendLoginCodeMutation.reset()
     verifyCodeMutation.reset()
   }
 
@@ -105,7 +136,7 @@ export function LoginPage() {
                 ) : (
                   <EmailForm
                     error={emailError}
-                    isLoading={sendCodeMutation.isPending}
+                    isLoading={sendLoginCodeMutation.isPending}
                     onSubmit={handleSubmitEmail}
                   />
                 )}
