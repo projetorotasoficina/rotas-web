@@ -1,9 +1,10 @@
 import { StatusCodes } from 'http-status-codes'
 import { Recycle } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import imgLogin from '@/assets/loginImage.svg'
-import { CodeVerificationForm } from '@/components/code-verification-form'
-import { EmailForm } from '@/components/email-form'
+import { CodeVerificationForm } from '@/components/forms/code-verification-form'
+import { EmailForm } from '@/components/forms/email-form'
 import {
   Card,
   CardContent,
@@ -11,6 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { useAuth } from '@/contexts/auth-context'
 import type { SendEmailLoginError } from '@/http/types/send-email-login'
 import type { VerifyLoginCodeError } from '@/http/types/verify-login-code'
 import { useSendLoginCode } from '@/http/use-send-email-login'
@@ -52,8 +54,16 @@ export function LoginPage() {
   const [emailError, setEmailError] = useState<string | null>(null)
   const [codeError, setCodeError] = useState<string | null>(null)
 
+  const navigate = useNavigate()
+  const { login, isAuthenticated } = useAuth()
   const sendLoginCodeMutation = useSendLoginCode()
   const verifyCodeMutation = useVerifyLoginCode()
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/', { replace: true })
+    }
+  }, [isAuthenticated, navigate])
 
   function handleSubmitEmail(email: string) {
     setEmailError(null)
@@ -82,11 +92,10 @@ export function LoginPage() {
       {
         onSuccess: (data) => {
           if (data.user && data.token) {
-            localStorage.setItem('token', data.token)
-            localStorage.setItem('user', JSON.stringify(data.user))
+            login(data.token, data.user)
 
             setTimeout(() => {
-              window.location.href = '/'
+              navigate('/', { replace: true })
             }, SUCCESS_REDIRECT_DELAY)
           }
         },
@@ -109,14 +118,14 @@ export function LoginPage() {
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
-          <div className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
+          <div className="flex size-6 items-center justify-center rounded-md bg-primary text-white">
             <Recycle className="size-4" />
           </div>
           GeoColeta
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-96">
-            <Card className="w-full max-w-md border-0 shadow-none">
+            <Card className="w-full max-w-md border-0 bg-transparent shadow-none">
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl">Acesse o GeoColeta</CardTitle>
                 <CardDescription>
@@ -160,7 +169,7 @@ export function LoginPage() {
       <div className="relative hidden bg-muted lg:block">
         <img
           alt="truck"
-          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+          className="absolute inset-0 h-full w-full object-cover"
           src={imgLogin}
         />
       </div>

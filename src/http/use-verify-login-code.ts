@@ -1,10 +1,10 @@
 import { useMutation } from '@tanstack/react-query'
-import { apiConfig } from '@/lib/api'
 import type {
   VerifyLoginCodeError,
   VerifyLoginCodeRequest,
   VerifyLoginCodeResponse,
 } from '@/http/types/verify-login-code'
+import { apiConfig } from '@/lib/api'
 
 export function useVerifyLoginCode() {
   return useMutation<
@@ -14,16 +14,13 @@ export function useVerifyLoginCode() {
   >({
     mutationFn: async (data: VerifyLoginCodeRequest) => {
       try {
-        const response = await fetch(
-          apiConfig.endpoints.auth.loginOtp,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-          }
-        )
+        const response = await fetch(apiConfig.endpoints.auth.loginOtp, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        })
 
         const result = await response.json()
 

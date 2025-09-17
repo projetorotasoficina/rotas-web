@@ -1,0 +1,185 @@
+import { AlertTriangle, ArrowLeft, Home } from 'lucide-react'
+import { Link, Route, Routes } from 'react-router-dom'
+import { DefaultLayout } from '@/layouts/default-layout'
+import { HomePage } from '@/pages/home'
+
+export function ProtectedRoutes() {
+  return (
+    <Routes>
+      <Route
+        element={
+          <DefaultLayout title="Home">
+            <HomePage />
+          </DefaultLayout>
+        }
+        index
+      />
+
+      <Route
+        element={
+          <DefaultLayout
+            breadcrumbs={[
+              { label: 'Cadastros', href: '/' },
+              { label: 'Pessoas' },
+              { label: 'Administradores' },
+            ]}
+          >
+            <div>Página de Administradores em desenvolvimento...</div>
+          </DefaultLayout>
+        }
+        path="/pessoas/administradores"
+      />
+      <Route
+        element={
+          <DefaultLayout
+            breadcrumbs={[
+              { label: 'Cadastros', href: '/' },
+              { label: 'Pessoas' },
+              { label: 'Motoristas' },
+            ]}
+          >
+            <div>Página de Motoristas em desenvolvimento...</div>
+          </DefaultLayout>
+        }
+        path="/pessoas/motoristas"
+      />
+
+      <Route
+        element={
+          <DefaultLayout
+            breadcrumbs={[
+              { label: 'Cadastros', href: '/' },
+              { label: 'Operações' },
+              { label: 'Caminhões' },
+            ]}
+          >
+            <div>Página de Caminhões em desenvolvimento...</div>
+          </DefaultLayout>
+        }
+        path="/operacoes/caminhoes"
+      />
+      <Route
+        element={
+          <DefaultLayout
+            breadcrumbs={[
+              { label: 'Cadastros', href: '/' },
+              { label: 'Operações' },
+              { label: 'Rotas' },
+            ]}
+          >
+            <div>Página de Rotas em desenvolvimento...</div>
+          </DefaultLayout>
+        }
+        path="/operacoes/rotas"
+      />
+      <Route
+        element={
+          <DefaultLayout
+            breadcrumbs={[
+              { label: 'Cadastros', href: '/' },
+              { label: 'Operações' },
+              { label: 'Tipos de Coleta' },
+            ]}
+          >
+            <div>Página de Tipos de Coleta em desenvolvimento...</div>
+          </DefaultLayout>
+        }
+        path="/operacoes/tipos-coleta"
+      />
+      <Route
+        element={
+          <DefaultLayout
+            breadcrumbs={[
+              { label: 'Cadastros', href: '/' },
+              { label: 'Operações' },
+              { label: 'Tipos de Resíduo' },
+            ]}
+          >
+            <div>Página de Tipos de Resíduo em desenvolvimento...</div>
+          </DefaultLayout>
+        }
+        path="/operacoes/tipos-residuo"
+      />
+
+      <Route
+        element={
+          <DefaultLayout
+            breadcrumbs={[
+              { label: 'Cadastros', href: '/' },
+              { label: 'Gestão' },
+              { label: 'Incidentes' },
+            ]}
+          >
+            <div>Página de Incidentes em desenvolvimento...</div>
+          </DefaultLayout>
+        }
+        path="/gestao/incidentes"
+      />
+
+      <Route
+        element={
+          <DefaultLayout
+            breadcrumbs={[
+              { label: 'Documentos' },
+              { label: 'Relatório de Rotas' },
+            ]}
+          >
+            <div>Página de Relatório de Rotas em desenvolvimento...</div>
+          </DefaultLayout>
+        }
+        path="/documentos/relatorio-rotas"
+      />
+      <Route
+        element={
+          <DefaultLayout
+            breadcrumbs={[
+              { label: 'Documentos' },
+              { label: 'Relatório de Incidentes' },
+            ]}
+          >
+            <div>Página de Relatório de Incidentes em desenvolvimento...</div>
+          </DefaultLayout>
+        }
+        path="/documentos/relatorio-incidentes"
+      />
+
+      <Route
+        element={
+          <DefaultLayout title="Página não encontrada">
+            <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
+              <div className="mb-8 rounded-full bg-muted p-6">
+                <AlertTriangle className="h-16 w-16 text-muted-foreground" />
+              </div>
+              <h1 className="mb-2 font-bold text-6xl text-foreground">404</h1>
+              <h2 className="mb-2 font-semibold text-2xl text-foreground">
+                Página não encontrada
+              </h2>
+              <p className="mb-8 max-w-md text-muted-foreground">
+                A página que você está procurando não existe ou foi movida.
+                Verifique o endereço e tente novamente.
+              </p>
+              <div className="flex gap-4">
+                <Link
+                  className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-white hover:bg-primary/90"
+                  to="/"
+                >
+                  <Home className="h-4 w-4" />
+                  Voltar para Home
+                </Link>
+                <button
+                  className="inline-flex items-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-foreground hover:bg-accent hover:text-accent-foreground"
+                  onClick={() => window.history.back()}
+                  type="button"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Voltar
+                </button>
+              </div>
+            </div>
+          </DefaultLayout>
+        }
+        path="*"
+      />
+    </Routes>
+  )
+}
