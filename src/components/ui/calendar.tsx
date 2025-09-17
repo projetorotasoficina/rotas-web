@@ -1,8 +1,11 @@
+/** biome-ignore-all lint/correctness/noNestedComponentDefinitions: <explanation> */
+/** biome-ignore-all lint/nursery/noShadow: <explanation> */
 import {
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
 } from 'lucide-react'
+// biome-ignore lint/performance/noNamespaceImport: shacnui default
 import * as React from 'react'
 import {
   type DayButton,
@@ -183,7 +186,9 @@ function CalendarDayButton({
 
   const ref = React.useRef<HTMLButtonElement>(null)
   React.useEffect(() => {
-    if (modifiers.focused) ref.current?.focus()
+    if (modifiers.focused) {
+      ref.current?.focus()
+    }
   }, [modifiers.focused])
 
   return (

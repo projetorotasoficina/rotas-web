@@ -1,3 +1,4 @@
+// biome-ignore lint/performance/noNamespaceImport: shacnui default
 import * as PopoverPrimitive from '@radix-ui/react-popover'
 import type * as React from 'react'
 
