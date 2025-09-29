@@ -1,5 +1,5 @@
-/** biome-ignore-all lint/correctness/noNestedComponentDefinitions: <explanation> */
-/** biome-ignore-all lint/nursery/noShadow: <explanation> */
+/** biome-ignore-all lint/correctness/noNestedComponentDefinitions: shadcnui default */
+/** biome-ignore-all lint/nursery/noShadow: shadcnui default */
 import {
   ChevronDownIcon,
   ChevronLeftIcon,

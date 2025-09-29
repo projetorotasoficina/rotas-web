@@ -1,3 +1,19 @@
+export type SendEmailLoginRequest = {
+  email: string
+}
+
+export type SendEmailLoginResponse = {
+  mensagem: string
+  email: string
+  tipo: string
+}
+
+export type SendEmailLoginError = {
+  erro: string
+  status?: number
+  timestamp?: string
+}
+
 export type VerifyLoginCodeRequest = {
   email: string
   code: string
@@ -9,7 +25,7 @@ export type VerifyLoginCodeResponse = {
   user: {
     email: string
     nome: string
-    authorithies: string[]
+    authorities: string[]
   }
 }
 
