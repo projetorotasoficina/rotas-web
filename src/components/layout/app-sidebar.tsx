@@ -14,8 +14,8 @@ import {
   SidebarRail,
 } from '@/components/ui/sidebar'
 import { useAuth } from '@/contexts/auth-context'
+import { useRole } from '@/hooks/use-role'
 
-// Dados da sidebar do GeoColeta
 const data = {
   navMain: [
     {
@@ -93,6 +93,7 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuth()
+  const { isSuperAdmin } = useRole()
 
   const userData = {
     name: user?.nome || '',
@@ -100,13 +101,34 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     avatar: '/avatars/shadcn.jpg',
   }
 
+  const filteredNavMain = data.navMain
+    .map((section) => {
+      if (section.title === 'Pessoas' && section.items) {
+        const filteredItems = section.items.filter((item) => {
+          if (item.title === 'Administradores') {
+            return isSuperAdmin()
+          }
+          return true
+        })
+
+        return { ...section, items: filteredItems }
+      }
+      return section
+    })
+    .filter((section) => {
+      if (section.items) {
+        return section.items.length > 0
+      }
+      return true
+    })
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <AppLogo logo={Recycle} name="GeoColeta" />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={filteredNavMain} />
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>

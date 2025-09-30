@@ -1,9 +1,16 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
+import { apiConfig, fetchWithAuth, setLogoutCallback } from '@/services/api'
 
 export type User = {
   email: string
   nome: string
-  authorithies: string[]
+  authorities: string[]
 }
 
 type AuthContextData = {
@@ -26,37 +33,45 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [token, setToken] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    const storedToken = localStorage.getItem('token')
-    const storedUser = localStorage.getItem('user')
-
-    if (storedToken && storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser) as User
-        setToken(storedToken)
-        setUser(parsedUser)
-      } catch {
-        localStorage.removeItem('token')
-        localStorage.removeItem('user')
-      }
-    }
-
-    setIsLoading(false)
-  }, [])
-
-  const login = (newToken: string, newUser: User) => {
-    localStorage.setItem('token', newToken)
-    localStorage.setItem('user', JSON.stringify(newUser))
-    setToken(newToken)
-    setUser(newUser)
-  }
-
-  const logout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+  const logout = useCallback(() => {
+    sessionStorage.removeItem('token')
     setToken(null)
     setUser(null)
-  }
+  }, [])
+
+  const login = useCallback((newToken: string, newUser: User) => {
+    sessionStorage.setItem('token', newToken)
+    setToken(newToken)
+    setUser(newUser)
+  }, [])
+
+  useEffect(() => {
+    const initAuth = async () => {
+      const storedToken = sessionStorage.getItem('token')
+
+      if (storedToken) {
+        setToken(storedToken)
+        try {
+          const response = await fetchWithAuth(
+            apiConfig.endpoints.usuarios.meuPerfil
+          )
+          const userData = (await response.json()) as User
+          setUser(userData)
+        } catch {
+          sessionStorage.removeItem('token')
+          setToken(null)
+        }
+      }
+
+      setIsLoading(false)
+    }
+
+    initAuth()
+  }, [])
+
+  useEffect(() => {
+    setLogoutCallback(logout)
+  }, [logout])
 
   const isAuthenticated = Boolean(token && user)
 

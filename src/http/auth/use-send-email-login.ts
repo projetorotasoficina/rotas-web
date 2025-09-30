@@ -1,10 +1,10 @@
 import { useMutation } from '@tanstack/react-query'
+import { apiConfig } from '@/services/api'
 import type {
   SendEmailLoginError,
   SendEmailLoginRequest,
   SendEmailLoginResponse,
-} from '@/http/types/send-email-login'
-import { apiConfig } from '@/lib/api'
+} from './types'
 
 export function useSendLoginCode() {
   return useMutation<
@@ -13,13 +13,16 @@ export function useSendLoginCode() {
     SendEmailLoginRequest
   >({
     mutationFn: async (data: SendEmailLoginRequest) => {
-      const response = await fetch(apiConfig.endpoints.auth.solicitarCodigo, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      })
+      const response = await fetch(
+        `${apiConfig.baseUrl}${apiConfig.endpoints.auth.solicitarCodigo}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        }
+      )
 
       const result = await response.json()
 

@@ -13,19 +13,18 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { useAuth } from '@/contexts/auth-context'
-import type { SendEmailLoginError } from '@/http/types/send-email-login'
-import type { VerifyLoginCodeError } from '@/http/types/verify-login-code'
-import { useSendLoginCode } from '@/http/use-send-email-login'
-import { useVerifyLoginCode } from '@/http/use-verify-login-code'
-
-const SUCCESS_REDIRECT_DELAY = 500
+import type {
+  SendEmailLoginError,
+  VerifyLoginCodeError,
+} from '@/http/auth/types'
+import { useSendLoginCode } from '@/http/auth/use-send-email-login'
+import { useVerifyLoginCode } from '@/http/auth/use-verify-login-code'
 
 function getEmailErrorMessage(apiError: SendEmailLoginError): string {
-  if (apiError.status === StatusCodes.BAD_REQUEST) {
-    return 'Email deve ser institucional: @utfpr.edu.br ou @alunos.utfpr.edu.br'
-  }
-
-  if (apiError.status === StatusCodes.NOT_FOUND) {
+  if (
+    apiError.status === StatusCodes.NOT_FOUND ||
+    apiError.status === StatusCodes.BAD_REQUEST
+  ) {
     return 'Email não encontrado, contate o seu administrador'
   }
 
@@ -94,9 +93,7 @@ export function LoginPage() {
           if (data.user && data.token) {
             login(data.token, data.user)
 
-            setTimeout(() => {
-              navigate('/', { replace: true })
-            }, SUCCESS_REDIRECT_DELAY)
+            navigate('/', { replace: true })
           }
         },
         onError: (apiError) => {
