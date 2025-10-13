@@ -1,5 +1,3 @@
-'use client'
-
 import { FileText, Home, Recycle, Settings, Truck, Users } from 'lucide-react'
 import type * as React from 'react'
 import { AppLogo } from '@/components/layout/app-logo'

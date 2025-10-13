@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/auth-context'
 import { DefaultLayout } from '@/layouts/default-layout'
 import { AdministradoresPage } from '@/pages/administradores'
 import { HomePage } from '@/pages/home'
+import { TipoColetaPage } from '@/pages/tipo-coleta'
 
 export function ProtectedRoutes() {
   const { isAuthenticated, isLoading } = useAuth()
@@ -99,7 +100,7 @@ export function ProtectedRoutes() {
               { label: 'Tipos de Coleta' },
             ]}
           >
-            <div>Página de Tipos de Coleta em desenvolvimento...</div>
+            <TipoColetaPage />
           </DefaultLayout>
         }
         path="/operacoes/tipos-coleta"

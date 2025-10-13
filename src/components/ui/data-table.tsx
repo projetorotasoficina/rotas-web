@@ -36,12 +36,16 @@ type DataTableProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   toolbar?: React.ReactNode
+  filterColumn?: string
+  filterPlaceholder?: string
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   toolbar,
+  filterColumn = 'email',
+  filterPlaceholder = 'Filtrar por email...',
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -70,10 +74,10 @@ export function DataTable<TData, TValue>({
         <Input
           className="max-w-sm"
           onChange={(event) =>
-            table.getColumn('email')?.setFilterValue(event.target.value)
+            table.getColumn(filterColumn)?.setFilterValue(event.target.value)
           }
-          placeholder="Filtrar por email..."
-          value={(table.getColumn('email')?.getFilterValue() as string) ?? ''}
+          placeholder={filterPlaceholder}
+          value={(table.getColumn(filterColumn)?.getFilterValue() as string) ?? ''}
         />
         <div className="ml-auto flex items-center gap-2">
           <DropdownMenu>
