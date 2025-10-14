@@ -1,6 +1,9 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.2.2/schema.json",
   "extends": ["ultracite"],
+  "files": {
+    "ignoreUnknown": true
+  },
   "javascript": {
     "formatter": {
       "semicolons": "asNeeded"
@@ -13,6 +16,12 @@
       },
       "nursery": {
         "useImageSize": "off"
+      },
+      "style": {
+        "noMagicNumbers": "off"
+      },
+      "suspicious": {
+        "noUnknownAtRules": "off"
       }
     }
   }

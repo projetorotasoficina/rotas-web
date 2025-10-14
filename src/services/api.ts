@@ -1,4 +1,6 @@
 import { StatusCodes } from 'http-status-codes'
+import { ApiError, getErrorMessage } from '@/lib/errors'
+import { tokenStorage } from './token-storage'
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
@@ -17,6 +19,16 @@ export const apiConfig = {
       meuPerfil: '/usuarios/meu-perfil',
       byId: (id: number) => `/usuarios/${id}`,
     },
+    tipoColeta: {
+      list: '/tipocoleta',
+      byId: (id: number) => `/tipocoleta/${id}`,
+    },
+    trajetos: {
+      list: '/trajetos',
+      byId: (id: number) => `/trajetos/${id}`,
+      pontos: (id: number) => `/trajetos/${id}/pontos`,
+      incidentes: (id: number) => `/trajetos/${id}/incidentes`,
+    },
   },
 } as const
 
@@ -24,8 +36,46 @@ export function setLogoutCallback(callback: () => void) {
   logoutCallback = callback
 }
 
+export async function fetchWithoutAuth(url: string, options: RequestInit = {}) {
+  const defaultHeaders: HeadersInit = {
+    'Content-Type': 'application/json',
+  }
+
+  const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`
+
+  try {
+    const response = await fetch(fullUrl, {
+      ...options,
+      headers: {
+        ...defaultHeaders,
+        ...options.headers,
+      },
+    })
+
+    const result = await response.json()
+
+    if (!response.ok) {
+      throw new ApiError(
+        response.status,
+        result.erro || getErrorMessage(response.status),
+        result.timestamp
+      )
+    }
+
+    return result
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error
+    }
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new ApiError(0, 'Erro de conexão. Verifique sua internet')
+    }
+    throw new ApiError(500, 'Erro inesperado. Tente novamente.')
+  }
+}
+
 export async function fetchWithAuth(url: string, options: RequestInit = {}) {
-  const token = sessionStorage.getItem('token')
+  const token = tokenStorage.get()
 
   const defaultHeaders: HeadersInit = {
     'Content-Type': 'application/json',
@@ -52,21 +102,21 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}) {
     if (logoutCallback) {
       logoutCallback()
     }
-    throw new Error('Token expired or unauthorized')
+    throw new ApiError(
+      response.status,
+      getErrorMessage(response.status),
+      'Token expired or unauthorized'
+    )
   }
 
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`)
+    const errorMessage = getErrorMessage(response.status)
+    throw new ApiError(
+      response.status,
+      errorMessage,
+      `HTTP error! status: ${response.status}`
+    )
   }
 
   return response
-}
-
-export async function validateToken(): Promise<boolean> {
-  try {
-    await fetchWithAuth(apiConfig.endpoints.usuarios.meuPerfil)
-    return true
-  } catch {
-    return false
-  }
 }

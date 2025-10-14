@@ -1,6 +1,4 @@
 export const CPF_LENGTH = 11
-const PHONE_MAX_LENGTH_LANDLINE = 10
-const PHONE_MAX_LENGTH_MOBILE = 11
 
 const NON_NUMERIC_REGEX = /\D/g
 const CPF_PATTERN_1 = /(\d{3})(\d)/
@@ -32,15 +30,13 @@ export function formatCPF(value: string): string {
 export function formatPhone(value: string): string {
   const numericValue = value.replace(NON_NUMERIC_REGEX, '')
 
-  if (numericValue.length <= PHONE_MAX_LENGTH_LANDLINE) {
+  if (numericValue.length <= 10) {
     return numericValue
       .replace(PHONE_PATTERN_1, '($1) $2')
       .replace(PHONE_PATTERN_2, '$1-$2')
   }
 
-  return numericValue
-    .slice(0, PHONE_MAX_LENGTH_MOBILE)
-    .replace(PHONE_MOBILE_PATTERN, '($1) $2-$3')
+  return numericValue.slice(0, 11).replace(PHONE_MOBILE_PATTERN, '($1) $2-$3')
 }
 
 export function removeCPFMask(value: string): string {

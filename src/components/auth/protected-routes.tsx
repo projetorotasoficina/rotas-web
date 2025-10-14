@@ -1,6 +1,7 @@
 import { AlertTriangle, ArrowLeft, Home } from 'lucide-react'
 import { Link, Navigate, Route, Routes } from 'react-router-dom'
 import { RoleGuard } from '@/components/auth/role-guard'
+import { PageLoading } from '@/components/layout/page-loading'
 import { useAuth } from '@/contexts/auth-context'
 import { DefaultLayout } from '@/layouts/default-layout'
 import { AdministradoresPage } from '@/pages/administradores'
@@ -13,7 +14,7 @@ export function ProtectedRoutes() {
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <PageLoading />
       </div>
     )
   }

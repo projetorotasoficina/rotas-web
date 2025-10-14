@@ -8,12 +8,6 @@ export type SendEmailLoginResponse = {
   tipo: string
 }
 
-export type SendEmailLoginError = {
-  erro: string
-  status?: number
-  timestamp?: string
-}
-
 export type VerifyLoginCodeRequest = {
   email: string
   code: string
@@ -27,10 +21,4 @@ export type VerifyLoginCodeResponse = {
     nome: string
     authorities: string[]
   }
-}
-
-export type VerifyLoginCodeError = {
-  erro: string
-  status?: number
-  timestamp?: string
 }

@@ -1,12 +1,12 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
-import { fetchWithAuth } from '@/services/api'
+import { useCrudMutation } from '@/hooks/use-crud-mutation'
+import { queryKeys } from '@/lib/query-keys'
+import { apiConfig, fetchWithAuth } from '@/services/api'
 import type { CreateUsuarioRequest, CreateUsuarioResponse } from './types'
 
 async function createUsuario(
   usuario: CreateUsuarioRequest
 ): Promise<CreateUsuarioResponse> {
-  const response = await fetchWithAuth('/usuarios', {
+  const response = await fetchWithAuth(apiConfig.endpoints.usuarios.list, {
     method: 'POST',
     body: JSON.stringify(usuario),
   })
@@ -14,16 +14,10 @@ async function createUsuario(
 }
 
 export function useCreateUsuario() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
+  return useCrudMutation({
     mutationFn: createUsuario,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['usuarios'] })
-      toast.success('Administrador criado com sucesso!')
-    },
-    onError: () => {
-      toast.error('Erro ao criar administrador. Tente novamente.')
-    },
+    queryKey: queryKeys.usuarios.all,
+    successMessage: 'Administrador criado com sucesso!',
+    errorMessage: 'Erro ao criar administrador. Tente novamente.',
   })
 }
