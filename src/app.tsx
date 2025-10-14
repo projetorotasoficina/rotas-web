@@ -2,15 +2,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { ProtectedRoutes } from './components/auth/protected-routes'
 import { QueryAuthGuard } from './components/auth/query-auth-guard'
+import { LoadingOverlay } from './components/layout/loading-overlay'
 import { ThemeProvider } from './components/layout/theme-provider'
 import { Toaster } from './components/ui/sonner'
 import { AuthProvider } from './contexts/auth-context'
+import { LoadingProvider } from './contexts/loading-context'
 import { LoginPage } from './pages/login'
-
-const MAX_RETRY_ATTEMPTS = 3
-const STALE_TIME_MINUTES = 5
-const SECONDS_TO_MS = 1000
-const MINUTES_TO_MS = 60 * SECONDS_TO_MS
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,9 +16,9 @@ const queryClient = new QueryClient({
         if (error?.message === 'Token expired or unauthorized') {
           return false
         }
-        return failureCount < MAX_RETRY_ATTEMPTS
+        return failureCount < 3
       },
-      staleTime: STALE_TIME_MINUTES * MINUTES_TO_MS,
+      staleTime: 5 * 60 * 1000, // 5 minutos
     },
     mutations: {
       retry: false,
@@ -33,17 +30,20 @@ export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <QueryAuthGuard>
-          <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-            <BrowserRouter>
-              <Routes>
-                <Route element={<LoginPage />} path="/login" />
-                <Route element={<ProtectedRoutes />} path="/*" />
-              </Routes>
-            </BrowserRouter>
-            <Toaster />
-          </ThemeProvider>
-        </QueryAuthGuard>
+        <LoadingProvider>
+          <QueryAuthGuard>
+            <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+              <BrowserRouter>
+                <Routes>
+                  <Route element={<LoginPage />} path="/login" />
+                  <Route element={<ProtectedRoutes />} path="/*" />
+                </Routes>
+              </BrowserRouter>
+              <LoadingOverlay />
+              <Toaster />
+            </ThemeProvider>
+          </QueryAuthGuard>
+        </LoadingProvider>
       </AuthProvider>
     </QueryClientProvider>
   )

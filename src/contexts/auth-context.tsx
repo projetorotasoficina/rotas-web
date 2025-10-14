@@ -6,6 +6,7 @@ import {
   useState,
 } from 'react'
 import { apiConfig, fetchWithAuth, setLogoutCallback } from '@/services/api'
+import { tokenStorage } from '@/services/token-storage'
 
 export type User = {
   email: string
@@ -34,20 +35,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true)
 
   const logout = useCallback(() => {
-    sessionStorage.removeItem('token')
+    tokenStorage.remove()
     setToken(null)
     setUser(null)
   }, [])
 
   const login = useCallback((newToken: string, newUser: User) => {
-    sessionStorage.setItem('token', newToken)
+    tokenStorage.set(newToken)
     setToken(newToken)
     setUser(newUser)
   }, [])
 
   useEffect(() => {
     const initAuth = async () => {
-      const storedToken = sessionStorage.getItem('token')
+      const storedToken = tokenStorage.get()
 
       if (storedToken) {
         setToken(storedToken)
@@ -58,7 +59,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           const userData = (await response.json()) as User
           setUser(userData)
         } catch {
-          sessionStorage.removeItem('token')
+          tokenStorage.remove()
           setToken(null)
         }
       }

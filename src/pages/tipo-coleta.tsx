@@ -1,6 +1,7 @@
 import type { ColumnDef } from '@tanstack/react-table'
 import { ArrowUpDown, Edit, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
+import { PageLoading } from '@/components/layout/page-loading'
 import { TipoColetaModal } from '@/components/tipo-coleta/tipo-coleta-modal'
 import {
   AlertDialog,
@@ -134,7 +135,7 @@ export function TipoColetaPage() {
   ]
 
   if (isLoading) {
-    return <div>Carregando...</div>
+    return <PageLoading />
   }
 
   return (

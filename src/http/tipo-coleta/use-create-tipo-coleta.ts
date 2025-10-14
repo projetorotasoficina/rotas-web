@@ -1,12 +1,12 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
-import { fetchWithAuth } from '@/services/api'
+import { useCrudMutation } from '@/hooks/use-crud-mutation'
+import { queryKeys } from '@/lib/query-keys'
+import { apiConfig, fetchWithAuth } from '@/services/api'
 import type { CreateTipoColetaRequest, CreateTipoColetaResponse } from './types'
 
 async function createTipoColeta(
   tipoColeta: CreateTipoColetaRequest
 ): Promise<CreateTipoColetaResponse> {
-  const response = await fetchWithAuth('/tipocoleta', {
+  const response = await fetchWithAuth(apiConfig.endpoints.tipoColeta.list, {
     method: 'POST',
     body: JSON.stringify(tipoColeta),
   })
@@ -14,16 +14,10 @@ async function createTipoColeta(
 }
 
 export function useCreateTipoColeta() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
+  return useCrudMutation({
     mutationFn: createTipoColeta,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tipo-coleta'] })
-      toast.success('Tipo de Coleta criado com sucesso!')
-    },
-    onError: () => {
-      toast.error('Erro ao criar tipo de coleta. Tente novamente.')
-    },
+    queryKey: queryKeys.tipoColeta.all,
+    successMessage: 'Tipo de Coleta criado com sucesso!',
+    errorMessage: 'Erro ao criar tipo de coleta. Tente novamente.',
   })
 }

@@ -1,6 +1,6 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
-import { fetchWithAuth } from '@/services/api'
+import { useCrudMutation } from '@/hooks/use-crud-mutation'
+import { queryKeys } from '@/lib/query-keys'
+import { apiConfig, fetchWithAuth } from '@/services/api'
 import type { UpdateUsuarioRequest, UpdateUsuarioResponse } from './types'
 
 async function updateUsuario({
@@ -10,7 +10,7 @@ async function updateUsuario({
   id: number
   data: UpdateUsuarioRequest
 }): Promise<UpdateUsuarioResponse> {
-  const response = await fetchWithAuth(`/usuarios/${id}`, {
+  const response = await fetchWithAuth(apiConfig.endpoints.usuarios.byId(id), {
     method: 'PUT',
     body: JSON.stringify(data),
   })
@@ -18,16 +18,10 @@ async function updateUsuario({
 }
 
 export function useUpdateUsuario() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
+  return useCrudMutation({
     mutationFn: updateUsuario,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['usuarios'] })
-      toast.success('Administrador atualizado com sucesso!')
-    },
-    onError: () => {
-      toast.error('Erro ao atualizar administrador. Tente novamente.')
-    },
+    queryKey: queryKeys.usuarios.all,
+    successMessage: 'Administrador atualizado com sucesso!',
+    errorMessage: 'Erro ao atualizar administrador. Tente novamente.',
   })
 }

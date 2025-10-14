@@ -1,36 +1,15 @@
 import { useMutation } from '@tanstack/react-query'
-import { apiConfig } from '@/services/api'
-import type {
-  SendEmailLoginError,
-  SendEmailLoginRequest,
-  SendEmailLoginResponse,
-} from './types'
+import type { ApiError } from '@/lib/errors'
+import { apiConfig, fetchWithoutAuth } from '@/services/api'
+import type { SendEmailLoginRequest, SendEmailLoginResponse } from './types'
 
 export function useSendLoginCode() {
-  return useMutation<
-    SendEmailLoginResponse,
-    SendEmailLoginError,
-    SendEmailLoginRequest
-  >({
-    mutationFn: async (data: SendEmailLoginRequest) => {
-      const response = await fetch(
-        `${apiConfig.baseUrl}${apiConfig.endpoints.auth.solicitarCodigo}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-        }
-      )
-
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw { ...result, status: response.status } as SendEmailLoginError
-      }
-
-      return result as SendEmailLoginResponse
+  return useMutation<SendEmailLoginResponse, ApiError, SendEmailLoginRequest>({
+    mutationFn: (data: SendEmailLoginRequest) => {
+      return fetchWithoutAuth(apiConfig.endpoints.auth.solicitarCodigo, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      })
     },
   })
 }

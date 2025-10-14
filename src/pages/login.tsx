@@ -13,14 +13,11 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { useAuth } from '@/contexts/auth-context'
-import type {
-  SendEmailLoginError,
-  VerifyLoginCodeError,
-} from '@/http/auth/types'
 import { useSendLoginCode } from '@/http/auth/use-send-email-login'
 import { useVerifyLoginCode } from '@/http/auth/use-verify-login-code'
+import type { ApiError } from '@/lib/errors'
 
-function getEmailErrorMessage(apiError: SendEmailLoginError): string {
+function getEmailErrorMessage(apiError: ApiError): string {
   if (
     apiError.status === StatusCodes.NOT_FOUND ||
     apiError.status === StatusCodes.BAD_REQUEST
@@ -32,10 +29,10 @@ function getEmailErrorMessage(apiError: SendEmailLoginError): string {
     return 'Erro interno do servidor. Tente novamente mais tarde'
   }
 
-  return apiError.erro.toString()
+  return apiError.userMessage
 }
 
-function getCodeErrorMessage(apiError: VerifyLoginCodeError): string {
+function getCodeErrorMessage(apiError: ApiError): string {
   if (apiError.status === StatusCodes.INTERNAL_SERVER_ERROR) {
     return 'Erro interno do servidor. Tente novamente mais tarde'
   }
@@ -44,7 +41,7 @@ function getCodeErrorMessage(apiError: VerifyLoginCodeError): string {
     return 'Código inválido ou expirado'
   }
 
-  return apiError.erro.toString()
+  return apiError.userMessage
 }
 
 export function LoginPage() {

@@ -1,24 +1,18 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
-import { fetchWithAuth } from '@/services/api'
+import { useCrudMutation } from '@/hooks/use-crud-mutation'
+import { queryKeys } from '@/lib/query-keys'
+import { apiConfig, fetchWithAuth } from '@/services/api'
 
 async function deleteTipoColeta(id: number): Promise<void> {
-  await fetchWithAuth(`/tipocoleta/${id}`, {
+  await fetchWithAuth(apiConfig.endpoints.tipoColeta.byId(id), {
     method: 'DELETE',
   })
 }
 
 export function useDeleteTipoColeta() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
+  return useCrudMutation({
     mutationFn: deleteTipoColeta,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tipo-coleta'] })
-      toast.success('Tipo de Coleta excluído com sucesso!')
-    },
-    onError: () => {
-      toast.error('Erro ao excluir tipo de coleta. Tente novamente.')
-    },
+    queryKey: queryKeys.tipoColeta.all,
+    successMessage: 'Tipo de Coleta excluído com sucesso!',
+    errorMessage: 'Erro ao excluir tipo de coleta. Tente novamente.',
   })
 }

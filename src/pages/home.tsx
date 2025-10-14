@@ -1,141 +1,64 @@
-/** biome-ignore-all lint/style/noMagicNumbers: números fictícios */
 import { addDays } from 'date-fns'
-import { AlertTriangle, FileText, Route } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { DateRange } from 'react-day-picker'
 import { DateRangeFilter } from '@/components/dashboard/date-range-filter'
 import { MetricCard } from '@/components/dashboard/metric-card'
-import { QuickActions } from '@/components/dashboard/quick-actions'
-
-const getMetricsByDateRange = (dateRange?: DateRange) => {
-  if (!dateRange?.from) {
-    return [
-      {
-        title: 'Rotas Ativas',
-        value: 12,
-        trend: {
-          value: '+12.5%',
-          type: 'positive' as const,
-          description: 'Crescimento no período',
-        },
-        footerText: 'Período selecionado',
-      },
-      {
-        title: 'Caminhões Operando',
-        value: 8,
-        trend: {
-          value: '+2',
-          type: 'positive' as const,
-          description: 'Frota expandida',
-        },
-        footerText: 'Veículos em operação',
-      },
-      {
-        title: 'Incidentes Pendentes',
-        value: 3,
-        trend: {
-          value: '-20%',
-          type: 'negative' as const,
-          description: 'Redução significativa',
-        },
-        footerText: 'Requerem atenção',
-      },
-      {
-        title: 'Motoristas Ativos',
-        value: 25,
-        trend: {
-          value: '+18%',
-          type: 'positive' as const,
-          description: 'Equipe crescendo',
-        },
-        footerText: 'Profissionais disponíveis',
-      },
-    ]
-  }
-
-  const daysDiff = dateRange.to
-    ? Math.abs(dateRange.to.getTime() - dateRange.from.getTime()) /
-      (1000 * 60 * 60 * 24)
-    : 1
-
-  const multiplier = Math.max(0.5, Math.min(2, daysDiff / 30))
-
-  return [
-    {
-      title: 'Rotas Ativas',
-      value: Math.round(12 * multiplier),
-      trend: {
-        value: `+${(12.5 * multiplier).toFixed(1)}%`,
-        type: 'positive' as const,
-        description: 'Período personalizado',
-      },
-      footerText: `${Math.round(daysDiff)} dias selecionados`,
-    },
-    {
-      title: 'Caminhões Operando',
-      value: Math.round(8 * multiplier),
-      trend: {
-        value: `+${Math.round(2 * multiplier)}`,
-        type: 'positive' as const,
-        description: 'Frota no período',
-      },
-      footerText: 'Veículos em operação',
-    },
-    {
-      title: 'Incidentes Pendentes',
-      value: Math.round(3 * multiplier),
-      trend: {
-        value: '-15%',
-        type: 'negative' as const,
-        description: 'Redução no período',
-      },
-      footerText: 'Requerem atenção',
-    },
-    {
-      title: 'Motoristas Ativos',
-      value: Math.round(25 * multiplier),
-      trend: {
-        value: `+${(18 * multiplier).toFixed(1)}%`,
-        type: 'positive' as const,
-        description: 'Crescimento no período',
-      },
-      footerText: 'Profissionais disponíveis',
-    },
-  ]
-}
-
-const quickActions = [
-  {
-    title: 'Nova Rota',
-    description: 'Programar coleta',
-    icon: Route,
-    href: '/operacoes/rotas',
-  },
-  {
-    title: 'Relatório de Rotas',
-    description: 'Gerar relatório de rotas',
-    icon: FileText,
-    href: '/documentos/relatorio-rotas',
-  },
-  {
-    title: 'Relatório de Incidentes',
-    description: 'Gerar relatório de incidentes',
-    icon: AlertTriangle,
-    href: '/documentos/relatorio-incidentes',
-  },
-]
+import { RouteInfo } from '@/components/dashboard/route-info'
+import { RouteMap } from '@/components/dashboard/route-map'
+import { useTrajetosStats } from '@/http/trajeto/use-trajetos-stats'
+import { useUltimoTrajeto } from '@/http/trajeto/use-ultimo-trajeto'
+import { formatDuracao } from '@/lib/utils'
 
 export function HomePage() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: addDays(new Date(), -30),
     to: new Date(),
   })
-  const metrics = getMetricsByDateRange(dateRange)
+
+  const { data: ultimoTrajeto, isLoading: isLoadingTrajeto } =
+    useUltimoTrajeto()
+  const { data: stats, isLoading: isLoadingStats } = useTrajetosStats(
+    dateRange?.from,
+    dateRange?.to
+  )
+
+  const metrics = useMemo(
+    () => [
+      {
+        title: 'Trajetos Finalizados',
+        value: stats?.totalFinalizados || 0,
+        footerText: 'No período selecionado',
+      },
+      {
+        title: 'Trajetos em Andamento',
+        value: stats?.emAndamento || 0,
+        footerText: 'Atualmente em execução',
+      },
+      {
+        title: 'Distância Total',
+        value: stats?.distanciaTotal
+          ? `${stats.distanciaTotal.toFixed(1)} km`
+          : '0 km',
+        footerText: 'Percorrida no período',
+      },
+      {
+        title: 'Duração Média',
+        value: stats?.duracaoMedia ? formatDuracao(stats.duracaoMedia) : '0min',
+        footerText: 'Por trajeto finalizado',
+      },
+    ],
+    [stats]
+  )
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="font-bold text-2xl">Dashboard</h2>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="font-bold text-3xl tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground text-sm">
+            Visão geral das operações de coleta
+          </p>
+        </div>
         <DateRangeFilter
           dateRange={dateRange}
           onDateRangeChange={setDateRange}
@@ -143,35 +66,77 @@ export function HomePage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {metrics.map((metric) => (
-          <MetricCard
-            footerText={metric.footerText}
-            key={metric.title}
-            title={metric.title}
-            trend={metric.trend}
-            value={metric.value}
-          />
-        ))}
+        {isLoadingStats
+          ? [
+              'trajetos-finalizados',
+              'em-andamento',
+              'distancia',
+              'duracao',
+            ].map((key) => (
+              <div
+                className="flex h-32 items-center justify-center rounded-lg border"
+                key={key}
+              >
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              </div>
+            ))
+          : metrics.map((metric) => (
+              <MetricCard
+                footerText={metric.footerText}
+                key={metric.title}
+                title={metric.title}
+                value={metric.value}
+              />
+            ))}
       </div>
 
-      <QuickActions actions={quickActions} />
+      <div className="grid gap-4 lg:grid-cols-[1fr_400px]">
+        <div className="space-y-4">
+          {isLoadingTrajeto && (
+            <div className="flex h-[500px] items-center justify-center rounded-lg border">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            </div>
+          )}
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-lg border-2 border-muted-foreground/25 border-dashed p-8 text-center">
-          <h3 className="font-medium text-lg text-muted-foreground">
-            Gráfico de Coletas
-          </h3>
-          <p className="mt-2 text-muted-foreground text-sm">
-            Em desenvolvimento...
-          </p>
+          {!isLoadingTrajeto && ultimoTrajeto && (
+            <RouteMap trajeto={ultimoTrajeto} />
+          )}
+
+          {!(isLoadingTrajeto || ultimoTrajeto) && (
+            <div className="flex h-[500px] items-center justify-center rounded-lg border-2 border-muted-foreground/25 border-dashed">
+              <div className="text-center">
+                <h3 className="font-medium text-lg text-muted-foreground">
+                  Nenhuma rota finalizada
+                </h3>
+                <p className="mt-2 text-muted-foreground text-sm">
+                  Aguardando primeiro trajeto concluído
+                </p>
+              </div>
+            </div>
+          )}
         </div>
-        <div className="rounded-lg border-2 border-muted-foreground/25 border-dashed p-8 text-center">
-          <h3 className="font-medium text-lg text-muted-foreground">
-            Próximas Rotas
-          </h3>
-          <p className="mt-2 text-muted-foreground text-sm">
-            Em desenvolvimento...
-          </p>
+
+        <div className="space-y-4">
+          {isLoadingTrajeto && (
+            <div className="flex h-full items-center justify-center rounded-lg border">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            </div>
+          )}
+
+          {!isLoadingTrajeto && ultimoTrajeto && (
+            <RouteInfo trajeto={ultimoTrajeto} />
+          )}
+
+          {!(isLoadingTrajeto || ultimoTrajeto) && (
+            <div className="rounded-lg border-2 border-muted-foreground/25 border-dashed p-8 text-center">
+              <h3 className="font-medium text-lg text-muted-foreground">
+                Nenhuma rota finalizada
+              </h3>
+              <p className="mt-2 text-muted-foreground text-sm">
+                Aguardando primeiro trajeto concluído
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

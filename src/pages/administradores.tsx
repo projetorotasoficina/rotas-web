@@ -3,6 +3,7 @@ import { ArrowUpDown, Edit, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { AdministradorModal } from '@/components/administradores/administrador-modal'
+import { PageLoading } from '@/components/layout/page-loading'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -224,7 +225,7 @@ export function AdministradoresPage() {
   ]
 
   if (isLoading) {
-    return <div>Carregando...</div>
+    return <PageLoading />
   }
 
   return (
