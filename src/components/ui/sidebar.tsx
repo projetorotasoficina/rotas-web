@@ -24,7 +24,6 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
 
 const SIDEBAR_COOKIE_NAME = 'sidebar_state'
-// biome-ignore lint/style/noMagicNumbers: shacnui default
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 const SIDEBAR_WIDTH = '16rem'
 const SIDEBAR_WIDTH_MOBILE = '18rem'
@@ -600,10 +599,7 @@ function SidebarMenuSkeleton({
   showIcon?: boolean
 }) {
   const width = React.useMemo(() => {
-    return `${
-      // biome-ignore lint/style/noMagicNumbers: shacnui default
-      Math.floor(Math.random() * 40) + 50
-    }%`
+    return `${Math.floor(Math.random() * 40) + 50}%`
   }, [])
 
   return (

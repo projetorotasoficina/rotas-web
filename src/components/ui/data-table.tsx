@@ -77,7 +77,9 @@ export function DataTable<TData, TValue>({
             table.getColumn(filterColumn)?.setFilterValue(event.target.value)
           }
           placeholder={filterPlaceholder}
-          value={(table.getColumn(filterColumn)?.getFilterValue() as string) ?? ''}
+          value={
+            (table.getColumn(filterColumn)?.getFilterValue() as string) ?? ''
+          }
         />
         <div className="ml-auto flex items-center gap-2">
           <DropdownMenu>

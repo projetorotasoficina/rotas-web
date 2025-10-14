@@ -1,15 +1,16 @@
 import { useQuery } from '@tanstack/react-query'
-import { fetchWithAuth } from '@/services/api'
+import { queryKeys } from '@/lib/query-keys'
+import { apiConfig, fetchWithAuth } from '@/services/api'
 import type { ListUsuariosResponse } from './types'
 
 async function listUsuarios(): Promise<ListUsuariosResponse> {
-  const response = await fetchWithAuth('/usuarios')
+  const response = await fetchWithAuth(apiConfig.endpoints.usuarios.list)
   return response.json()
 }
 
 export function useListUsuarios() {
   return useQuery({
-    queryKey: ['usuarios'],
+    queryKey: queryKeys.usuarios.all,
     queryFn: listUsuarios,
   })
 }

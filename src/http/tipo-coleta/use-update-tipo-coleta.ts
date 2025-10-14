@@ -1,6 +1,6 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
-import { fetchWithAuth } from '@/services/api'
+import { useCrudMutation } from '@/hooks/use-crud-mutation'
+import { queryKeys } from '@/lib/query-keys'
+import { apiConfig, fetchWithAuth } from '@/services/api'
 import type { UpdateTipoColetaRequest, UpdateTipoColetaResponse } from './types'
 
 async function updateTipoColeta({
@@ -10,24 +10,21 @@ async function updateTipoColeta({
   id: number
   data: UpdateTipoColetaRequest
 }): Promise<UpdateTipoColetaResponse> {
-  const response = await fetchWithAuth(`/tipocoleta/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(data),
-  })
+  const response = await fetchWithAuth(
+    apiConfig.endpoints.tipoColeta.byId(id),
+    {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }
+  )
   return response.json()
 }
 
 export function useUpdateTipoColeta() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
+  return useCrudMutation({
     mutationFn: updateTipoColeta,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tipo-coleta'] })
-      toast.success('Tipo de Coleta atualizado com sucesso!')
-    },
-    onError: () => {
-      toast.error('Erro ao atualizar tipo de coleta. Tente novamente.')
-    },
+    queryKey: queryKeys.tipoColeta.all,
+    successMessage: 'Tipo de Coleta atualizado com sucesso!',
+    errorMessage: 'Erro ao atualizar tipo de coleta. Tente novamente.',
   })
 }
