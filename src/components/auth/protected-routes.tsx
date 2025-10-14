@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/auth-context'
 import { DefaultLayout } from '@/layouts/default-layout'
 import { AdministradoresPage } from '@/pages/administradores'
 import { HomePage } from '@/pages/home'
+import { MotoristasPage } from '@/pages/motoristas'
 import { TipoColetaPage } from '@/pages/tipo-coleta'
 import { TipoResiduoPage } from '@/pages/tipo-residuo'
 
@@ -59,7 +60,9 @@ export function ProtectedRoutes() {
               { label: 'Motoristas' },
             ]}
           >
-            <div>Página de Motoristas em desenvolvimento...</div>
+            <RoleGuard requiredRole="ROLE_SUPER_ADMIN">
+              <MotoristasPage />
+            </RoleGuard>
           </DefaultLayout>
         }
         path="/pessoas/motoristas"
