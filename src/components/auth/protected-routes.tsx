@@ -7,6 +7,7 @@ import { DefaultLayout } from '@/layouts/default-layout'
 import { AdministradoresPage } from '@/pages/administradores'
 import { HomePage } from '@/pages/home'
 import { TipoColetaPage } from '@/pages/tipo-coleta'
+import { TipoResiduoPage } from '@/pages/tipo-residuo'
 
 export function ProtectedRoutes() {
   const { isAuthenticated, isLoading } = useAuth()
@@ -115,7 +116,7 @@ export function ProtectedRoutes() {
               { label: 'Tipos de Resíduo' },
             ]}
           >
-            <div>Página de Tipos de Resíduo em desenvolvimento...</div>
+            <TipoResiduoPage />
           </DefaultLayout>
         }
         path="/operacoes/tipos-residuo"

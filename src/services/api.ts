@@ -23,6 +23,10 @@ export const apiConfig = {
       list: '/tipocoleta',
       byId: (id: number) => `/tipocoleta/${id}`,
     },
+    tipoResiduo: {
+      list: '/tiporesiduo',
+      byId: (id: number) => `/tiporesiduo/${id}`,
+    },
     trajetos: {
       list: '/trajetos',
       byId: (id: number) => `/trajetos/${id}`,
