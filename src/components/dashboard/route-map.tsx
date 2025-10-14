@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button'
 import { useRouteAnimation } from '@/hooks/use-route-animation'
 import type { TrajetoComPontos } from '@/http/trajeto/types'
 import { AnimationControls } from './animation-controls'
+import { MapLegend } from './map-legend'
 
 // @ts-expect-error - Leaflet icon fix
 L.Icon.Default.prototype._getIconUrl = undefined
@@ -183,7 +184,7 @@ export function RouteMap({ trajeto }: RouteMapProps) {
 
   return (
     <div className="space-y-4">
-      <div className="h-[500px] w-full overflow-hidden rounded-lg border">
+      <div className="relative h-[500px] w-full overflow-hidden rounded-lg border">
         <MapContainer
           center={center}
           className="h-full w-full"
@@ -331,6 +332,8 @@ export function RouteMap({ trajeto }: RouteMapProps) {
             </Marker>
           )}
         </MapContainer>
+
+        <MapLegend routeColor={routeColor} />
       </div>
 
       <AnimationControls
