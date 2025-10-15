@@ -31,6 +31,10 @@ export const apiConfig = {
       list: '/tiporesiduo',
       byId: (id: number) => `/tiporesiduo/${id}`,
     },
+    rotas: {
+      list: '/rota',
+      byId: (id: number) => `/rota/${id}`,
+    },
     trajetos: {
       list: '/trajetos',
       byId: (id: number) => `/trajetos/${id}`,
