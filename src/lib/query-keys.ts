@@ -15,6 +15,10 @@ export const queryKeys = {
     all: ['tipo-residuo'] as const,
     detail: (id: number) => ['tipo-residuo', id] as const,
   },
+  rotas: {
+    all: ['rotas'] as const,
+    detail: (id: number) => ['rotas', id] as const,
+  },
   trajetos: {
     all: ['trajetos'] as const,
     detail: (id: number) => ['trajetos', id] as const,
