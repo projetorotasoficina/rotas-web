@@ -1,33 +1,23 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
-
-import { fetchWithAuth } from '@/services/api'
-
+import { useCrudMutation } from '@/hooks/use-crud-mutation'
+import { queryKeys } from '@/lib/query-keys'
+import { apiConfig, fetchWithAuth } from '@/services/api'
 import type { CreateMotoristaRequest, CreateMotoristaResponse } from './types'
 
 async function createMotorista(
-  data: CreateMotoristaRequest,
+  motorista: CreateMotoristaRequest
 ): Promise<CreateMotoristaResponse> {
-  const response = await fetchWithAuth('/motoristas', {
+  const response = await fetchWithAuth(apiConfig.endpoints.motoristas.list, {
     method: 'POST',
-    body: JSON.stringify(data),
+    body: JSON.stringify(motorista),
   })
   return response.json()
 }
 
 export function useCreateMotorista() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
+  return useCrudMutation({
     mutationFn: createMotorista,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['motoristas'] })
-      toast.success('Motorista adicionado com sucesso!')
-    },
-    onError: (error) => {
-      toast.error('Erro ao adicionar motorista', {
-        description: error.message,
-      })
-    },
+    queryKey: queryKeys.motoristas.all,
+    successMessage: 'Motorista criado com sucesso!',
+    errorMessage: 'Erro ao criar motorista. Tente novamente.',
   })
 }

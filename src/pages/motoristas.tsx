@@ -1,7 +1,7 @@
 import type { ColumnDef } from '@tanstack/react-table'
 import { ArrowUpDown, Edit, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
-
+import { PageLoading } from '@/components/layout/page-loading'
 import { MotoristaModal } from '@/components/motoristas/motorista-modal'
 import {
   AlertDialog,
@@ -29,8 +29,12 @@ import { displayCPF } from '@/lib/masks'
 
 export function MotoristasPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [editingMotorista, setEditingMotorista] = useState<Motorista | null>(null)
-  const [deletingMotorista, setDeletingMotorista] = useState<Motorista | null>(null)
+  const [editingMotorista, setEditingMotorista] = useState<Motorista | null>(
+    null
+  )
+  const [deletingMotorista, setDeletingMotorista] = useState<Motorista | null>(
+    null
+  )
 
   const { data: motoristas = [], isLoading } = useListMotoristas()
   const deleteMutation = useDeleteMotorista()
@@ -102,7 +106,9 @@ export function MotoristasPage() {
       header: 'Validade CNH',
       cell: ({ row }) => {
         const validade = row.getValue('cnhValidade') as string
-        if (!validade) return '-'
+        if (!validade) {
+          return '-'
+        }
         const date = new Date(validade)
         return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' })
       },
@@ -168,7 +174,7 @@ export function MotoristasPage() {
   ]
 
   if (isLoading) {
-    return <div>Carregando...</div>
+    return <PageLoading />
   }
 
   return (
@@ -192,8 +198,8 @@ export function MotoristasPage() {
 
       <MotoristaModal
         isOpen={isModalOpen}
-        onClose={handleCloseModal}
         motorista={editingMotorista}
+        onClose={handleCloseModal}
       />
 
       <AlertDialog

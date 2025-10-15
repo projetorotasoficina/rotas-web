@@ -1,27 +1,18 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
-
-import { fetchWithAuth } from '@/services/api'
+import { useCrudMutation } from '@/hooks/use-crud-mutation'
+import { queryKeys } from '@/lib/query-keys'
+import { apiConfig, fetchWithAuth } from '@/services/api'
 
 async function deleteMotorista(id: number): Promise<void> {
-  await fetchWithAuth(`/motoristas/${id}`, {
+  await fetchWithAuth(apiConfig.endpoints.motoristas.byId(id), {
     method: 'DELETE',
   })
 }
 
 export function useDeleteMotorista() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
+  return useCrudMutation({
     mutationFn: deleteMotorista,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['motoristas'] })
-      toast.success('Motorista excluído com sucesso!')
-    },
-    onError: (error) => {
-      toast.error('Erro ao excluir motorista', {
-        description: error.message,
-      })
-    },
+    queryKey: queryKeys.motoristas.all,
+    successMessage: 'Motorista excluído com sucesso!',
+    errorMessage: 'Erro ao excluir motorista. Tente novamente.',
   })
 }

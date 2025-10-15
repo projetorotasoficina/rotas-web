@@ -22,7 +22,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -32,14 +32,12 @@ import {
 import type { Motorista, MotoristaFormData } from '@/http/motoristas/types'
 import { useCreateMotorista } from '@/http/motoristas/use-create-motorista'
 import { useUpdateMotorista } from '@/http/motoristas/use-update-motorista'
-import {
-  formatCPF,
-  isValidCPF,
-  removeCPFMask,
-} from '@/lib/masks'
+import { formatCPF, isValidCPF, removeCPFMask } from '@/lib/masks'
 
 const getButtonText = (isEditing: boolean) =>
   isEditing ? 'Salvar' : 'Adicionar'
+
+const CNH_CATEGORIA_REGEX = /^(A|B|C|D|E|AB|AC|AD|AE)$/
 
 const motoristaSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório'),
@@ -47,8 +45,25 @@ const motoristaSchema = z.object({
     .string()
     .min(1, 'CPF é obrigatório')
     .refine(isValidCPF, 'CPF deve ter 11 dígitos válidos'),
-  cnhCategoria: z.string().optional(),
-  cnhValidade: z.string().optional(),
+  cnhCategoria: z
+    .string()
+    .optional()
+    .refine(
+      (val) => !val || CNH_CATEGORIA_REGEX.test(val),
+      'Categoria da CNH inválida. Aceitas: A, B, C, D, E, AB, AC, AD ou AE'
+    ),
+  cnhValidade: z
+    .string()
+    .optional()
+    .refine((val) => {
+      if (!val) {
+        return true
+      }
+      const selectedDate = new Date(val)
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      return selectedDate > today
+    }, 'A validade da CNH deve ser uma data futura'),
   ativo: z.boolean(),
 })
 
@@ -85,7 +100,9 @@ export function MotoristaModal({
         nome: motorista.nome,
         cpf: formatCPF(motorista.cpf),
         cnhCategoria: motorista.cnhCategoria || '',
-        cnhValidade: motorista.cnhValidade ? new Date(motorista.cnhValidade).toISOString().split('T')[0] : '',
+        cnhValidade: motorista.cnhValidade
+          ? new Date(motorista.cnhValidade).toISOString().split('T')[0]
+          : '',
         ativo: motorista.ativo,
       })
     } else if (!isOpen) {
@@ -109,17 +126,14 @@ export function MotoristaModal({
 
     if (isEditing && motorista?.id) {
       const dataWithId = { ...cleanData, id: motorista.id }
-      updateMutation.mutate(
-        { id: motorista.id, data: dataWithId },
-        {
-          onSuccess: () => {
-            onClose()
-            form.reset()
-          },
-        }
-      )
+      updateMutation.mutate(dataWithId, {
+        onSuccess: () => {
+          onClose()
+          form.reset()
+        },
+      })
     } else {
-      const { id, ...creationData } = cleanData
+      const { id: _id, ...creationData } = cleanData
       createMutation.mutate(creationData, {
         onSuccess: () => {
           onClose()
@@ -196,7 +210,10 @@ export function MotoristaModal({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Categoria CNH</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    defaultValue={field.value}
+                    onValueChange={field.onChange}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione a categoria" />

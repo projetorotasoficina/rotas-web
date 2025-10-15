@@ -19,6 +19,10 @@ export const apiConfig = {
       meuPerfil: '/usuarios/meu-perfil',
       byId: (id: number) => `/usuarios/${id}`,
     },
+    motoristas: {
+      list: '/motoristas',
+      byId: (id: number) => `/motoristas/${id}`,
+    },
     tipoColeta: {
       list: '/tipocoleta',
       byId: (id: number) => `/tipocoleta/${id}`,

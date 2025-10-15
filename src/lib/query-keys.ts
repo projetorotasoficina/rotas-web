@@ -3,6 +3,10 @@ export const queryKeys = {
     all: ['usuarios'] as const,
     detail: (id: number) => ['usuarios', id] as const,
   },
+  motoristas: {
+    all: ['motoristas'] as const,
+    detail: (id: number) => ['motoristas', id] as const,
+  },
   tipoColeta: {
     all: ['tipo-coleta'] as const,
     detail: (id: number) => ['tipo-coleta', id] as const,
