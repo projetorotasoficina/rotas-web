@@ -7,6 +7,7 @@ import { DefaultLayout } from '@/layouts/default-layout'
 import { AdministradoresPage } from '@/pages/administradores'
 import { HomePage } from '@/pages/home'
 import { MotoristasPage } from '@/pages/motoristas'
+import { RotasPage } from '@/pages/rotas'
 import { TipoColetaPage } from '@/pages/tipo-coleta'
 import { TipoResiduoPage } from '@/pages/tipo-residuo'
 
@@ -91,7 +92,7 @@ export function ProtectedRoutes() {
               { label: 'Rotas' },
             ]}
           >
-            <div>Página de Rotas em desenvolvimento...</div>
+            <RotasPage />
           </DefaultLayout>
         }
         path="/operacoes/rotas"
@@ -130,7 +131,6 @@ export function ProtectedRoutes() {
           <DefaultLayout
             breadcrumbs={[
               { label: 'Cadastros', href: '/' },
-              { label: 'Gestão' },
               { label: 'Incidentes' },
             ]}
           >

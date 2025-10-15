@@ -1,4 +1,5 @@
 import { useCrudMutation } from '@/hooks/use-crud-mutation'
+import { ApiError } from '@/lib/errors'
 import { queryKeys } from '@/lib/query-keys'
 import { apiConfig, fetchWithAuth } from '@/services/api'
 import type {
@@ -10,7 +11,7 @@ async function updateTipoResiduo(
   tipoResiduo: UpdateTipoResiduoRequest
 ): Promise<UpdateTipoResiduoResponse> {
   if (!tipoResiduo.id) {
-    throw new Error('ID é obrigatório para atualização')
+    throw new ApiError(400, 'ID é obrigatório para atualização')
   }
 
   const response = await fetchWithAuth(

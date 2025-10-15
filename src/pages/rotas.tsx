@@ -1,0 +1,243 @@
+import type { ColumnDef } from '@tanstack/react-table'
+import { ArrowUpDown, Edit, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
+import { useState } from 'react'
+import { PageLoading } from '@/components/layout/page-loading'
+import { RotaModal } from '@/components/rotas/rota-modal'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { DataTable } from '@/components/ui/data-table'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import type { Rota } from '@/http/rotas/types'
+import { useDeleteRota } from '@/http/rotas/use-delete-rota'
+import { useListRotas } from '@/http/rotas/use-list-rotas'
+import { useListTipoColeta } from '@/http/tipo-coleta/use-list-tipo-coleta'
+import { useListTipoResiduo } from '@/http/tipo-residuo/use-list-tipo-residuo'
+
+export function RotasPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingRota, setEditingRota] = useState<Rota | null>(null)
+  const [deletingRota, setDeletingRota] = useState<Rota | null>(null)
+
+  const { data: rotas = [], isLoading } = useListRotas()
+  const { data: tiposResiduo = [] } = useListTipoResiduo()
+  const { data: tiposColeta = [] } = useListTipoColeta()
+  const deleteMutation = useDeleteRota()
+
+  const handleEdit = (rota: Rota) => {
+    setEditingRota(rota)
+    setIsModalOpen(true)
+  }
+
+  const handleDelete = (rota: Rota) => {
+    setDeletingRota(rota)
+  }
+
+  const confirmDelete = () => {
+    if (deletingRota?.id) {
+      deleteMutation.mutate(deletingRota.id)
+      setDeletingRota(null)
+    }
+  }
+
+  const handleAdd = () => {
+    setEditingRota(null)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+    setEditingRota(null)
+  }
+
+  // Helper functions to get names
+  const getTipoResiduoNome = (id: number) => {
+    const tipo = tiposResiduo.find((t) => t.id === id)
+    return tipo?.nome || '-'
+  }
+
+  const getTipoColetaNome = (id: number) => {
+    const tipo = tiposColeta.find((t) => t.id === id)
+    return tipo?.nome || '-'
+  }
+
+  const columns: ColumnDef<Rota>[] = [
+    {
+      accessorKey: 'nome',
+      header: ({ column }) => {
+        return (
+          <div className="-mx-2">
+            <Button
+              className="h-auto px-2 py-2 hover:bg-transparent"
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === 'asc')
+              }
+              variant="ghost"
+            >
+              Nome
+              <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: 'tipoResiduoId',
+      header: 'Tipo de Resíduo',
+      cell: ({ row }) => {
+        const id = row.getValue('tipoResiduoId') as number
+        return getTipoResiduoNome(id)
+      },
+    },
+    {
+      accessorKey: 'tipoColetaId',
+      header: 'Tipo de Coleta',
+      cell: ({ row }) => {
+        const id = row.getValue('tipoColetaId') as number
+        return getTipoColetaNome(id)
+      },
+    },
+    {
+      accessorKey: 'observacoes',
+      header: 'Observações',
+      cell: ({ row }) => {
+        const observacoes = row.getValue('observacoes') as string | undefined
+        return observacoes ? (
+          <span className="max-w-[200px] truncate" title={observacoes}>
+            {observacoes}
+          </span>
+        ) : (
+          '-'
+        )
+      },
+    },
+    {
+      accessorKey: 'ativo',
+      header: ({ column }) => {
+        return (
+          <div className="-mx-2">
+            <Button
+              className="h-auto px-2 py-2 hover:bg-transparent"
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === 'asc')
+              }
+              variant="ghost"
+            >
+              Status
+              <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        )
+      },
+      cell: ({ row }) => {
+        const ativo = row.getValue('ativo') as boolean
+        return (
+          <Badge variant={ativo ? 'default' : 'secondary'}>
+            {ativo ? 'Ativa' : 'Inativa'}
+          </Badge>
+        )
+      },
+    },
+    {
+      id: 'actions',
+      enableHiding: false,
+      header: () => <div className="text-right">Ações</div>,
+      cell: ({ row }) => {
+        const rota = row.original
+
+        return (
+          <div className="text-right">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="h-8 w-8 p-0" variant="ghost">
+                  <span className="sr-only">Abrir menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => handleEdit(rota)}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Editar
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleDelete(rota)}>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Excluir
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )
+      },
+    },
+  ]
+
+  if (isLoading) {
+    return <PageLoading />
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="font-bold text-2xl">Rotas</h1>
+      </div>
+
+      <DataTable
+        columns={columns}
+        data={rotas}
+        filterColumn="nome"
+        filterPlaceholder="Filtrar por nome..."
+        toolbar={
+          <Button onClick={handleAdd}>
+            <Plus className="h-4 w-4" />
+            Adicionar
+          </Button>
+        }
+      />
+
+      <RotaModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        rota={editingRota}
+      />
+
+      <AlertDialog
+        onOpenChange={(open) => !open && setDeletingRota(null)}
+        open={!!deletingRota}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir a rota{' '}
+              <strong>{deletingRota?.nome}</strong>? Esta ação não pode ser
+              desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700"
+              onClick={confirmDelete}
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  )
+}

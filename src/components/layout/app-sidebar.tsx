@@ -1,4 +1,4 @@
-import { FileText, Home, Recycle, Settings, Truck, Users } from 'lucide-react'
+import { FileText, Home, Recycle, Truck, Users } from 'lucide-react'
 import type * as React from 'react'
 import { AppLogo } from '@/components/layout/app-logo'
 import { NavMain } from '@/components/layout/nav-main'
@@ -59,18 +59,6 @@ const data = {
         {
           title: 'Tipos de Resíduo',
           url: '/operacoes/tipos-residuo',
-        },
-      ],
-    },
-    {
-      title: 'Gestão',
-      url: '#',
-      icon: Settings,
-      isActive: false,
-      items: [
-        {
-          title: 'Incidentes',
-          url: '/gestao/incidentes',
         },
       ],
     },
