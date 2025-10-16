@@ -43,8 +43,8 @@ const caminhaoSchema = z.object({
   placa: z
     .string()
     .min(1, 'Placa é obrigatória')
-    .regex(/^[A-Z]{3}\d[A-Z]\d{2}$|^[A-Z]{3}\d{4}$/,
-      'Placa deve estar no formato Mercosul (LLLNLNN) ou no formato antigo (LLLNNNN)'
+    .regex(/^([A-Z]{3}\d{4})|([A-Z]{3}\d[A-Z]\d{2})$/,
+      'Placa deve estar no formato Mercosul (XXX0X00) ou no formato antigo (XXX0000)'
     ),
   tipoColetaId: z.number().min(1, 'Tipo de coleta é obrigatório'),
   residuoId: z.number().min(1, 'Tipo de resíduo é obrigatório'),
