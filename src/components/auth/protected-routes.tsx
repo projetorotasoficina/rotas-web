@@ -5,6 +5,7 @@ import { PageLoading } from '@/components/layout/page-loading'
 import { useAuth } from '@/contexts/auth-context'
 import { DefaultLayout } from '@/layouts/default-layout'
 import { AdministradoresPage } from '@/pages/administradores'
+import { CaminhoesPage } from '@/pages/caminhoes'
 import { HomePage } from '@/pages/home'
 import { MotoristasPage } from '@/pages/motoristas'
 import { RotasPage } from '@/pages/rotas'
@@ -78,7 +79,7 @@ export function ProtectedRoutes() {
               { label: 'Caminhões' },
             ]}
           >
-            <div>Página de Caminhões em desenvolvimento...</div>
+            <CaminhoesPage />
           </DefaultLayout>
         }
         path="/operacoes/caminhoes"
