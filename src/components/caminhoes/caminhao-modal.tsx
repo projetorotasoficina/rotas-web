@@ -164,7 +164,7 @@ export function CaminhaoModal({
                   <FormControl>
                     <Input
                       maxLength={8}
-                      placeholder="XXX-0000"
+                      placeholder="XXX0000 ou XXX0X00" 
                       {...field}
                     />
                   </FormControl>
