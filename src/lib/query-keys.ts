@@ -7,6 +7,10 @@ export const queryKeys = {
     all: ['motoristas'] as const,
     detail: (id: number) => ['motoristas', id] as const,
   },
+  caminhoes: {
+    all: ['caminhoes'] as const,
+    detail: (id: number) => ['caminhoes', id] as const,
+  },
   tipoColeta: {
     all: ['tipo-coleta'] as const,
     detail: (id: number) => ['tipo-coleta', id] as const,
