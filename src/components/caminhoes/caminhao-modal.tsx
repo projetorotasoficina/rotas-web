@@ -43,7 +43,8 @@ const caminhaoSchema = z.object({
   placa: z
     .string()
     .min(1, 'Placa é obrigatória')
-    .regex(/^([A-Z]{3}\d{4})|([A-Z]{3}\d[A-Z]\d{2})$/,
+    .regex(
+      /^([A-Z]{3}\d{4})|([A-Z]{3}\d[A-Z]\d{2})$/,
       'Placa deve estar no formato Mercosul (XXX0X00) ou no formato antigo (XXX0000)'
     ),
   tipoColetaId: z.number().min(1, 'Tipo de coleta é obrigatório'),
@@ -69,12 +70,16 @@ export function CaminhaoModal({
     defaultValues: {
       modelo: '',
       placa: '',
+      tipoColetaId: 0,
+      residuoId: 0,
       ativo: true,
     },
   })
 
-  const { data: tiposColeta = [] } = useListTipoColeta()
-  const { data: tiposResiduo = [] } = useListTipoResiduo()
+  const { data: tiposColeta = [], isLoading: isLoadingColetas } =
+    useListTipoColeta()
+  const { data: tiposResiduo = [], isLoading: isLoadingResiduos } =
+    useListTipoResiduo()
 
   const createMutation = useCreateCaminhao()
   const updateMutation = useUpdateCaminhao()
@@ -92,6 +97,8 @@ export function CaminhaoModal({
       form.reset({
         modelo: '',
         placa: '',
+        tipoColetaId: 0,
+        residuoId: 0,
         ativo: true,
       })
     }
@@ -120,6 +127,8 @@ export function CaminhaoModal({
     onClose()
     form.reset()
   }
+
+  const isLoading = isLoadingResiduos || isLoadingColetas
 
   return (
     <Dialog onOpenChange={handleClose} open={isOpen}>
@@ -164,7 +173,7 @@ export function CaminhaoModal({
                   <FormControl>
                     <Input
                       maxLength={8}
-                      placeholder="XXX0000 ou XXX0X00" 
+                      placeholder="XXX0000 ou XXX0X00"
                       {...field}
                     />
                   </FormControl>
@@ -180,17 +189,21 @@ export function CaminhaoModal({
                 <FormItem>
                   <FormLabel>Tipo de Coleta</FormLabel>
                   <Select
+                    disabled={isLoading}
                     onValueChange={(value) => field.onChange(Number(value))}
-                    value={String(field.value)}
+                    value={field.value > 0 ? field.value.toString() : ''}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione o tipo de coleta" />
+                        <SelectValue placeholder="(Selecione)" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {tiposColeta.map((tipo) => (
-                        <SelectItem key={tipo.id} value={String(tipo.id)}>
+                        <SelectItem
+                          key={tipo.id}
+                          value={tipo.id?.toString() || ''}
+                        >
                           {tipo.nome}
                         </SelectItem>
                       ))}
@@ -208,17 +221,21 @@ export function CaminhaoModal({
                 <FormItem>
                   <FormLabel>Tipo de Resíduo</FormLabel>
                   <Select
+                    disabled={isLoading}
                     onValueChange={(value) => field.onChange(Number(value))}
-                    value={String(field.value)}
+                    value={field.value > 0 ? field.value.toString() : ''}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione o tipo de resíduo" />
+                        <SelectValue placeholder="(Selecione)" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {tiposResiduo.map((tipo) => (
-                        <SelectItem key={tipo.id} value={String(tipo.id)}>
+                        <SelectItem
+                          key={tipo.id}
+                          value={tipo.id?.toString() || ''}
+                        >
                           {tipo.nome}
                         </SelectItem>
                       ))}

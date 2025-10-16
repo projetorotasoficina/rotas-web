@@ -1,4 +1,3 @@
-
 export type Caminhao = {
   id?: number
   modelo: string
