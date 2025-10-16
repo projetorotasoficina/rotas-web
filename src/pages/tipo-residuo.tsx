@@ -1,7 +1,10 @@
-import type { ColumnDef } from '@tanstack/react-table'
+import type {
+  ColumnDef,
+  PaginationState,
+  SortingState,
+} from '@tanstack/react-table'
 import { ArrowUpDown, Edit, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
-import { PageLoading } from '@/components/layout/page-loading'
 import { TipoResiduoModal } from '@/components/tipo-residuo/tipo-residuo-modal'
 import {
   AlertDialog,
@@ -21,9 +24,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useDebounce } from '@/hooks/use-debounce'
 import type { TipoResiduo } from '@/http/tipo-residuo/types'
 import { useDeleteTipoResiduo } from '@/http/tipo-residuo/use-delete-tipo-residuo'
-import { useListTipoResiduo } from '@/http/tipo-residuo/use-list-tipo-residuo'
+import { usePaginatedTipoResiduo } from '@/http/tipo-residuo/use-paginated-tipo-residuo'
 
 export function TipoResiduoPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -32,7 +36,27 @@ export function TipoResiduoPage() {
   const [deletingTipoResiduo, setDeletingTipoResiduo] =
     useState<TipoResiduo | null>(null)
 
-  const { data: tiposResiduo = [], isLoading } = useListTipoResiduo()
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  })
+  const [sorting, setSorting] = useState<SortingState>([])
+  const [searchFilter, setSearchFilter] = useState('')
+  const debouncedSearch = useDebounce(searchFilter, 500)
+
+  const {
+    data: response,
+    isLoading,
+    isFetching,
+  } = usePaginatedTipoResiduo({
+    page: pagination.pageIndex,
+    size: pagination.pageSize,
+    order: sorting[0]?.id,
+    asc: sorting[0]?.desc === false,
+    search: debouncedSearch,
+  })
+
+  const tiposResiduo = response?.content ?? []
   const deleteMutation = useDeleteTipoResiduo()
 
   const handleEdit = (tipoResiduo: TipoResiduo) => {
@@ -150,10 +174,6 @@ export function TipoResiduoPage() {
     },
   ]
 
-  if (isLoading) {
-    return <PageLoading />
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -165,6 +185,16 @@ export function TipoResiduoPage() {
         data={tiposResiduo}
         filterColumn="nome"
         filterPlaceholder="Filtrar por nome..."
+        isLoading={isLoading || isFetching}
+        onFilterChange={setSearchFilter}
+        onSortingChange={setSorting}
+        serverSidePagination={{
+          pageCount: response?.totalPages ?? 0,
+          totalElements: response?.totalElements ?? 0,
+          pagination,
+          onPaginationChange: setPagination,
+        }}
+        sorting={sorting}
         toolbar={
           <Button onClick={handleAdd}>
             <Plus className="h-4 w-4" />
