@@ -1,9 +1,12 @@
-import type { ColumnDef } from '@tanstack/react-table'
+import type {
+  ColumnDef,
+  PaginationState,
+  SortingState,
+} from '@tanstack/react-table'
 import { ArrowUpDown, Edit, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { AdministradorModal } from '@/components/administradores/administrador-modal'
-import { PageLoading } from '@/components/layout/page-loading'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,9 +27,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/contexts/auth-context'
+import { useDebounce } from '@/hooks/use-debounce'
 import type { Usuario } from '@/http/usuarios/types'
 import { useDeleteUsuario } from '@/http/usuarios/use-delete-usuario'
-import { useListUsuarios } from '@/http/usuarios/use-list-usuarios'
+import { usePaginatedUsuarios } from '@/http/usuarios/use-paginated-usuarios'
 import { displayCPF } from '@/lib/masks'
 
 const getRoleLabel = (role: string) => {
@@ -57,7 +61,27 @@ export function AdministradoresPage() {
   const [editingUsuario, setEditingUsuario] = useState<Usuario | null>(null)
   const [deletingUsuario, setDeletingUsuario] = useState<Usuario | null>(null)
 
-  const { data: usuarios = [], isLoading } = useListUsuarios()
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  })
+  const [sorting, setSorting] = useState<SortingState>([])
+  const [searchFilter, setSearchFilter] = useState('')
+  const debouncedSearch = useDebounce(searchFilter, 500)
+
+  const {
+    data: response,
+    isLoading,
+    isFetching,
+  } = usePaginatedUsuarios({
+    page: pagination.pageIndex,
+    size: pagination.pageSize,
+    order: sorting[0]?.id,
+    asc: sorting[0]?.desc === false,
+    search: debouncedSearch,
+  })
+
+  const usuarios = response?.content ?? []
   const deleteMutation = useDeleteUsuario()
 
   const handleEdit = (usuario: Usuario) => {
@@ -224,10 +248,6 @@ export function AdministradoresPage() {
     },
   ]
 
-  if (isLoading) {
-    return <PageLoading />
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -237,6 +257,17 @@ export function AdministradoresPage() {
       <DataTable
         columns={columns}
         data={usuarios}
+        filterPlaceholder="Filtrar por nome ou email..."
+        isLoading={isLoading || isFetching}
+        onFilterChange={setSearchFilter}
+        onSortingChange={setSorting}
+        serverSidePagination={{
+          pageCount: response?.totalPages ?? 0,
+          totalElements: response?.totalElements ?? 0,
+          pagination,
+          onPaginationChange: setPagination,
+        }}
+        sorting={sorting}
         toolbar={
           <Button onClick={handleAdd}>
             <Plus className="h-4 w-4" />
