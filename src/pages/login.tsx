@@ -16,6 +16,8 @@ import { useAuth } from '@/contexts/auth-context'
 import { useSendLoginCode } from '@/http/auth/use-send-email-login'
 import { useVerifyLoginCode } from '@/http/auth/use-verify-login-code'
 import type { ApiError } from '@/lib/errors'
+import { apiConfig, fetchWithAuth } from '@/services/api'
+import { tokenStorage } from '@/services/token-storage'
 
 function getEmailErrorMessage(apiError: ApiError): string {
   if (
@@ -86,11 +88,21 @@ export function LoginPage() {
     verifyCodeMutation.mutate(
       { email: userEmail, code },
       {
-        onSuccess: (data) => {
-          if (data.user && data.token) {
-            login(data.token, data.user)
+        onSuccess: async (data) => {
+          if (data.token) {
+            tokenStorage.set(data.token)
+            try {
+              const response = await fetchWithAuth(
+                apiConfig.endpoints.usuarios.meuPerfil
+              )
+              const fullUser = await response.json()
 
-            navigate('/', { replace: true })
+              login(data.token, fullUser)
+
+              navigate('/', { replace: true })
+            } catch (error) {
+              setCodeError('Falha ao buscar dados do usuário.')
+            }
           }
         },
         onError: (apiError) => {
