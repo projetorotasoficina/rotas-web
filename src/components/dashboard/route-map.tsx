@@ -184,7 +184,7 @@ export function RouteMap({ trajeto }: RouteMapProps) {
 
   return (
     <div className="space-y-4">
-      <div className="relative h-[500px] w-full overflow-hidden rounded-lg border">
+      <div className="relative z-40 h-[500px] w-full overflow-hidden rounded-lg border">
         <MapContainer
           center={center}
           className="h-full w-full"

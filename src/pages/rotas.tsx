@@ -26,6 +26,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useDebounce } from '@/hooks/use-debounce'
+import { useRole } from '@/hooks/use-role'
 import type { Rota } from '@/http/rotas/types'
 import { useDeleteRota } from '@/http/rotas/use-delete-rota'
 import { usePaginatedRotas } from '@/http/rotas/use-paginated-rotas'
@@ -33,6 +34,7 @@ import { useListTipoColeta } from '@/http/tipo-coleta/use-list-tipo-coleta'
 import { useListTipoResiduo } from '@/http/tipo-residuo/use-list-tipo-residuo'
 
 export function RotasPage() {
+  const { canEdit, canDelete, canCreate } = useRole()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingRota, setEditingRota] = useState<Rota | null>(null)
   const [deletingRota, setDeletingRota] = useState<Rota | null>(null)
@@ -193,11 +195,17 @@ export function RotasPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => handleEdit(rota)}>
+                <DropdownMenuItem
+                  disabled={!canEdit()}
+                  onClick={() => handleEdit(rota)}
+                >
                   <Edit className="mr-2 h-4 w-4" />
                   Editar
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleDelete(rota)}>
+                <DropdownMenuItem
+                  disabled={!canDelete()}
+                  onClick={() => handleDelete(rota)}
+                >
                   <Trash2 className="mr-2 h-4 w-4" />
                   Excluir
                 </DropdownMenuItem>
@@ -231,7 +239,7 @@ export function RotasPage() {
         }}
         sorting={sorting}
         toolbar={
-          <Button onClick={handleAdd}>
+          <Button disabled={!canCreate()} onClick={handleAdd}>
             <Plus className="h-4 w-4" />
             Adicionar
           </Button>
