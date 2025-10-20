@@ -25,11 +25,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useDebounce } from '@/hooks/use-debounce'
+import { useRole } from '@/hooks/use-role'
 import type { TipoColeta } from '@/http/tipo-coleta/types'
 import { useDeleteTipoColeta } from '@/http/tipo-coleta/use-delete-tipo-coleta'
 import { usePaginatedTipoColeta } from '@/http/tipo-coleta/use-paginated-tipo-coleta'
 
 export function TipoColetaPage() {
+  const { canEdit, canDelete, canCreate } = useRole()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingTipoColeta, setEditingTipoColeta] = useState<TipoColeta | null>(
     null
@@ -142,11 +144,17 @@ export function TipoColetaPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => handleEdit(tipoColeta)}>
+                <DropdownMenuItem
+                  disabled={!canEdit()}
+                  onClick={() => handleEdit(tipoColeta)}
+                >
                   <Edit className="mr-2 h-4 w-4" />
                   Editar
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleDelete(tipoColeta)}>
+                <DropdownMenuItem
+                  disabled={!canDelete()}
+                  onClick={() => handleDelete(tipoColeta)}
+                >
                   <Trash2 className="mr-2 h-4 w-4" />
                   Excluir
                 </DropdownMenuItem>
@@ -180,7 +188,7 @@ export function TipoColetaPage() {
         }}
         sorting={sorting}
         toolbar={
-          <Button onClick={handleAdd}>
+          <Button disabled={!canCreate()} onClick={handleAdd}>
             <Plus className="h-4 w-4" />
             Adicionar
           </Button>
