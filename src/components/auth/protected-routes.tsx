@@ -62,9 +62,7 @@ export function ProtectedRoutes() {
               { label: 'Motoristas' },
             ]}
           >
-            <RoleGuard requiredRole="ROLE_SUPER_ADMIN">
-              <MotoristasPage />
-            </RoleGuard>
+            <MotoristasPage />
           </DefaultLayout>
         }
         path="/pessoas/motoristas"

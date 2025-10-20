@@ -23,12 +23,32 @@ export function useRole() {
     return hasRole('ROLE_ADMIN_CONSULTA')
   }
 
+  const canWrite = (): boolean => {
+    return isSuperAdmin()
+  }
+
+  const canEdit = (): boolean => {
+    return canWrite()
+  }
+
+  const canDelete = (): boolean => {
+    return canWrite()
+  }
+
+  const canCreate = (): boolean => {
+    return canWrite()
+  }
+
   return {
     hasRole,
     hasAnyRole,
     hasAllRoles,
     isSuperAdmin,
     isAdminConsulta,
+    canWrite,
+    canEdit,
+    canDelete,
+    canCreate,
     userRoles: user?.authorities || [],
   }
 }

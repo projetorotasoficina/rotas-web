@@ -26,6 +26,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useDebounce } from '@/hooks/use-debounce'
+import { useRole } from '@/hooks/use-role'
 import type { Caminhao } from '@/http/caminhoes/types'
 import { useDeleteCaminhao } from '@/http/caminhoes/use-delete-caminhao'
 import { usePaginatedCaminhoes } from '@/http/caminhoes/use-paginated-caminhoes'
@@ -33,6 +34,7 @@ import { useListTipoColeta } from '@/http/tipo-coleta/use-list-tipo-coleta'
 import { useListTipoResiduo } from '@/http/tipo-residuo/use-list-tipo-residuo'
 
 export function CaminhoesPage() {
+  const { canEdit, canDelete, canCreate } = useRole()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingCaminhao, setEditingCaminhao] = useState<Caminhao | null>(null)
   const [deletingCaminhao, setDeletingCaminhao] = useState<Caminhao | null>(
@@ -176,11 +178,17 @@ export function CaminhoesPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => handleEdit(caminhao)}>
+                <DropdownMenuItem
+                  disabled={!canEdit()}
+                  onClick={() => handleEdit(caminhao)}
+                >
                   <Edit className="mr-2 h-4 w-4" />
                   Editar
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleDelete(caminhao)}>
+                <DropdownMenuItem
+                  disabled={!canDelete()}
+                  onClick={() => handleDelete(caminhao)}
+                >
                   <Trash2 className="mr-2 h-4 w-4" />
                   Excluir
                 </DropdownMenuItem>
@@ -213,7 +221,7 @@ export function CaminhoesPage() {
         }}
         sorting={sorting}
         toolbar={
-          <Button onClick={handleAdd}>
+          <Button disabled={!canCreate()} onClick={handleAdd}>
             <Plus className="h-4 w-4" />
             Adicionar
           </Button>

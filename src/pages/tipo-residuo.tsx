@@ -25,11 +25,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useDebounce } from '@/hooks/use-debounce'
+import { useRole } from '@/hooks/use-role'
 import type { TipoResiduo } from '@/http/tipo-residuo/types'
 import { useDeleteTipoResiduo } from '@/http/tipo-residuo/use-delete-tipo-residuo'
 import { usePaginatedTipoResiduo } from '@/http/tipo-residuo/use-paginated-tipo-residuo'
 
 export function TipoResiduoPage() {
+  const { canEdit, canDelete, canCreate } = useRole()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingTipoResiduo, setEditingTipoResiduo] =
     useState<TipoResiduo | null>(null)
@@ -158,11 +160,17 @@ export function TipoResiduoPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => handleEdit(tipoResiduo)}>
+                <DropdownMenuItem
+                  disabled={!canEdit()}
+                  onClick={() => handleEdit(tipoResiduo)}
+                >
                   <Edit className="mr-2 h-4 w-4" />
                   Editar
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleDelete(tipoResiduo)}>
+                <DropdownMenuItem
+                  disabled={!canDelete()}
+                  onClick={() => handleDelete(tipoResiduo)}
+                >
                   <Trash2 className="mr-2 h-4 w-4" />
                   Excluir
                 </DropdownMenuItem>
@@ -196,7 +204,7 @@ export function TipoResiduoPage() {
         }}
         sorting={sorting}
         toolbar={
-          <Button onClick={handleAdd}>
+          <Button disabled={!canCreate()} onClick={handleAdd}>
             <Plus className="h-4 w-4" />
             Adicionar
           </Button>

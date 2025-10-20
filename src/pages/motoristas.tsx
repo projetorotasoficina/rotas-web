@@ -26,12 +26,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useDebounce } from '@/hooks/use-debounce'
+import { useRole } from '@/hooks/use-role'
 import type { Motorista } from '@/http/motoristas/types'
 import { useDeleteMotorista } from '@/http/motoristas/use-delete-motorista'
 import { usePaginatedMotoristas } from '@/http/motoristas/use-paginated-motoristas'
 import { displayCPF } from '@/lib/masks'
 
 export function MotoristasPage() {
+  const { canEdit, canDelete, canCreate } = useRole()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingMotorista, setEditingMotorista] = useState<Motorista | null>(
     null
@@ -181,11 +183,17 @@ export function MotoristasPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => handleEdit(motorista)}>
+                <DropdownMenuItem
+                  disabled={!canEdit()}
+                  onClick={() => handleEdit(motorista)}
+                >
                   <Edit className="mr-2 h-4 w-4" />
                   Editar
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleDelete(motorista)}>
+                <DropdownMenuItem
+                  disabled={!canDelete()}
+                  onClick={() => handleDelete(motorista)}
+                >
                   <Trash2 className="mr-2 h-4 w-4" />
                   Excluir
                 </DropdownMenuItem>
@@ -219,7 +227,7 @@ export function MotoristasPage() {
         }}
         sorting={sorting}
         toolbar={
-          <Button onClick={handleAdd}>
+          <Button disabled={!canCreate()} onClick={handleAdd}>
             <Plus className="h-4 w-4" />
             Adicionar
           </Button>
