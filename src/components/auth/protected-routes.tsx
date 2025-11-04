@@ -5,6 +5,7 @@ import { PageLoading } from '@/components/layout/page-loading'
 import { useAuth } from '@/contexts/auth-context'
 import { DefaultLayout } from '@/layouts/default-layout'
 import { AdministradoresPage } from '@/pages/administradores'
+import { AppAndroidPage } from '@/pages/app-android'
 import { CaminhoesPage } from '@/pages/caminhoes'
 import { HomePage } from '@/pages/home'
 import { MotoristasPage } from '@/pages/motoristas'
@@ -123,6 +124,22 @@ export function ProtectedRoutes() {
           </DefaultLayout>
         }
         path="/operacoes/tipos-residuo"
+      />
+
+      <Route
+        element={
+          <DefaultLayout
+            breadcrumbs={[
+              { label: 'Cadastros', href: '/' },
+              { label: 'App Android' },
+            ]}
+          >
+            <RoleGuard requiredRole="ROLE_SUPER_ADMIN">
+              <AppAndroidPage />
+            </RoleGuard>
+          </DefaultLayout>
+        }
+        path="/app-android"
       />
 
       <Route

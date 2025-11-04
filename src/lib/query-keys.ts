@@ -31,4 +31,12 @@ export const queryKeys = {
       ['trajetos-stats', from?.toISOString(), to?.toISOString()] as const,
     ultimo: ['ultimo-trajeto'] as const,
   },
+  codigosAtivacao: {
+    all: ['codigos-ativacao'] as const,
+    detail: (id: number) => ['codigos-ativacao', id] as const,
+  },
+  appTokens: {
+    all: ['app-tokens'] as const,
+    detail: (id: number) => ['app-tokens', id] as const,
+  },
 } as const

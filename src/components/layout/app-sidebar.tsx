@@ -1,4 +1,4 @@
-import { FileText, Home, Recycle, Truck, Users } from 'lucide-react'
+import { FileText, Home, Recycle, Smartphone, Truck, Users } from 'lucide-react'
 import type * as React from 'react'
 import { AppLogo } from '@/components/layout/app-logo'
 import { NavMain } from '@/components/layout/nav-main'
@@ -62,6 +62,12 @@ const data = {
         },
       ],
     },
+    {
+      title: 'App Android',
+      url: '/app-android',
+      icon: Smartphone,
+      isActive: false,
+    },
   ],
   projects: [
     {
@@ -87,7 +93,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       return ''
     }
     const firstInitial = names[0]?.[0] || ''
-    const lastInitial = names.length > 1 ? names[names.length - 1]?.[0] || '' : ''
+    const lastInitial = names.length > 1 ? names.at(-1)?.[0] || '' : ''
     return `${firstInitial}${lastInitial}`.toUpperCase()
   }
 
@@ -98,6 +104,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }
 
   const filteredNavMain = data.navMain
+    .filter((section) => {
+      if (section.title === 'App Android') {
+        return isSuperAdmin()
+      }
+      return true
+    })
     .map((section) => {
       if (section.title === 'Pessoas' && section.items) {
         const filteredItems = section.items.filter((item) => {
