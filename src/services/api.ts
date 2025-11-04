@@ -45,6 +45,17 @@ export const apiConfig = {
       pontos: (id: number) => `/trajetos/${id}/pontos`,
       incidentes: (id: number) => `/trajetos/${id}/incidentes`,
     },
+    codigosAtivacao: {
+      list: '/codigosativacao',
+      byId: (id: number) => `/codigosativacao/${id}`,
+      gerar: '/codigosativacao/gerar',
+    },
+    appTokens: {
+      list: '/apptokens',
+      byId: (id: number) => `/apptokens/${id}`,
+      revogar: (id: number) => `/apptokens/${id}/revogar`,
+      reativar: (id: number) => `/apptokens/${id}/reativar`,
+    },
   },
 } as const
 
