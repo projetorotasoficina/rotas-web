@@ -100,7 +100,7 @@ export function LoginPage() {
               login(data.token, fullUser)
 
               navigate('/', { replace: true })
-            } catch (error) {
+            } catch (_error) {
               setCodeError('Falha ao buscar dados do usuário.')
             }
           }
