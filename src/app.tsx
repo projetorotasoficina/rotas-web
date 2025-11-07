@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { ProtectedRoutes } from './components/auth/protected-routes'
 import { QueryAuthGuard } from './components/auth/query-auth-guard'
+import ErrorBoundary from './components/layout/error-boundary'
 import { LoadingOverlay } from './components/layout/loading-overlay'
 import { ThemeProvider } from './components/layout/theme-provider'
 import { Toaster } from './components/ui/sonner'
@@ -33,12 +34,14 @@ export function App() {
         <LoadingProvider>
           <QueryAuthGuard>
             <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-              <BrowserRouter>
-                <Routes>
-                  <Route element={<LoginPage />} path="/login" />
-                  <Route element={<ProtectedRoutes />} path="/*" />
-                </Routes>
-              </BrowserRouter>
+              <ErrorBoundary>
+                <BrowserRouter>
+                  <Routes>
+                    <Route element={<LoginPage />} path="/login" />
+                    <Route element={<ProtectedRoutes />} path="/*" />
+                  </Routes>
+                </BrowserRouter>
+              </ErrorBoundary>
               <LoadingOverlay />
               <Toaster />
             </ThemeProvider>

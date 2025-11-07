@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { useLoading } from '@/contexts/loading-context'
 import { ApiError } from '@/lib/errors'
+import { showErrorToast } from '@/lib/toasts'
 
 type UseCrudMutationOptions<TData, TVariables> = {
   mutationFn: (data: TVariables) => Promise<TData>
@@ -38,9 +39,8 @@ export function useCrudMutation<TData, TVariables>({
       }
     },
     onError: (error: Error) => {
-      const message =
-        error instanceof ApiError ? error.userMessage : errorMessage
-      toast.error(message)
+      const message = error.message || errorMessage
+      showErrorToast(message)
     },
   })
 }
