@@ -1,3 +1,18 @@
+export type DiaSemana =
+  | 'SEGUNDA'
+  | 'TERCA'
+  | 'QUARTA'
+  | 'QUINTA'
+  | 'SEXTA'
+  | 'SABADO'
+  | 'DOMINGO'
+export type Periodo = 'MANHA' | 'TARDE' | 'NOITE'
+
+export type FrequenciaRota = {
+  diaSemana: DiaSemana
+  periodo: Periodo
+}
+
 export type Rota = {
   id?: number
   nome: string
@@ -5,6 +20,7 @@ export type Rota = {
   observacoes?: string
   tipoResiduoId: number
   tipoColetaId: number
+  frequencias?: FrequenciaRota[]
 }
 
 export type RotaFormData = {
@@ -13,6 +29,7 @@ export type RotaFormData = {
   observacoes?: string
   tipoResiduoId: number
   tipoColetaId: number
+  frequencias?: FrequenciaRota[]
 }
 
 export type ListRotasResponse = Rota[]
