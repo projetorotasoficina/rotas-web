@@ -1,3 +1,4 @@
+import type { UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 import { queryKeys } from '@/lib/query-keys'
 import { apiConfig, fetchWithAuth } from '@/services/api'
@@ -8,7 +9,15 @@ async function getTrajetoPontos(id: number): Promise<GetTrajetoPontosResponse> {
   return response.json()
 }
 
-export function useGetTrajetoPontos(id: number | undefined) {
+type UseGetTrajetoPontosOptions = Omit<
+  UseQueryOptions<GetTrajetoPontosResponse>,
+  'queryKey' | 'queryFn'
+>
+
+export function useGetTrajetoPontos(
+  id: number | undefined,
+  options?: UseGetTrajetoPontosOptions
+) {
   return useQuery({
     queryKey: id
       ? queryKeys.trajetos.pontos(id)
@@ -16,5 +25,6 @@ export function useGetTrajetoPontos(id: number | undefined) {
     // biome-ignore lint/style/noNonNullAssertion: enabled garante que id existe
     queryFn: () => getTrajetoPontos(id!),
     enabled: !!id,
+    ...options,
   })
 }
