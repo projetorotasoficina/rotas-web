@@ -10,6 +10,19 @@ describe('API Service', () => {
   })
 
   describe('fetchWithoutAuth', () => {
+    it('should return data on successful response', async () => {
+      const mockData = { message: 'Success' }
+      const mockResponse = {
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve(mockData),
+      }
+      ;(fetch as any).mockResolvedValue(mockResponse)
+
+      const response = await fetchWithoutAuth('/test')
+      expect(response).toEqual(mockData)
+    })
+
     it('should throw ApiError with correct message for 404', async () => {
       const mockResponse = {
         ok: false,
@@ -40,6 +53,20 @@ describe('API Service', () => {
   })
 
   describe('fetchWithAuth', () => {
+    it('should return data on successful response', async () => {
+      const mockData = { message: 'Success' }
+      const mockResponse = {
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve(mockData),
+      }
+      ;(fetch as any).mockResolvedValue(mockResponse)
+
+      const response = await fetchWithAuth('/test')
+      const data = await response.json()
+      expect(data).toEqual(mockData)
+    })
+
     it('should throw ApiError with correct message for 401', async () => {
       const mockResponse = {
         ok: false,
