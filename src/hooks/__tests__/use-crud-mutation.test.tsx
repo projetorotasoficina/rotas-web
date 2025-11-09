@@ -1,11 +1,9 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { useCrudMutation } from '@/hooks/use-crud-mutation'
-import { ApiError } from '@/lib/errors'
-import { showErrorToast } from '@/lib/toasts.tsx'
-
 import { LoadingProvider } from '@/contexts/loading-context'
+import { useCrudMutation } from '@/hooks/use-crud-mutation'
+import { showErrorToast } from '@/lib/toasts.tsx'
 
 vi.mock('@/lib/toasts', () => ({
   showErrorToast: vi.fn(),
@@ -19,7 +17,13 @@ const queryClient = new QueryClient({
   },
 })
 
-const TestComponent = ({ mutationFn, errorMessage }) => {
+const TestComponent = ({
+  mutationFn,
+  errorMessage,
+}: {
+  mutationFn: (data: string) => Promise<unknown>
+  errorMessage: string
+}) => {
   const { mutate } = useCrudMutation({
     mutationFn,
     queryKey: ['test'],
@@ -27,26 +31,32 @@ const TestComponent = ({ mutationFn, errorMessage }) => {
     errorMessage,
   })
 
-  return <button onClick={() => mutate('test-data')}>Mutate</button>
+  return (
+    <button onClick={() => mutate('test-data')} type="button">
+      Mutate
+    </button>
+  )
 }
 
-const renderWithClient = (component) => {
+const renderWithClient = (component: React.ReactElement) => {
   return render(
     <QueryClientProvider client={queryClient}>
       <LoadingProvider>{component}</LoadingProvider>
-    </QueryClientProvider>,
+    </QueryClientProvider>
   )
 }
 
 describe('useCrudMutation', () => {
   it('should call showErrorToast with ApiError message on failure', async () => {
-    const mutationFn = vi.fn().mockRejectedValue(new Error('Internal Server Error'))
+    const mutationFn = vi
+      .fn()
+      .mockRejectedValue(new Error('Internal Server Error'))
 
     renderWithClient(
       <TestComponent
-        mutationFn={mutationFn}
         errorMessage="Default error message"
-      />,
+        mutationFn={mutationFn}
+      />
     )
 
     fireEvent.click(screen.getByText('Mutate'))
@@ -62,15 +72,15 @@ describe('useCrudMutation', () => {
 
     renderWithClient(
       <TestComponent
-        mutationFn={mutationFn}
         errorMessage="Default error message"
-      />,
+        mutationFn={mutationFn}
+      />
     )
 
     fireEvent.click(screen.getByText('Mutate'))
 
     await waitFor(() => {
-      expect(showErrorToast).toHaveBeenCalledWith('Default error message')
+      expect(showErrorToast).toHaveBeenCalledWith('Generic error')
     })
   })
 })

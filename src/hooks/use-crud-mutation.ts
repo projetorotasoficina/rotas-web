@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { useLoading } from '@/contexts/loading-context'
-import { ApiError } from '@/lib/errors'
 import { showErrorToast } from '@/lib/toasts'
 
 type UseCrudMutationOptions<TData, TVariables> = {

@@ -1,18 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ApiError } from '@/lib/errors'
 import { fetchWithAuth, fetchWithoutAuth } from '@/services/api'
 
 global.fetch = vi.fn()
 
 describe('API Service', () => {
-  const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-
   beforeEach(() => {
     vi.clearAllMocks()
-  })
-
-  afterEach(() => {
-    consoleErrorSpy.mockClear()
   })
 
   describe('fetchWithoutAuth', () => {
@@ -26,12 +20,7 @@ describe('API Service', () => {
 
       await expect(fetchWithoutAuth('/test')).rejects.toThrow(ApiError)
       await expect(fetchWithoutAuth('/test')).rejects.toThrow(
-        'Recurso não encontrado.',
-      )
-
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'API Error: 404',
-        'Not Found',
+        'Recurso não encontrado.'
       )
     })
 
@@ -45,12 +34,7 @@ describe('API Service', () => {
 
       await expect(fetchWithoutAuth('/test')).rejects.toThrow(ApiError)
       await expect(fetchWithoutAuth('/test')).rejects.toThrow(
-        'Erro no servidor. Tente novamente mais tarde.',
-      )
-
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'API Error: 500',
-        'Internal Server Error',
+        'Erro no servidor. Tente novamente mais tarde.'
       )
     })
   })
@@ -66,12 +50,7 @@ describe('API Service', () => {
 
       await expect(fetchWithAuth('/test')).rejects.toThrow(ApiError)
       await expect(fetchWithAuth('/test')).rejects.toThrow(
-        'Sessão expirada. Faça login novamente.',
-      )
-
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'API Error: 401',
-        'Token expired or unauthorized',
+        'Sessão expirada. Faça login novamente.'
       )
     })
   })

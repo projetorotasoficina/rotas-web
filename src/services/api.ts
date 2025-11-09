@@ -84,12 +84,7 @@ export async function fetchWithoutAuth(url: string, options: RequestInit = {}) {
     if (!response.ok) {
       const userMessage = getErrorMessage(response.status)
       const technicalDetails = result.erro || result.timestamp
-      console.error(`API Error: ${response.status}`, technicalDetails)
-      throw new ApiError(
-        response.status,
-        userMessage,
-        technicalDetails
-      )
+      throw new ApiError(response.status, userMessage, technicalDetails)
     }
 
     return result
@@ -134,23 +129,13 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}) {
     }
     const userMessage = getErrorMessage(response.status)
     const technicalDetails = 'Token expired or unauthorized'
-    console.error(`API Error: ${response.status}`, technicalDetails)
-    throw new ApiError(
-      response.status,
-      userMessage,
-      technicalDetails
-    )
+    throw new ApiError(response.status, userMessage, technicalDetails)
   }
 
   if (!response.ok) {
     const userMessage = getErrorMessage(response.status)
     const technicalDetails = `HTTP error! status: ${response.status}`
-    console.error(`API Error: ${response.status}`, technicalDetails)
-    throw new ApiError(
-      response.status,
-      userMessage,
-      technicalDetails
-    )
+    throw new ApiError(response.status, userMessage, technicalDetails)
   }
 
   return response
