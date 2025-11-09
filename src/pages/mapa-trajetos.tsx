@@ -12,6 +12,7 @@ import {
 import { useState } from 'react'
 import type { DateRange } from 'react-day-picker'
 import { DateRangeFilter } from '@/components/dashboard/date-range-filter'
+import { RouteInfo } from '@/components/dashboard/route-info'
 import { RouteMap } from '@/components/dashboard/route-map'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
@@ -40,6 +41,7 @@ const STATUS_CONFIG: Record<
   CANCELADO: { label: 'Cancelado', variant: 'destructive' },
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Complex page component with multiple conditional renders
 export function MapaTrajetosPage() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: addDays(new Date(), -7),
@@ -121,6 +123,10 @@ export function MapaTrajetosPage() {
     selectedTrajeto && pontos.length > 0
       ? { ...selectedTrajeto, pontos, incidentes }
       : null
+
+  const trajetoParaDetalhes = selectedTrajeto
+    ? { ...selectedTrajeto, pontos, incidentes }
+    : null
 
   const getDuracao = (trajeto: Trajeto) => {
     if (!trajeto.dataFim) {
@@ -213,7 +219,7 @@ export function MapaTrajetosPage() {
         </CardContent>
       </Card>
 
-      <div className="flex flex-1 flex-col gap-4 overflow-hidden lg:grid lg:grid-cols-[360px_1fr]">
+      <div className="flex flex-1 flex-col gap-4 overflow-hidden lg:grid lg:grid-cols-[360px_1fr_380px]">
         <Card className="flex max-h-[350px] flex-col overflow-hidden lg:max-h-none">
           <CardHeader className="flex-shrink-0 border-b px-3 sm:px-4">
             <div className="flex items-center justify-between">
@@ -360,64 +366,100 @@ export function MapaTrajetosPage() {
           </div>
         </Card>
 
-        <div className="flex flex-1 overflow-hidden">
-          {!selectedTrajetoId && (
-            <Card className="flex h-full w-full items-center justify-center">
-              <div className="px-6 text-center">
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 sm:h-20 sm:w-20">
-                  <MapPin className="h-8 w-8 text-primary sm:h-10 sm:w-10" />
-                </div>
-                <h3 className="mb-2 font-semibold text-base sm:text-lg">
-                  Selecione um trajeto
-                </h3>
-                <p className="text-muted-foreground text-xs sm:text-sm">
-                  Escolha um trajeto da lista{' '}
-                  <span className="hidden lg:inline">lateral </span>para
-                  visualizar o percurso no mapa
-                </p>
-              </div>
-            </Card>
-          )}
-
-          {selectedTrajetoId && (isLoadingPontos || isLoadingIncidentes) && (
-            <Card className="flex h-full w-full items-center justify-center">
-              <div className="text-center">
-                <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent sm:h-10 sm:w-10" />
-                <p className="font-medium text-sm">Carregando trajeto...</p>
-                <p className="text-muted-foreground text-xs">
-                  Obtendo pontos e incidentes
-                </p>
-              </div>
-            </Card>
-          )}
-
-          {selectedTrajetoId &&
-            !isLoadingPontos &&
-            !isLoadingIncidentes &&
-            trajetoComPontos && (
-              <div className="h-full w-full">
-                <RouteMap trajeto={trajetoComPontos} />
-              </div>
-            )}
-
-          {selectedTrajetoId &&
-            !isLoadingPontos &&
-            !isLoadingIncidentes &&
-            !trajetoComPontos && (
+        <div className="flex flex-1 flex-col gap-4 overflow-hidden lg:contents">
+          <div className="flex flex-1 overflow-hidden">
+            {!selectedTrajetoId && (
               <Card className="flex h-full w-full items-center justify-center">
                 <div className="px-6 text-center">
-                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted sm:h-20 sm:w-20">
-                    <Route className="h-8 w-8 text-muted-foreground sm:h-10 sm:w-10" />
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 sm:h-20 sm:w-20">
+                    <MapPin className="h-8 w-8 text-primary sm:h-10 sm:w-10" />
                   </div>
                   <h3 className="mb-2 font-semibold text-base sm:text-lg">
-                    Sem dados
+                    Selecione um trajeto
                   </h3>
                   <p className="text-muted-foreground text-xs sm:text-sm">
-                    Este trajeto não possui pontos GPS registrados
+                    Escolha um trajeto da lista{' '}
+                    <span className="hidden lg:inline">lateral </span>para
+                    visualizar o percurso no mapa
                   </p>
                 </div>
               </Card>
             )}
+
+            {selectedTrajetoId && (isLoadingPontos || isLoadingIncidentes) && (
+              <Card className="flex h-full w-full items-center justify-center">
+                <div className="text-center">
+                  <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent sm:h-10 sm:w-10" />
+                  <p className="font-medium text-sm">Carregando trajeto...</p>
+                  <p className="text-muted-foreground text-xs">
+                    Obtendo pontos e incidentes
+                  </p>
+                </div>
+              </Card>
+            )}
+
+            {selectedTrajetoId &&
+              !isLoadingPontos &&
+              !isLoadingIncidentes &&
+              trajetoComPontos && (
+                <div className="h-full w-full">
+                  <RouteMap trajeto={trajetoComPontos} />
+                </div>
+              )}
+
+            {selectedTrajetoId &&
+              !isLoadingPontos &&
+              !isLoadingIncidentes &&
+              !trajetoComPontos && (
+                <Card className="flex h-full w-full items-center justify-center">
+                  <div className="px-6 text-center">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted sm:h-20 sm:w-20">
+                      <Route className="h-8 w-8 text-muted-foreground sm:h-10 sm:w-10" />
+                    </div>
+                    <h3 className="mb-2 font-semibold text-base sm:text-lg">
+                      Sem dados
+                    </h3>
+                    <p className="text-muted-foreground text-xs sm:text-sm">
+                      Este trajeto não possui pontos GPS registrados
+                    </p>
+                  </div>
+                </Card>
+              )}
+          </div>
+
+          <div className="hidden lg:block lg:overflow-y-auto">
+            {!selectedTrajetoId && (
+              <Card className="flex h-full w-full items-center justify-center">
+                <div className="px-6 py-12 text-center">
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                    <Route className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <h3 className="mb-2 font-semibold text-base">
+                    Detalhes do Trajeto
+                  </h3>
+                  <p className="text-muted-foreground text-xs">
+                    Selecione um trajeto para visualizar os detalhes
+                  </p>
+                </div>
+              </Card>
+            )}
+
+            {selectedTrajetoId && (isLoadingPontos || isLoadingIncidentes) && (
+              <Card className="flex h-full w-full items-center justify-center">
+                <div className="py-12 text-center">
+                  <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                  <p className="font-medium text-sm">Carregando...</p>
+                </div>
+              </Card>
+            )}
+
+            {selectedTrajetoId &&
+              !isLoadingPontos &&
+              !isLoadingIncidentes &&
+              trajetoParaDetalhes && (
+                <RouteInfo trajeto={trajetoParaDetalhes} />
+              )}
+          </div>
         </div>
       </div>
     </div>
