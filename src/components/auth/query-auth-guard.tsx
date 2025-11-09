@@ -9,15 +9,11 @@ export function QueryAuthGuard({ children }: { children: React.ReactNode }) {
 
   logoutRef.current = logout
 
-  const handleAuthError = useCallback(
-    (error: Error) => {
-      if (error.message === 'Token expired or unauthorized') {
-        queryClient.clear()
-        logoutRef.current()
-      }
-    },
-    [queryClient]
-  )
+  const handleAuthError = useCallback((error: Error) => {
+    if (error.message === 'Token expired or unauthorized') {
+      logoutRef.current({ showMessage: false, clearCache: false })
+    }
+  }, [])
 
   useEffect(() => {
     const unsubscribeMutation = queryClient

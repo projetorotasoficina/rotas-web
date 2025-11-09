@@ -5,7 +5,9 @@ import {
   useEffect,
   useState,
 } from 'react'
+import { toast } from 'sonner'
 import { apiConfig, fetchWithAuth, setLogoutCallback } from '@/services/api'
+import { authCleanup } from '@/services/auth-cleanup'
 import { tokenStorage } from '@/services/token-storage'
 
 export type User = {
@@ -14,31 +16,51 @@ export type User = {
   authorities: string[]
 }
 
+type LogoutOptions = {
+  showMessage?: boolean
+  clearCache?: boolean
+}
+
 type AuthContextData = {
   user: User | null
   token: string | null
   isAuthenticated: boolean
   isLoading: boolean
   login: (token: string, user: User) => void
-  logout: () => void
+  logout: (options?: LogoutOptions) => void
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData)
 
 type AuthProviderProps = {
   children: React.ReactNode
+  queryClient?: { clear: () => void }
 }
 
-export function AuthProvider({ children }: AuthProviderProps) {
+export function AuthProvider({ children, queryClient }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null)
   const [token, setToken] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  const logout = useCallback(() => {
-    tokenStorage.remove()
-    setToken(null)
-    setUser(null)
-  }, [])
+  const logout = useCallback(
+    (options: LogoutOptions = {}) => {
+      const { showMessage = true, clearCache = true } = options
+
+      if (clearCache && queryClient) {
+        queryClient.clear()
+      }
+
+      authCleanup.clearAll()
+
+      setToken(null)
+      setUser(null)
+
+      if (showMessage) {
+        toast.success('Logout realizado com sucesso!')
+      }
+    },
+    [queryClient]
+  )
 
   const login = useCallback((newToken: string, newUser: User) => {
     tokenStorage.set(newToken)
@@ -59,7 +81,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           const userData = (await response.json()) as User
           setUser(userData)
         } catch {
-          tokenStorage.remove()
+          authCleanup.clearAll()
           setToken(null)
         }
       }
