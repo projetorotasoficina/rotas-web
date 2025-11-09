@@ -8,6 +8,7 @@ import { AdministradoresPage } from '@/pages/administradores'
 import { AppAndroidPage } from '@/pages/app-android'
 import { CaminhoesPage } from '@/pages/caminhoes'
 import { HomePage } from '@/pages/home'
+import { MapaTrajetosPage } from '@/pages/mapa-trajetos'
 import { MotoristasPage } from '@/pages/motoristas'
 import { RotasPage } from '@/pages/rotas'
 import { TipoColetaPage } from '@/pages/tipo-coleta'
@@ -146,14 +147,14 @@ export function ProtectedRoutes() {
         element={
           <DefaultLayout
             breadcrumbs={[
-              { label: 'Cadastros', href: '/' },
-              { label: 'Incidentes' },
+              { label: 'Documentos', href: '/' },
+              { label: 'Mapa de Trajetos' },
             ]}
           >
-            <div>Página de Incidentes em desenvolvimento...</div>
+            <MapaTrajetosPage />
           </DefaultLayout>
         }
-        path="/gestao/incidentes"
+        path="/documentos/mapa-trajetos"
       />
 
       <Route

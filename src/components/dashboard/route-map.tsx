@@ -285,17 +285,19 @@ export function RouteMap({ trajeto }: RouteMapProps) {
                       </>
                     )}
                     {incidente.fotoUrl && (
-                      <>
-                        <br />
-                        <a
-                          className="text-blue-600 hover:underline"
-                          href={incidente.fotoUrl}
-                          rel="noopener noreferrer"
-                          target="_blank"
-                        >
-                          Ver foto
-                        </a>
-                      </>
+                      <img
+                        alt="Foto do incidente"
+                        src={incidente.fotoUrl}
+                        style={{
+                          borderRadius: '7px',
+                          marginTop: '10px',
+                          marginBottom: '10px',
+                          marginLeft: '4px',
+                          marginRight: '4px',
+                          width: 'calc(100% - 8px)', // 100% minus 4px left and 4px right margin
+                          height: 'auto', // Maintain aspect ratio
+                        }}
+                      />
                     )}
                   </div>
                 </Popup>

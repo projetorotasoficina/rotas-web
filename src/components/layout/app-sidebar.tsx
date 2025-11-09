@@ -1,4 +1,12 @@
-import { FileText, Home, Recycle, Smartphone, Truck, Users } from 'lucide-react'
+import {
+  FileText,
+  Home,
+  Map as MapIcon,
+  Recycle,
+  Smartphone,
+  Truck,
+  Users,
+} from 'lucide-react'
 import type * as React from 'react'
 import { AppLogo } from '@/components/layout/app-logo'
 import { NavMain } from '@/components/layout/nav-main'
@@ -62,23 +70,37 @@ const data = {
         },
       ],
     },
-    {
-      title: 'App Android',
-      url: '/app-android',
-      icon: Smartphone,
-      isActive: false,
-    },
   ],
-  projects: [
+  sections: [
     {
-      name: 'Relatório de Rotas',
-      url: '/documentos/relatorio-rotas',
-      icon: FileText,
+      label: 'Gestão',
+      items: [
+        {
+          name: 'Mapa de Trajetos',
+          url: '/documentos/mapa-trajetos',
+          icon: MapIcon,
+        },
+        {
+          name: 'App Android',
+          url: '/app-android',
+          icon: Smartphone,
+        },
+      ],
     },
     {
-      name: 'Relatório de Incidentes',
-      url: '/documentos/relatorio-incidentes',
-      icon: FileText,
+      label: 'Relatórios',
+      items: [
+        {
+          name: 'Relatório de Rotas',
+          url: '/documentos/relatorio-rotas',
+          icon: FileText,
+        },
+        {
+          name: 'Relatório de Incidentes',
+          url: '/documentos/relatorio-incidentes',
+          icon: FileText,
+        },
+      ],
     },
   ],
 }
@@ -104,12 +126,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }
 
   const filteredNavMain = data.navMain
-    .filter((section) => {
-      if (section.title === 'App Android') {
-        return isSuperAdmin()
-      }
-      return true
-    })
     .map((section) => {
       if (section.title === 'Pessoas' && section.items) {
         const filteredItems = section.items.filter((item) => {
@@ -121,6 +137,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
         return { ...section, items: filteredItems }
       }
+
       return section
     })
     .filter((section) => {
@@ -130,6 +147,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       return true
     })
 
+  const filteredSections = data.sections
+    .map((section) => {
+      if (section.label === 'Gestão') {
+        const filteredItems = section.items.filter((item) => {
+          if (item.name === 'App Android') {
+            return isSuperAdmin()
+          }
+          return true
+        })
+
+        return { ...section, items: filteredItems }
+      }
+
+      return section
+    })
+    .filter((section) => section.items.length > 0)
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -137,7 +171,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={filteredNavMain} />
-        <NavProjects projects={data.projects} />
+        <NavProjects sections={filteredSections} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={userData} />

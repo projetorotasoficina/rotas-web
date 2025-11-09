@@ -29,7 +29,7 @@ const queryClient = new QueryClient({
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
+      <AuthProvider queryClient={queryClient}>
         <LoadingProvider>
           <QueryAuthGuard>
             <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">

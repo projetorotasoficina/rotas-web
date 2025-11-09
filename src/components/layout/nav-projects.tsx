@@ -10,29 +10,39 @@ import {
 } from '@/components/ui/sidebar'
 
 export function NavProjects({
-  projects,
+  sections,
 }: {
-  projects: {
-    name: string
-    url: string
-    icon: LucideIcon
+  sections: {
+    label: string
+    items: {
+      name: string
+      url: string
+      icon: LucideIcon
+    }[]
   }[]
 }) {
   return (
-    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Documentos</SidebarGroupLabel>
-      <SidebarMenu>
-        {projects.map((item) => (
-          <SidebarMenuItem key={item.name}>
-            <SidebarMenuButton asChild>
-              <Link to={item.url}>
-                <item.icon />
-                <span>{item.name}</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        ))}
-      </SidebarMenu>
-    </SidebarGroup>
+    <>
+      {sections.map((section) => (
+        <SidebarGroup
+          className="group-data-[collapsible=icon]:hidden"
+          key={section.label}
+        >
+          <SidebarGroupLabel>{section.label}</SidebarGroupLabel>
+          <SidebarMenu>
+            {section.items.map((item) => (
+              <SidebarMenuItem key={item.name}>
+                <SidebarMenuButton asChild>
+                  <Link to={item.url}>
+                    <item.icon />
+                    <span>{item.name}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
+      ))}
+    </>
   )
 }
