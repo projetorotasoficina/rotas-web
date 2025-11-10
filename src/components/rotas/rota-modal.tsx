@@ -16,6 +16,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -29,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 import type { Rota } from '@/http/rotas/types'
 import { useCreateRota } from '@/http/rotas/use-create-rota'
@@ -39,6 +41,39 @@ import { useListTipoResiduo } from '@/http/tipo-residuo/use-list-tipo-residuo'
 const getButtonText = (isEditing: boolean) =>
   isEditing ? 'Salvar' : 'Adicionar'
 
+const DIAS_SEMANA = [
+  'SEGUNDA',
+  'TERCA',
+  'QUARTA',
+  'QUINTA',
+  'SEXTA',
+  'SABADO',
+  'DOMINGO',
+] as const
+
+const PERIODOS = ['MANHA', 'TARDE', 'NOITE'] as const
+
+const DIAS_SEMANA_DISPLAY: Record<(typeof DIAS_SEMANA)[number], string> = {
+  SEGUNDA: 'Segunda',
+  TERCA: 'Terça',
+  QUARTA: 'Quarta',
+  QUINTA: 'Quinta',
+  SEXTA: 'Sexta',
+  SABADO: 'Sábado',
+  DOMINGO: 'Domingo',
+}
+
+const PERIODOS_DISPLAY: Record<(typeof PERIODOS)[number], string> = {
+  MANHA: 'Manhã',
+  TARDE: 'Tarde',
+  NOITE: 'Noite',
+}
+
+const frequenciaSchema = z.object({
+  diaSemana: z.enum(DIAS_SEMANA),
+  periodo: z.enum(PERIODOS),
+})
+
 const rotaSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório'),
   ativo: z.boolean(),
@@ -48,6 +83,7 @@ const rotaSchema = z.object({
     .optional(),
   tipoResiduoId: z.number().min(1, 'Tipo de resíduo é obrigatório'),
   tipoColetaId: z.number().min(1, 'Tipo de coleta é obrigatório'),
+  frequencias: z.array(frequenciaSchema).optional(),
 })
 
 type RotaModalProps = {
@@ -69,6 +105,7 @@ export function RotaModal({ isOpen, onClose, rota }: RotaModalProps) {
       observacoes: '',
       tipoResiduoId: 0,
       tipoColetaId: 0,
+      frequencias: [],
     },
   })
 
@@ -88,6 +125,7 @@ export function RotaModal({ isOpen, onClose, rota }: RotaModalProps) {
         observacoes: rota.observacoes || '',
         tipoResiduoId: rota.tipoResiduoId,
         tipoColetaId: rota.tipoColetaId,
+        frequencias: rota.frequencias || [],
       })
     } else if (!isOpen) {
       form.reset({
@@ -96,14 +134,16 @@ export function RotaModal({ isOpen, onClose, rota }: RotaModalProps) {
         observacoes: '',
         tipoResiduoId: 0,
         tipoColetaId: 0,
+        frequencias: [],
       })
     }
-  }, [rota, isOpen, form])
+  }, [rota, isOpen, form.reset])
 
   const onSubmit = (data: FormValues) => {
     const cleanData = {
       ...data,
       observacoes: data.observacoes || undefined,
+      frequencias: data.frequencias?.filter((f) => f.diaSemana && f.periodo),
     }
 
     if (isEditing && rota?.id) {
@@ -130,10 +170,11 @@ export function RotaModal({ isOpen, onClose, rota }: RotaModalProps) {
   }
 
   const isLoading = isLoadingResiduos || isLoadingColetas
+  const watchedFrequencias = form.watch('frequencias') || []
 
   return (
     <Dialog onOpenChange={handleClose} open={isOpen}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>
             {isEditing ? 'Editar Rota' : 'Adicionar Rota'}
@@ -147,7 +188,7 @@ export function RotaModal({ isOpen, onClose, rota }: RotaModalProps) {
 
         <Form {...form}>
           <form
-            className="space-y-4"
+            className="space-y-3"
             noValidate
             onSubmit={form.handleSubmit(onSubmit)}
           >
@@ -165,69 +206,71 @@ export function RotaModal({ isOpen, onClose, rota }: RotaModalProps) {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="tipoResiduoId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tipo de Resíduo</FormLabel>
-                  <Select
-                    disabled={isLoading}
-                    onValueChange={(value) => field.onChange(Number(value))}
-                    value={field.value > 0 ? field.value.toString() : ''}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="(Selecione)" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {tiposResiduo.map((tipo) => (
-                        <SelectItem
-                          key={tipo.id}
-                          value={tipo.id?.toString() || ''}
-                        >
-                          {tipo.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="tipoResiduoId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tipo de Resíduo</FormLabel>
+                    <Select
+                      disabled={isLoading}
+                      onValueChange={(value) => field.onChange(Number(value))}
+                      value={field.value > 0 ? field.value.toString() : ''}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="(Selecione)" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {tiposResiduo.map((tipo) => (
+                          <SelectItem
+                            key={tipo.id}
+                            value={tipo.id?.toString() || ''}
+                          >
+                            {tipo.nome}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="tipoColetaId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tipo de Coleta</FormLabel>
-                  <Select
-                    disabled={isLoading}
-                    onValueChange={(value) => field.onChange(Number(value))}
-                    value={field.value > 0 ? field.value.toString() : ''}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="(Selecione)" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {tiposColeta.map((tipo) => (
-                        <SelectItem
-                          key={tipo.id}
-                          value={tipo.id?.toString() || ''}
-                        >
-                          {tipo.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="tipoColetaId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tipo de Coleta</FormLabel>
+                    <Select
+                      disabled={isLoading}
+                      onValueChange={(value) => field.onChange(Number(value))}
+                      value={field.value > 0 ? field.value.toString() : ''}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="(Selecione)" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {tiposColeta.map((tipo) => (
+                          <SelectItem
+                            key={tipo.id}
+                            value={tipo.id?.toString() || ''}
+                          >
+                            {tipo.nome}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <FormField
               control={form.control}
@@ -245,6 +288,92 @@ export function RotaModal({ isOpen, onClose, rota }: RotaModalProps) {
                 </FormItem>
               )}
             />
+
+            <Separator />
+
+            <div className="space-y-2">
+              <div>
+                <FormLabel>Frequência da Rota</FormLabel>
+                <FormDescription className="text-xs">
+                  Selecione os dias e períodos em que a rota será executada
+                </FormDescription>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {DIAS_SEMANA.map((dia) => {
+                  const frequenciaDoDia = watchedFrequencias.find(
+                    (f) => f.diaSemana === dia
+                  )
+                  const isChecked = !!frequenciaDoDia
+
+                  return (
+                    <div
+                      className="flex h-12 items-center gap-3 rounded-md border bg-card px-3 py-2 transition-colors hover:bg-accent/5"
+                      key={dia}
+                    >
+                      <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <Checkbox
+                            checked={isChecked}
+                            onCheckedChange={(checked) => {
+                              const currentFrequencias =
+                                form.getValues('frequencias') || []
+                              if (checked) {
+                                form.setValue('frequencias', [
+                                  ...currentFrequencias,
+                                  { diaSemana: dia, periodo: 'MANHA' },
+                                ])
+                              } else {
+                                form.setValue(
+                                  'frequencias',
+                                  currentFrequencias.filter(
+                                    (f) => f.diaSemana !== dia
+                                  )
+                                )
+                              }
+                            }}
+                          />
+                        </FormControl>
+                        <FormLabel className="cursor-pointer font-normal text-sm">
+                          {DIAS_SEMANA_DISPLAY[dia]}
+                        </FormLabel>
+                      </FormItem>
+
+                      <div className="flex-1">
+                        {isChecked && (
+                          <FormField
+                            control={form.control}
+                            name={`frequencias.${watchedFrequencias.findIndex((f) => f.diaSemana === dia)}.periodo`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <Select
+                                  onValueChange={field.onChange}
+                                  value={field.value}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger className="h-6 text-xs">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {PERIODOS.map((p) => (
+                                      <SelectItem key={p} value={p}>
+                                        {PERIODOS_DISPLAY[p]}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </FormItem>
+                            )}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            <Separator />
 
             <FormField
               control={form.control}

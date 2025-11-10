@@ -5,6 +5,7 @@ import type {
 } from '@tanstack/react-table'
 import { ArrowUpDown, Edit, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
+
 import { RotaModal } from '@/components/rotas/rota-modal'
 import {
   AlertDialog,
@@ -27,11 +28,54 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useDebounce } from '@/hooks/use-debounce'
 import { useRole } from '@/hooks/use-role'
-import type { Rota } from '@/http/rotas/types'
+import type { FrequenciaRota, Rota } from '@/http/rotas/types'
 import { useDeleteRota } from '@/http/rotas/use-delete-rota'
 import { usePaginatedRotas } from '@/http/rotas/use-paginated-rotas'
 import { useListTipoColeta } from '@/http/tipo-coleta/use-list-tipo-coleta'
 import { useListTipoResiduo } from '@/http/tipo-residuo/use-list-tipo-residuo'
+
+import type { DiaSemana, Periodo } from '@/http/rotas/types'
+
+const DIAS_SEMANA_DISPLAY: Record<DiaSemana, string> = {
+  SEGUNDA: 'Segunda',
+  TERCA: 'Terça',
+  QUARTA: 'Quarta',
+  QUINTA: 'Quinta',
+  SEXTA: 'Sexta',
+  SABADO: 'Sábado',
+  DOMINGO: 'Domingo',
+}
+
+const PERIODOS_DISPLAY: Record<Periodo, string> = {
+  MANHA: 'Manhã',
+  TARDE: 'Tarde',
+  NOITE: 'Noite',
+}
+
+const formatFrequencias = (frequencias: FrequenciaRota[]) => {
+  // Lógica defensiva para evitar crash com dados corrompidos do backend
+  if (!Array.isArray(frequencias)) {
+    return '-'
+  }
+
+  const parts = frequencias
+    .filter((f) => f && typeof f === 'object') // Garante que f é um objeto não nulo
+    .map((f) => {
+      if (!f.diaSemana || !f.periodo) {
+        return null // Ignora objetos com propriedades faltando
+      }
+      const dia = DIAS_SEMANA_DISPLAY[f.diaSemana] || f.diaSemana
+      const periodo = PERIODOS_DISPLAY[f.periodo] || f.periodo
+      return `${dia} (${periodo})`
+    })
+    .filter((p) => p) // Remove as entradas nulas
+
+  if (parts.length === 0) {
+    return '-'
+  }
+
+  return parts.join(', ')
+}
 
 export function RotasPage() {
   const { canEdit, canDelete, canCreate } = useRole()
@@ -138,16 +182,15 @@ export function RotasPage() {
       },
     },
     {
-      accessorKey: 'observacoes',
-      header: 'Observações',
+      accessorKey: 'frequencias',
+      header: 'Frequência',
       cell: ({ row }) => {
-        const observacoes = row.getValue('observacoes') as string | undefined
-        return observacoes ? (
-          <span className="max-w-[200px] truncate" title={observacoes}>
-            {observacoes}
+        const frequencias = row.original.frequencias
+        const formatted = formatFrequencias(frequencias || [])
+        return (
+          <span className="max-w-[200px] truncate" title={formatted}>
+            {formatted}
           </span>
-        ) : (
-          '-'
         )
       },
     },
