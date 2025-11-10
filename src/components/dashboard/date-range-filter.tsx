@@ -28,7 +28,7 @@ export function DateRangeFilter({
         <PopoverTrigger asChild>
           <Button
             className={cn(
-              'w-[300px] justify-start text-left font-normal',
+              'w-full justify-start text-left font-normal lg:w-[230px]',
               !dateRange && 'text-muted-foreground'
             )}
             id="date"
