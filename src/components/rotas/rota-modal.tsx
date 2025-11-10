@@ -51,15 +51,9 @@ const DIAS_SEMANA = [
   'DOMINGO',
 ] as const
 
-const DIAS_SEMANA_GRID = [
-  ...DIAS_SEMANA.slice(0, 6),
-  null,
-  DIAS_SEMANA[6],
-] as const
-
 const PERIODOS = ['MANHA', 'TARDE', 'NOITE'] as const
 
-const DIAS_SEMANA_DISPLAY: Record<typeof DIAS_SEMANA[number], string> = {
+const DIAS_SEMANA_DISPLAY: Record<(typeof DIAS_SEMANA)[number], string> = {
   SEGUNDA: 'Segunda',
   TERCA: 'Terça',
   QUARTA: 'Quarta',
@@ -69,7 +63,7 @@ const DIAS_SEMANA_DISPLAY: Record<typeof DIAS_SEMANA[number], string> = {
   DOMINGO: 'Domingo',
 }
 
-const PERIODOS_DISPLAY: Record<typeof PERIODOS[number], string> = {
+const PERIODOS_DISPLAY: Record<(typeof PERIODOS)[number], string> = {
   MANHA: 'Manhã',
   TARDE: 'Tarde',
   NOITE: 'Noite',
@@ -143,15 +137,13 @@ export function RotaModal({ isOpen, onClose, rota }: RotaModalProps) {
         frequencias: [],
       })
     }
-  }, [rota, isOpen])
+  }, [rota, isOpen, form.reset])
 
   const onSubmit = (data: FormValues) => {
     const cleanData = {
       ...data,
       observacoes: data.observacoes || undefined,
-      frequencias: data.frequencias?.filter(
-        (f) => f.diaSemana && f.periodo,
-      ),
+      frequencias: data.frequencias?.filter((f) => f.diaSemana && f.periodo),
     }
 
     if (isEditing && rota?.id) {
@@ -182,7 +174,7 @@ export function RotaModal({ isOpen, onClose, rota }: RotaModalProps) {
 
   return (
     <Dialog onOpenChange={handleClose} open={isOpen}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>
             {isEditing ? 'Editar Rota' : 'Adicionar Rota'}
@@ -196,7 +188,7 @@ export function RotaModal({ isOpen, onClose, rota }: RotaModalProps) {
 
         <Form {...form}>
           <form
-            className="space-y-4"
+            className="space-y-3"
             noValidate
             onSubmit={form.handleSubmit(onSubmit)}
           >
@@ -299,25 +291,26 @@ export function RotaModal({ isOpen, onClose, rota }: RotaModalProps) {
 
             <Separator />
 
-            <div className="space-y-4">
-              <FormLabel>Frequência</FormLabel>
-              <FormDescription>
-                Selecione os dias e períodos em que a rota será realizada.
-              </FormDescription>
-              <div className="grid grid-cols-3 gap-x-4 gap-y-2">
-                {DIAS_SEMANA_GRID.map((dia, index) => {
-                  if (!dia) {
-                    return <div key={index} />
-                  }
-
+            <div className="space-y-2">
+              <div>
+                <FormLabel>Frequência da Rota</FormLabel>
+                <FormDescription className="text-xs">
+                  Selecione os dias e períodos em que a rota será executada
+                </FormDescription>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {DIAS_SEMANA.map((dia) => {
                   const frequenciaDoDia = watchedFrequencias.find(
-                    (f) => f.diaSemana === dia,
+                    (f) => f.diaSemana === dia
                   )
                   const isChecked = !!frequenciaDoDia
 
                   return (
-                    <div key={dia} className="flex flex-col space-y-2">
-                      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                    <div
+                      className="flex h-12 items-center gap-3 rounded-md border bg-card px-3 py-2 transition-colors hover:bg-accent/5"
+                      key={dia}
+                    >
+                      <FormItem className="flex flex-row items-center space-x-2 space-y-0">
                         <FormControl>
                           <Checkbox
                             checked={isChecked}
@@ -333,45 +326,47 @@ export function RotaModal({ isOpen, onClose, rota }: RotaModalProps) {
                                 form.setValue(
                                   'frequencias',
                                   currentFrequencias.filter(
-                                    (f) => f.diaSemana !== dia,
-                                  ),
+                                    (f) => f.diaSemana !== dia
+                                  )
                                 )
                               }
                             }}
                           />
                         </FormControl>
-                        <FormLabel className="font-normal">
+                        <FormLabel className="cursor-pointer font-normal text-sm">
                           {DIAS_SEMANA_DISPLAY[dia]}
                         </FormLabel>
                       </FormItem>
 
-                      {isChecked && (
-                        <FormField
-                          control={form.control}
-                          name={`frequencias.${watchedFrequencias.findIndex((f) => f.diaSemana === dia)}.periodo`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <Select
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                              >
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {PERIODOS.map((p) => (
-                                    <SelectItem key={p} value={p}>
-                                      {PERIODOS_DISPLAY[p]}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </FormItem>
-                          )}
-                        />
-                      )}
+                      <div className="flex-1">
+                        {isChecked && (
+                          <FormField
+                            control={form.control}
+                            name={`frequencias.${watchedFrequencias.findIndex((f) => f.diaSemana === dia)}.periodo`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <Select
+                                  onValueChange={field.onChange}
+                                  value={field.value}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger className="h-6 text-xs">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {PERIODOS.map((p) => (
+                                      <SelectItem key={p} value={p}>
+                                        {PERIODOS_DISPLAY[p]}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </FormItem>
+                            )}
+                          />
+                        )}
+                      </div>
                     </div>
                   )
                 })}

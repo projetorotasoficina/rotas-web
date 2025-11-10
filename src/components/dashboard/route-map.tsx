@@ -287,8 +287,8 @@ export function RouteMap({ trajeto }: RouteMapProps) {
                     {incidente.fotoUrl && (
                       <>
                         <img
-                          src={incidente.fotoUrl}
                           alt="Foto do incidente"
+                          src={incidente.fotoUrl}
                           style={{
                             borderRadius: '7px',
                             marginTop: '10px',
