@@ -13,6 +13,11 @@ export type FrequenciaRota = {
   periodo: Periodo
 }
 
+export type PolygonGeoJson = {
+  type: 'Polygon'
+  coordinates: number[][][]
+}
+
 export type Rota = {
   id?: number
   nome: string
@@ -21,6 +26,7 @@ export type Rota = {
   tipoResiduoId: number
   tipoColetaId: number
   frequencias?: FrequenciaRota[]
+  areaGeografica?: PolygonGeoJson | null
 }
 
 export type RotaFormData = {
@@ -30,6 +36,7 @@ export type RotaFormData = {
   tipoResiduoId: number
   tipoColetaId: number
   frequencias?: FrequenciaRota[]
+  areaGeografica?: PolygonGeoJson | null
 }
 
 export type ListRotasResponse = Rota[]

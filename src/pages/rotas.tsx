@@ -28,13 +28,16 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useDebounce } from '@/hooks/use-debounce'
 import { useRole } from '@/hooks/use-role'
-import type { FrequenciaRota, Rota } from '@/http/rotas/types'
+import type {
+  DiaSemana,
+  FrequenciaRota,
+  Periodo,
+  Rota,
+} from '@/http/rotas/types'
 import { useDeleteRota } from '@/http/rotas/use-delete-rota'
 import { usePaginatedRotas } from '@/http/rotas/use-paginated-rotas'
 import { useListTipoColeta } from '@/http/tipo-coleta/use-list-tipo-coleta'
 import { useListTipoResiduo } from '@/http/tipo-residuo/use-list-tipo-residuo'
-
-import type { DiaSemana, Periodo } from '@/http/rotas/types'
 
 const DIAS_SEMANA_DISPLAY: Record<DiaSemana, string> = {
   SEGUNDA: 'Segunda',
@@ -61,7 +64,7 @@ const formatFrequencias = (frequencias: FrequenciaRota[]) => {
   const parts = frequencias
     .filter((f) => f && typeof f === 'object') // Garante que f é um objeto não nulo
     .map((f) => {
-      if (!f.diaSemana || !f.periodo) {
+      if (!(f.diaSemana && f.periodo)) {
         return null // Ignora objetos com propriedades faltando
       }
       const dia = DIAS_SEMANA_DISPLAY[f.diaSemana] || f.diaSemana
