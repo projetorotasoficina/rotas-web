@@ -34,7 +34,7 @@ function MapEventsHandler({
 export function PolygonMapEditor({
   value,
   onChange,
-  center = [-26.9194, -49.0661], // Joinville, SC
+  center = [-26.2289, -52.6703], // Pato Branco, PR
 }: PolygonMapEditorProps) {
   const [points, setPoints] = useState<LatLng[]>([])
   const mapRef = useRef<L.Map | null>(null)
