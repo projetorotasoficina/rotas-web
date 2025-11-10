@@ -16,7 +16,7 @@ async function updateRota(
     {
       method: 'PUT',
       body: JSON.stringify(rota),
-    },
+    }
   )
 
   const responseText = await response.text()
