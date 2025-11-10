@@ -1,8 +1,8 @@
+import { http, HttpResponse } from 'msw'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ApiError } from '@/lib/errors'
+import { server } from '@/mocks/server'
 import { fetchWithAuth, fetchWithoutAuth } from '@/services/api'
-
-global.fetch = vi.fn()
 
 describe('API Service', () => {
   beforeEach(() => {
@@ -12,24 +12,22 @@ describe('API Service', () => {
   describe('fetchWithoutAuth', () => {
     it('should return data on successful response', async () => {
       const mockData = { message: 'Success' }
-      const mockResponse = {
-        ok: true,
-        status: 200,
-        json: () => Promise.resolve(mockData),
-      }
-      ;(fetch as any).mockResolvedValue(mockResponse)
+      server.use(
+        http.get('*/test', () => {
+          return HttpResponse.json(mockData)
+        })
+      )
 
       const response = await fetchWithoutAuth('/test')
       expect(response).toEqual(mockData)
     })
 
     it('should throw ApiError with correct message for 404', async () => {
-      const mockResponse = {
-        ok: false,
-        status: 404,
-        json: () => Promise.resolve({ erro: 'Not Found' }),
-      }
-      ;(fetch as any).mockResolvedValue(mockResponse)
+      server.use(
+        http.get('*/test', () => {
+          return HttpResponse.json({ erro: 'Not Found' }, { status: 404 })
+        })
+      )
 
       await expect(fetchWithoutAuth('/test')).rejects.toThrow(ApiError)
       await expect(fetchWithoutAuth('/test')).rejects.toThrow(
@@ -38,12 +36,11 @@ describe('API Service', () => {
     })
 
     it('should throw ApiError with correct message for 500', async () => {
-      const mockResponse = {
-        ok: false,
-        status: 500,
-        json: () => Promise.resolve({ erro: 'Internal Server Error' }),
-      }
-      ;(fetch as any).mockResolvedValue(mockResponse)
+      server.use(
+        http.get('*/test', () => {
+          return HttpResponse.json({ erro: 'Internal Server Error' }, { status: 500 })
+        })
+      )
 
       await expect(fetchWithoutAuth('/test')).rejects.toThrow(ApiError)
       await expect(fetchWithoutAuth('/test')).rejects.toThrow(
@@ -55,12 +52,11 @@ describe('API Service', () => {
   describe('fetchWithAuth', () => {
     it('should return data on successful response', async () => {
       const mockData = { message: 'Success' }
-      const mockResponse = {
-        ok: true,
-        status: 200,
-        json: () => Promise.resolve(mockData),
-      }
-      ;(fetch as any).mockResolvedValue(mockResponse)
+      server.use(
+        http.get('*/test', () => {
+          return HttpResponse.json(mockData)
+        })
+      )
 
       const response = await fetchWithAuth('/test')
       const data = await response.json()
@@ -68,12 +64,11 @@ describe('API Service', () => {
     })
 
     it('should throw ApiError with correct message for 401', async () => {
-      const mockResponse = {
-        ok: false,
-        status: 401,
-        json: () => Promise.resolve({}),
-      }
-      ;(fetch as any).mockResolvedValue(mockResponse)
+      server.use(
+        http.get('*/test', () => {
+          return HttpResponse.json({}, { status: 401 })
+        })
+      )
 
       await expect(fetchWithAuth('/test')).rejects.toThrow(ApiError)
       await expect(fetchWithAuth('/test')).rejects.toThrow(

@@ -76,6 +76,7 @@ export function HomePage() {
               <div
                 className="flex h-32 items-center justify-center rounded-lg border"
                 key={key}
+                data-testid="loading-spinner"
               >
                 <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
               </div>
@@ -93,7 +94,7 @@ export function HomePage() {
       <div className="grid gap-4 lg:grid-cols-[1fr_400px]">
         <div className="space-y-4">
           {isLoadingTrajeto && (
-            <div className="flex h-[500px] items-center justify-center rounded-lg border">
+            <div className="flex h-[500px] items-center justify-center rounded-lg border" data-testid="loading-spinner">
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
             </div>
           )}
@@ -118,7 +119,7 @@ export function HomePage() {
 
         <div className="space-y-4">
           {isLoadingTrajeto && (
-            <div className="flex h-full items-center justify-center rounded-lg border">
+            <div className="flex h-full items-center justify-center rounded-lg border" data-testid="loading-spinner">
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
             </div>
           )}

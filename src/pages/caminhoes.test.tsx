@@ -33,7 +33,7 @@ describe('CaminhoesPage', () => {
     vi.spyOn(usePaginatedCaminhoes, 'usePaginatedCaminhoes').mockReturnValue({
       data: {
         content: [
-          { id: '1', modelo: 'Volvo FH', placa: 'ABC-1234', tipoColetaId: 1, residuoId: 1, ativo: true },
+          { id: '1', modelo: 'Volvo VM 260', placa: 'ABC-1234', tipoColetaId: 1, residuoId: 1, ativo: true },
           { id: '2', modelo: 'Scania R450', placa: 'DEF-5678', tipoColetaId: 2, residuoId: 2, ativo: false },
         ],
         totalPages: 1,
@@ -58,22 +58,26 @@ describe('CaminhoesPage', () => {
     } as any)
 
     vi.spyOn(useRole, 'useRole').mockReturnValue({
+      hasRole: (role: string) => true,
+      hasAnyRole: (roles: string[]) => true,
+      hasAllRoles: (roles: string[]) => true,
+      isSuperAdmin: () => true,
+      isAdminConsulta: () => true,
+      canWrite: () => true,
       canEdit: () => true,
       canDelete: () => true,
       canCreate: () => true,
+      userRoles: ['ROLE_SUPER_ADMIN'],
     })
 
     renderComponent()
 
-    await waitFor(() => {
-      expect(screen.getByText('Volvo FH')).toBeInTheDocument()
-      expect(screen.getByText('Scania R450')).toBeInTheDocument()
-    })
-
-    expect(screen.getByText('ABC-1234')).toBeInTheDocument()
-    expect(screen.getByText('Seletiva')).toBeInTheDocument()
-    expect(screen.getByText('Reciclável')).toBeInTheDocument()
-    expect(screen.getByText('Ativo')).toBeInTheDocument()
-    expect(screen.getByText('Inativo')).toBeInTheDocument()
+    expect((await screen.findAllByText('Volvo VM 260'))[0]).toBeInTheDocument()
+    expect((await screen.findAllByText('Scania R450'))[0]).toBeInTheDocument()
+    expect((await screen.findAllByText('ABC-1234'))[0]).toBeInTheDocument()
+    expect((await screen.findAllByText('Seletiva'))[0]).toBeInTheDocument()
+    expect((await screen.findAllByText('Reciclável'))[0]).toBeInTheDocument()
+    expect((await screen.findAllByText('Ativo'))[0]).toBeInTheDocument()
+    expect((await screen.findAllByText('Inativo'))[0]).toBeInTheDocument()
   })
 })
