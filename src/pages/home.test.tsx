@@ -41,6 +41,10 @@ describe('HomePage', () => {
   })
 
   it('should render dashboard title and date range filter', async () => {
+    // Set a fixed date for this specific test
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2025-11-10T12:00:00Z'))
+
     vi.spyOn(useTrajetosStats, 'useTrajetosStats').mockReturnValue({
       data: undefined,
       isLoading: true,
@@ -56,10 +60,17 @@ describe('HomePage', () => {
 
     expect(screen.getByText('Dashboard')).toBeInTheDocument()
     expect(
-      screen.getByText('Visão geral das operações de coleta')
+      screen.getByText('Visão geral das operações de coleta'),
     ).toBeInTheDocument()
-    // The date range is dynamic, so we check for the button's presence
-    expect(screen.getByRole('button', { name: '10/10/2025 - 09/11/2025' })).toBeInTheDocument()
+    // The default range is 30 days prior to the mocked date.
+    // from: 2025-10-11, to: 2025-11-10
+    // The format is dd/MM/yyyy
+    expect(
+      screen.getByRole('button', { name: '11/10/2025 - 10/11/2025' }),
+    ).toBeInTheDocument()
+
+    // Restore real timers
+    vi.useRealTimers()
   })
 
   it('should render metric cards with data', async () => {
