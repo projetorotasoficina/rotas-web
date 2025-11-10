@@ -1,3 +1,23 @@
+export type DiaSemana =
+  | 'SEGUNDA'
+  | 'TERCA'
+  | 'QUARTA'
+  | 'QUINTA'
+  | 'SEXTA'
+  | 'SABADO'
+  | 'DOMINGO'
+export type Periodo = 'MANHA' | 'TARDE' | 'NOITE'
+
+export type FrequenciaRota = {
+  diaSemana: DiaSemana
+  periodo: Periodo
+}
+
+export type PolygonGeoJson = {
+  type: 'Polygon'
+  coordinates: number[][][]
+}
+
 export type Rota = {
   id?: number
   nome: string
@@ -5,6 +25,8 @@ export type Rota = {
   observacoes?: string
   tipoResiduoId: number
   tipoColetaId: number
+  frequencias?: FrequenciaRota[]
+  areaGeografica?: PolygonGeoJson | null
 }
 
 export type RotaFormData = {
@@ -13,6 +35,8 @@ export type RotaFormData = {
   observacoes?: string
   tipoResiduoId: number
   tipoColetaId: number
+  frequencias?: FrequenciaRota[]
+  areaGeografica?: PolygonGeoJson | null
 }
 
 export type ListRotasResponse = Rota[]

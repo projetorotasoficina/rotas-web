@@ -18,7 +18,15 @@ async function updateRota(
       body: JSON.stringify(rota),
     }
   )
-  return response.json()
+
+  const responseText = await response.text()
+  if (responseText) {
+    return JSON.parse(responseText)
+  }
+
+  // Se a resposta for vazia (comportamento incorreto do backend),
+  // retorna o objeto original para permitir a atualização da UI.
+  return rota
 }
 
 export function useUpdateRota() {
