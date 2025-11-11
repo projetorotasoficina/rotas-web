@@ -9,10 +9,12 @@ import { apiConfig, fetchWithAuth, setLogoutCallback } from '@/services/api'
 import { tokenStorage } from '@/services/token-storage'
 
 export type User = {
-  email: string
-  nome: string
-  authorities: string[]
-}
+  email: string;
+  nome: string;
+  telefone: string | null;
+  cpf: string | null;
+  authorities: string[];
+};
 
 type AuthContextData = {
   user: User | null
