@@ -1,11 +1,11 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/auth-context";
 import { useCrudMutation } from "@/hooks/use-crud-mutation";
-import { removePhoneMask } from "@/lib/masks";
+
 import { queryKeys } from "@/lib/query-keys";
 import { apiConfig, fetchWithAuth } from "@/services/api";
 import type { User } from "@/contexts/auth-context";
-import { toast } from "sonner";
+
 
 interface UpdateMeData {
   nome: string;
