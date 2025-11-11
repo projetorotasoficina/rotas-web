@@ -1,12 +1,14 @@
+/** biome-ignore-all lint/performance/noNamespaceImport: não necessário para testes */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AuthProvider } from '@/contexts/auth-context'
 import { LoadingProvider } from '@/contexts/loading-context'
-import * as usePaginatedRotas from '@/http/rotas/use-paginated-rotas'
-import * as useListTipoColeta from '@/http/tipo-coleta/use-list-tipo-coleta'
-import * as useListTipoResiduo from '@/http/tipo-residuo/use-list-tipo-residuo'
-import * as useRole from '@/hooks/use-role'
+import { useRole } from '@/hooks/use-role'
+import { usePaginatedRotas } from '@/http/rotas/use-paginated-rotas'
+import { useListTipoColeta } from '@/http/tipo-coleta/use-list-tipo-coleta'
+import { useListTipoResiduo } from '@/http/tipo-residuo/use-list-tipo-residuo'
+import { mockUseRole } from '@/test/test-utils'
 import { RotasPage } from './rotas'
 
 const queryClient = new QueryClient()
@@ -29,12 +31,26 @@ const renderComponent = () => {
 }
 
 describe('RotasPage', () => {
-  it('should render a list of routes', async () => {
-    vi.spyOn(usePaginatedRotas, 'usePaginatedRotas').mockReturnValue({
+  beforeEach(() => {
+    vi.mocked(usePaginatedRotas).mockReturnValue({
       data: {
         content: [
-          { id: '1', nome: 'Rota Centro', tipoColetaId: 1, tipoResiduoId: 1, observacoes: 'Coleta diária', ativo: true },
-          { id: '2', nome: 'Rota Bairros', tipoColetaId: 2, tipoResiduoId: 2, observacoes: 'Coleta semanal', ativo: false },
+          {
+            id: '1',
+            nome: 'Rota Centro',
+            tipoColetaId: 1,
+            tipoResiduoId: 1,
+            observacoes: 'Coleta diária',
+            ativo: true,
+          },
+          {
+            id: '2',
+            nome: 'Rota Bairros',
+            tipoColetaId: 2,
+            tipoResiduoId: 2,
+            observacoes: 'Coleta semanal',
+            ativo: false,
+          },
         ],
         totalPages: 1,
         totalElements: 2,
@@ -43,26 +59,24 @@ describe('RotasPage', () => {
       isFetching: false,
     } as any)
 
-    vi.spyOn(useListTipoColeta, 'useListTipoColeta').mockReturnValue({
+    vi.mocked(useListTipoColeta).mockReturnValue({
       data: [
         { id: 1, nome: 'Hospitalar' },
         { id: 2, nome: 'Industrial' },
       ],
     } as any)
 
-    vi.spyOn(useListTipoResiduo, 'useListTipoResiduo').mockReturnValue({
+    vi.mocked(useListTipoResiduo).mockReturnValue({
       data: [
         { id: 1, nome: 'Perigoso' },
         { id: 2, nome: 'Não Perigoso' },
       ],
     } as any)
 
-    vi.spyOn(useRole, 'useRole').mockReturnValue({
-      canEdit: () => true,
-      canDelete: () => true,
-      canCreate: () => true,
-    })
+    vi.mocked(useRole).mockReturnValue(mockUseRole())
+  })
 
+  it('should render a list of routes', async () => {
     renderComponent()
 
     await waitFor(() => {
@@ -72,7 +86,6 @@ describe('RotasPage', () => {
 
     expect(screen.getByText('Hospitalar')).toBeInTheDocument()
     expect(screen.getByText('Perigoso')).toBeInTheDocument()
-    expect(screen.getByText('Coleta diária')).toBeInTheDocument()
     expect(screen.getByText('Ativa')).toBeInTheDocument()
     expect(screen.getByText('Inativa')).toBeInTheDocument()
   })

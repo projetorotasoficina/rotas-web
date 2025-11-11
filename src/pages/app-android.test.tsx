@@ -1,10 +1,11 @@
+/** biome-ignore-all lint/performance/noNamespaceImport: não necessário para testes */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { AuthProvider } from '@/contexts/auth-context'
 import { LoadingProvider } from '@/contexts/loading-context'
-import * as usePaginatedCodigos from '@/http/codigos-ativacao/use-paginated-codigos-ativacao'
 import * as usePaginatedAppTokens from '@/http/app-tokens/use-paginated-app-tokens'
+import * as usePaginatedCodigos from '@/http/codigos-ativacao/use-paginated-codigos-ativacao'
 import { AppAndroidPage } from './app-android'
 
 const queryClient = new QueryClient()
@@ -38,10 +39,19 @@ const renderComponent = () => {
 describe('AppAndroidPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.spyOn(usePaginatedCodigos, 'usePaginatedCodigosAtivacao').mockReturnValue({
+    vi.spyOn(
+      usePaginatedCodigos,
+      'usePaginatedCodigosAtivacao'
+    ).mockReturnValue({
       data: {
         content: [
-          { id: '1', codigo: '123456', dataCadastro: '2025-11-09T10:00:00Z', dataUso: null, usuarioId: null },
+          {
+            id: '1',
+            codigo: '123456',
+            dataCadastro: '2025-11-09T10:00:00Z',
+            dataUso: null,
+            usuarioId: null,
+          },
         ],
         totalPages: 1,
         totalElements: 1,
@@ -53,7 +63,15 @@ describe('AppAndroidPage', () => {
     vi.spyOn(usePaginatedAppTokens, 'usePaginatedAppTokens').mockReturnValue({
       data: {
         content: [
-          { id: '1', nomeDispositivo: 'Device 1', deviceId: 'test-device-id', dataCriacao: '2025-11-09T10:00:00Z', ultimoAcesso: null, ativo: true, token: 'test-token' },
+          {
+            id: '1',
+            nomeDispositivo: 'Device 1',
+            deviceId: 'test-device-id',
+            dataCriacao: '2025-11-09T10:00:00Z',
+            ultimoAcesso: null,
+            ativo: true,
+            token: 'test-token',
+          },
         ],
         totalPages: 1,
         totalElements: 1,

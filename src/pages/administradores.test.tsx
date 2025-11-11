@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/performance/noNamespaceImport: não necessário para testes */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
@@ -38,8 +39,24 @@ describe('AdministradoresPage', () => {
     vi.spyOn(usePaginatedUsuarios, 'usePaginatedUsuarios').mockReturnValue({
       data: {
         content: [
-          { id: '1', nome: 'Admin Teste 1', email: 'admin1@test.com', cpf: '111.111.111-11', telefone: '11987654321', roles: ['ROLE_ADMIN_CONSULTA'], ativo: true },
-          { id: '2', nome: 'Admin Teste 2', email: 'admin2@test.com', cpf: '222.222.222-22', telefone: '22987654321', roles: ['ROLE_SUPER_ADMIN'], ativo: false },
+          {
+            id: '1',
+            nome: 'Admin Teste 1',
+            email: 'admin1@test.com',
+            cpf: '111.111.111-11',
+            telefone: '11987654321',
+            roles: ['ROLE_ADMIN_CONSULTA'],
+            ativo: true,
+          },
+          {
+            id: '2',
+            nome: 'Admin Teste 2',
+            email: 'admin2@test.com',
+            cpf: '222.222.222-22',
+            telefone: '22987654321',
+            roles: ['ROLE_SUPER_ADMIN'],
+            ativo: false,
+          },
         ],
         totalPages: 1,
         totalElements: 2,

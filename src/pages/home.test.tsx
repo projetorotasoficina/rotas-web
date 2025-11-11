@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/performance/noNamespaceImport: não necessário para testes */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
@@ -40,7 +41,7 @@ describe('HomePage', () => {
     vi.clearAllMocks()
   })
 
-  it('should render dashboard title and date range filter', async () => {
+  it('should render dashboard title and date range filter', () => {
     // Set a fixed date for this specific test
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2025-11-10T12:00:00Z'))
@@ -60,13 +61,13 @@ describe('HomePage', () => {
 
     expect(screen.getByText('Dashboard')).toBeInTheDocument()
     expect(
-      screen.getByText('Visão geral das operações de coleta'),
+      screen.getByText('Visão geral das operações de coleta')
     ).toBeInTheDocument()
     // The default range is 30 days prior to the mocked date.
     // from: 2025-10-11, to: 2025-11-10
     // The format is dd/MM/yyyy
     expect(
-      screen.getByRole('button', { name: '11/10/2025 - 10/11/2025' }),
+      screen.getByRole('button', { name: '11/10/2025 - 10/11/2025' })
     ).toBeInTheDocument()
 
     // Restore real timers
@@ -137,9 +138,11 @@ describe('HomePage', () => {
         id: '1',
         nome: 'Rota Teste',
         status: 'FINALIZADO',
-        distanciaTotal: 10500, // in meters
+        distanciaTotal: 10_500, // in meters
         duracao: 20, // in minutes
-        pontos: [{latitude: 0, longitude: 0, horario: '2025-11-09T10:00:00Z'}],
+        pontos: [
+          { latitude: 0, longitude: 0, horario: '2025-11-09T10:00:00Z' },
+        ],
         dataInicio: '2025-11-09T10:00:00Z',
         dataFim: '2025-11-09T10:20:00Z',
       },
@@ -157,7 +160,7 @@ describe('HomePage', () => {
     })
   })
 
-  it('should show loading indicators when data is loading', async () => {
+  it('should show loading indicators when data is loading', () => {
     vi.spyOn(useTrajetosStats, 'useTrajetosStats').mockReturnValue({
       data: undefined,
       isLoading: true,

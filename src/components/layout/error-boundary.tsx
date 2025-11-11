@@ -26,16 +26,14 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     }
   }
 
-  componentDidCatch(_error: Error, _errorInfo: ErrorInfo) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // Log error to console in development
+    if (import.meta.env.DEV) {
+      // biome-ignore lint/suspicious/noConsole: útil para debug de erros em desenvolvimento
+      console.error('Error Boundary caught an error:', error, errorInfo)
+    }
     // You can integrate with an error reporting service here if needed
-    // Example: Sentry.captureException(_error, { contexts: { react: { componentStack: _errorInfo.componentStack } } })
-  }
-
-  handleReset = () => {
-    this.setState({
-      hasError: false,
-      error: null,
-    })
+    // Example: Sentry.captureException(error, { contexts: { react: { componentStack: errorInfo.componentStack } } })
   }
 
   render() {
@@ -49,17 +47,19 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
             <p className="text-muted-foreground">
               Ocorreu um erro inesperado. Por favor, tente recarregar a página.
             </p>
-            {process.env.NODE_ENV === 'development' && this.state.error && (
-              <div className="mx-auto max-w-2xl rounded-md bg-destructive/10 p-4 text-left">
-                <p className="font-mono text-destructive text-sm">
+            {import.meta.env.DEV && this.state.error && (
+              <div className="mx-auto max-w-2xl space-y-2 rounded-md bg-destructive/10 p-4 text-left">
+                <p className="font-semibold text-destructive text-sm">
                   {this.state.error.message}
                 </p>
+                {this.state.error.stack && (
+                  <pre className="overflow-auto font-mono text-destructive/80 text-xs">
+                    {this.state.error.stack}
+                  </pre>
+                )}
               </div>
             )}
-            <div className="flex justify-center gap-4">
-              <Button onClick={this.handleReset} variant="outline">
-                Tentar Novamente
-              </Button>
+            <div className="flex justify-center">
               <Button onClick={() => window.location.reload()}>
                 Recarregar Página
               </Button>

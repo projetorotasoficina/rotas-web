@@ -1,10 +1,12 @@
+/** biome-ignore-all lint/performance/noNamespaceImport: não necessário para testes */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { AuthProvider } from '@/contexts/auth-context'
 import { LoadingProvider } from '@/contexts/loading-context'
-import * as usePaginatedMotoristas from '@/http/motoristas/use-paginated-motoristas'
 import * as useRole from '@/hooks/use-role'
+import * as usePaginatedMotoristas from '@/http/motoristas/use-paginated-motoristas'
+import { mockUseRole } from '@/test/test-utils'
 import { MotoristasPage } from './motoristas'
 
 const queryClient = new QueryClient()
@@ -29,8 +31,24 @@ describe('MotoristasPage', () => {
     vi.spyOn(usePaginatedMotoristas, 'usePaginatedMotoristas').mockReturnValue({
       data: {
         content: [
-          { id: '1', nome: 'Motorista Teste 1', cpf: '111.111.111-11', telefone: '11987654321', ativo: true, cnhCategoria: 'A', cnhValidade: '2028-01-01T00:00:00Z' },
-          { id: '2', nome: 'Motorista Teste 2', cpf: '222.222.222-22', telefone: '22987654321', ativo: false, cnhCategoria: 'B', cnhValidade: '2027-06-15T00:00:00Z' },
+          {
+            id: '1',
+            nome: 'Motorista Teste 1',
+            cpf: '111.111.111-11',
+            telefone: '11987654321',
+            ativo: true,
+            cnhCategoria: 'A',
+            cnhValidade: '2028-01-01T00:00:00Z',
+          },
+          {
+            id: '2',
+            nome: 'Motorista Teste 2',
+            cpf: '222.222.222-22',
+            telefone: '22987654321',
+            ativo: false,
+            cnhCategoria: 'B',
+            cnhValidade: '2027-06-15T00:00:00Z',
+          },
         ],
         totalPages: 1,
         totalElements: 2,
@@ -39,11 +57,7 @@ describe('MotoristasPage', () => {
       isFetching: false,
     } as any)
 
-    vi.spyOn(useRole, 'useRole').mockReturnValue({
-      canEdit: () => true,
-      canDelete: () => true,
-      canCreate: () => true,
-    })
+    vi.spyOn(useRole, 'useRole').mockReturnValue(mockUseRole())
 
     renderComponent()
 

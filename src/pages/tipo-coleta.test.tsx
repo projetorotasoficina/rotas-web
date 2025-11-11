@@ -1,10 +1,12 @@
+/** biome-ignore-all lint/performance/noNamespaceImport: não necessário para testes */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { AuthProvider } from '@/contexts/auth-context'
 import { LoadingProvider } from '@/contexts/loading-context'
-import * as usePaginatedTipoColeta from '@/http/tipo-coleta/use-paginated-tipo-coleta'
 import * as useRole from '@/hooks/use-role'
+import * as usePaginatedTipoColeta from '@/http/tipo-coleta/use-paginated-tipo-coleta'
+import { mockUseRole } from '@/test/test-utils'
 import { TipoColetaPage } from './tipo-coleta'
 
 const queryClient = new QueryClient()
@@ -39,11 +41,7 @@ describe('TipoColetaPage', () => {
       isFetching: false,
     } as any)
 
-    vi.spyOn(useRole, 'useRole').mockReturnValue({
-      canEdit: () => true,
-      canDelete: () => true,
-      canCreate: () => true,
-    })
+    vi.spyOn(useRole, 'useRole').mockReturnValue(mockUseRole())
 
     renderComponent()
 

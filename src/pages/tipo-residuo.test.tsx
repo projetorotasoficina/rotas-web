@@ -1,10 +1,12 @@
+/** biome-ignore-all lint/performance/noNamespaceImport: não necessário para testes */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { AuthProvider } from '@/contexts/auth-context'
 import { LoadingProvider } from '@/contexts/loading-context'
-import * as usePaginatedTipoResiduo from '@/http/tipo-residuo/use-paginated-tipo-residuo'
 import * as useRole from '@/hooks/use-role'
+import * as usePaginatedTipoResiduo from '@/http/tipo-residuo/use-paginated-tipo-residuo'
+import { mockUseRole } from '@/test/test-utils'
 import { TipoResiduoPage } from './tipo-residuo'
 
 const queryClient = new QueryClient()
@@ -26,7 +28,10 @@ const renderComponent = () => {
 
 describe('TipoResiduoPage', () => {
   it('should render a list of residue types', async () => {
-    vi.spyOn(usePaginatedTipoResiduo, 'usePaginatedTipoResiduo').mockReturnValue({
+    vi.spyOn(
+      usePaginatedTipoResiduo,
+      'usePaginatedTipoResiduo'
+    ).mockReturnValue({
       data: {
         content: [
           { id: 1, nome: 'Resíduo Orgânico', corHex: '#00FF00' },
@@ -39,11 +44,7 @@ describe('TipoResiduoPage', () => {
       isFetching: false,
     } as any)
 
-    vi.spyOn(useRole, 'useRole').mockReturnValue({
-      canEdit: () => true,
-      canDelete: () => true,
-      canCreate: () => true,
-    })
+    vi.spyOn(useRole, 'useRole').mockReturnValue(mockUseRole())
 
     renderComponent()
 

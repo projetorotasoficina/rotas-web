@@ -1,4 +1,4 @@
-import { http, HttpResponse } from 'msw'
+import { HttpResponse, http } from 'msw'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ApiError } from '@/lib/errors'
 import { server } from '@/mocks/server'
@@ -38,7 +38,10 @@ describe('API Service', () => {
     it('should throw ApiError with correct message for 500', async () => {
       server.use(
         http.get('*/test', () => {
-          return HttpResponse.json({ erro: 'Internal Server Error' }, { status: 500 })
+          return HttpResponse.json(
+            { erro: 'Internal Server Error' },
+            { status: 500 }
+          )
         })
       )
 

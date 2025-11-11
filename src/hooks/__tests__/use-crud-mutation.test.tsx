@@ -57,7 +57,7 @@ describe('useCrudMutation', () => {
       <TestComponent
         errorMessage="Default error message"
         mutationFn={mutationFn}
-      />,
+      />
     )
 
     fireEvent.click(screen.getByText('Mutate'))
@@ -76,7 +76,7 @@ describe('useCrudMutation', () => {
       <TestComponent
         errorMessage="Default error message"
         mutationFn={mutationFn}
-      />,
+      />
     )
 
     fireEvent.click(screen.getByText('Mutate'))
@@ -84,7 +84,7 @@ describe('useCrudMutation', () => {
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith(
         'Internal Server Error',
-        expect.any(Object),
+        expect.any(Object)
       )
     })
   })
@@ -97,13 +97,16 @@ describe('useCrudMutation', () => {
       <TestComponent
         errorMessage="Default error message"
         mutationFn={mutationFn}
-      />,
+      />
     )
 
     fireEvent.click(screen.getByText('Mutate'))
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Generic error', expect.any(Object))
+      expect(toast.error).toHaveBeenCalledWith(
+        'Generic error',
+        expect.any(Object)
+      )
     })
   })
 })

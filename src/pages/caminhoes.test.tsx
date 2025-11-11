@@ -1,12 +1,13 @@
+/** biome-ignore-all lint/performance/noNamespaceImport: não necessário para testes */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { AuthProvider } from '@/contexts/auth-context'
 import { LoadingProvider } from '@/contexts/loading-context'
+import * as useRole from '@/hooks/use-role'
 import * as usePaginatedCaminhoes from '@/http/caminhoes/use-paginated-caminhoes'
 import * as useListTipoColeta from '@/http/tipo-coleta/use-list-tipo-coleta'
 import * as useListTipoResiduo from '@/http/tipo-residuo/use-list-tipo-residuo'
-import * as useRole from '@/hooks/use-role'
 import { CaminhoesPage } from './caminhoes'
 
 const queryClient = new QueryClient()
@@ -33,8 +34,22 @@ describe('CaminhoesPage', () => {
     vi.spyOn(usePaginatedCaminhoes, 'usePaginatedCaminhoes').mockReturnValue({
       data: {
         content: [
-          { id: '1', modelo: 'Volvo VM 260', placa: 'ABC-1234', tipoColetaId: 1, residuoId: 1, ativo: true },
-          { id: '2', modelo: 'Scania R450', placa: 'DEF-5678', tipoColetaId: 2, residuoId: 2, ativo: false },
+          {
+            id: '1',
+            modelo: 'Volvo VM 260',
+            placa: 'ABC-1234',
+            tipoColetaId: 1,
+            residuoId: 1,
+            ativo: true,
+          },
+          {
+            id: '2',
+            modelo: 'Scania R450',
+            placa: 'DEF-5678',
+            tipoColetaId: 2,
+            residuoId: 2,
+            ativo: false,
+          },
         ],
         totalPages: 1,
         totalElements: 2,
@@ -58,9 +73,9 @@ describe('CaminhoesPage', () => {
     } as any)
 
     vi.spyOn(useRole, 'useRole').mockReturnValue({
-      hasRole: (role: string) => true,
-      hasAnyRole: (roles: string[]) => true,
-      hasAllRoles: (roles: string[]) => true,
+      hasRole: () => true,
+      hasAnyRole: () => true,
+      hasAllRoles: () => true,
       isSuperAdmin: () => true,
       isAdminConsulta: () => true,
       canWrite: () => true,

@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/performance/noNamespaceImport: não necessário para testes */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
@@ -20,7 +21,8 @@ vi.mock('@/http/auth/use-verify-login-code')
 
 const mockLogin = vi.fn()
 vi.mock('@/contexts/auth-context', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/contexts/auth-context')>()
+  const actual =
+    await importOriginal<typeof import('@/contexts/auth-context')>()
   return {
     ...actual,
     useAuth: () => ({
@@ -77,7 +79,12 @@ describe('LoginPage', () => {
 
     // Mock fetchWithAuth for user profile
     vi.spyOn(apiService, 'fetchWithAuth').mockResolvedValue({
-      json: () => Promise.resolve({ email: 'test@example.com', nome: 'Test User', authorities: ['ROLE_USER'] }),
+      json: () =>
+        Promise.resolve({
+          email: 'test@example.com',
+          nome: 'Test User',
+          authorities: ['ROLE_USER'],
+        }),
     } as Response)
 
     renderComponent()
@@ -93,7 +100,9 @@ describe('LoginPage', () => {
         expect.any(Object)
       )
       expect(
-        screen.getByText('Enviamos um código de verificação para test@example.com')
+        screen.getByText(
+          'Enviamos um código de verificação para test@example.com'
+        )
       ).toBeInTheDocument()
     })
 
@@ -103,17 +112,20 @@ describe('LoginPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Verificar código' }))
 
     await waitFor(() => {
-      expect(useVerifyLoginCode.useVerifyLoginCode().mutate).toHaveBeenCalledWith(
+      expect(
+        useVerifyLoginCode.useVerifyLoginCode().mutate
+      ).toHaveBeenCalledWith(
         { email: 'test@example.com', code: '1234' },
         expect.any(Object)
       )
       expect(apiService.fetchWithAuth).toHaveBeenCalledWith(
         apiService.apiConfig.endpoints.usuarios.meuPerfil
       )
-      expect(mockLogin).toHaveBeenCalledWith(
-        'mock-token',
-        { email: 'test@example.com', nome: 'Test User', authorities: ['ROLE_USER'] }
-      )
+      expect(mockLogin).toHaveBeenCalledWith('mock-token', {
+        email: 'test@example.com',
+        nome: 'Test User',
+        authorities: ['ROLE_USER'],
+      })
       expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true })
     })
   })
@@ -140,7 +152,9 @@ describe('LoginPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Continuar' }))
 
     await waitFor(() => {
-      expect(screen.getByText('Email não encontrado, contate o seu administrador')).toBeInTheDocument()
+      expect(
+        screen.getByText('Email não encontrado, contate o seu administrador')
+      ).toBeInTheDocument()
     })
   })
 
@@ -168,7 +182,9 @@ describe('LoginPage', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText('Enviamos um código de verificação para test@example.com')
+        screen.getByText(
+          'Enviamos um código de verificação para test@example.com'
+        )
       ).toBeInTheDocument()
     })
 
@@ -178,7 +194,9 @@ describe('LoginPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Verificar código' }))
 
     await waitFor(() => {
-      expect(screen.getByText('Código inválido ou expirado')).toBeInTheDocument()
+      expect(
+        screen.getByText('Código inválido ou expirado')
+      ).toBeInTheDocument()
     })
   })
 })
