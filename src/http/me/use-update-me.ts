@@ -31,17 +31,6 @@ export function useUpdateMe() {
     successMessage: "Usuário atualizado com sucesso!",
     errorMessage: "Erro ao atualizar usuário.",
     onSuccessCallback: (data, variables) => {
-      const hasChanged =
-        user?.nome !== variables.nome ||
-        (user?.telefone ? removePhoneMask(user.telefone) : null) !==
-          (variables.telefone ? removePhoneMask(variables.telefone) : null) ||
-        user?.cpf !== variables.cpf;
-
-      if (!hasChanged) {
-        toast.info("Nenhuma alteração foi feita.");
-        return;
-      }
-
       queryClient.setQueryData(queryKeys.usuarios.me, data);
       queryClient.invalidateQueries({ queryKey: queryKeys.usuarios.all });
       if (user && token) {
