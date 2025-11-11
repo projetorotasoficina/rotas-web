@@ -14,5 +14,11 @@ export function useDeleteTipoColeta() {
     queryKey: queryKeys.tipoColeta.all,
     successMessage: 'Tipo de Coleta excluído com sucesso!',
     errorMessage: 'Erro ao excluir tipo de coleta. Tente novamente.',
+    additionalQueryKeys: [
+      queryKeys.trajetos.all,
+      queryKeys.trajetos.ultimo,
+      queryKeys.rotas.all,
+    ],
+    refetchAdditionalQueries: true,
   })
 }

@@ -1,9 +1,17 @@
+export type TipoVeiculo =
+  | 'VUC'
+  | 'CAMINHAO_LEVE'
+  | 'CAMINHAO_MEDIO'
+  | 'CAMINHAO_PESADO'
+  | 'CAMINHAO_CARRETA'
+
 export type Caminhao = {
   id?: number
   modelo: string
   placa: string
   tipoColetaId: number
   residuoId: number
+  tipoVeiculo: TipoVeiculo
   ativo: boolean
 }
 
@@ -13,6 +21,7 @@ export type CaminhaoFormData = {
   placa: string
   tipoColetaId: number
   residuoId: number
+  tipoVeiculo: TipoVeiculo
   ativo: boolean
 }
 

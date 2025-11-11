@@ -40,6 +40,7 @@ describe('CaminhoesPage', () => {
             placa: 'ABC-1234',
             tipoColetaId: 1,
             residuoId: 1,
+            tipoVeiculo: 'CAMINHAO_MEDIO',
             ativo: true,
           },
           {
@@ -48,6 +49,7 @@ describe('CaminhoesPage', () => {
             placa: 'DEF-5678',
             tipoColetaId: 2,
             residuoId: 2,
+            tipoVeiculo: 'CAMINHAO_CARRETA',
             ativo: false,
           },
         ],

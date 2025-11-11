@@ -43,12 +43,30 @@ const caminhaoSchema = z.object({
   placa: z
     .string()
     .min(1, 'Placa é obrigatória')
-    .regex(
-      /^([A-Z]{3}\d{4})|([A-Z]{3}\d[A-Z]\d{2})$/,
-      'Placa deve estar no formato Mercosul (XXX0X00) ou no formato antigo (XXX0000)'
+    .transform((val) => val.toUpperCase().replace(/[^A-Z0-9]/g, ''))
+    .pipe(
+      z
+        .string()
+        .length(7, 'Placa deve ter 7 caracteres (sem traços)')
+        .regex(
+          /^[A-Z]{3}[0-9]{4}$|^[A-Z]{3}[0-9][A-Z][0-9]{2}$/,
+          'Placa deve estar no formato Mercosul (XXX0X00) ou no formato antigo (XXX0000)'
+        )
     ),
   tipoColetaId: z.number().min(1, 'Tipo de coleta é obrigatório'),
   residuoId: z.number().min(1, 'Tipo de resíduo é obrigatório'),
+  tipoVeiculo: z.enum(
+    [
+      'VUC',
+      'CAMINHAO_LEVE',
+      'CAMINHAO_MEDIO',
+      'CAMINHAO_PESADO',
+      'CAMINHAO_CARRETA',
+    ],
+    {
+      message: 'Tipo de veículo é obrigatório',
+    }
+  ),
   ativo: z.boolean(),
 })
 
@@ -72,6 +90,7 @@ export function CaminhaoModal({
       placa: '',
       tipoColetaId: 0,
       residuoId: 0,
+      tipoVeiculo: 'VUC',
       ativo: true,
     },
   })
@@ -91,6 +110,7 @@ export function CaminhaoModal({
         placa: caminhao.placa,
         tipoColetaId: caminhao.tipoColetaId,
         residuoId: caminhao.residuoId,
+        tipoVeiculo: caminhao.tipoVeiculo,
         ativo: caminhao.ativo,
       })
     } else if (!isOpen) {
@@ -99,6 +119,7 @@ export function CaminhaoModal({
         placa: '',
         tipoColetaId: 0,
         residuoId: 0,
+        tipoVeiculo: 'VUC',
         ativo: true,
       })
     }
@@ -173,10 +194,49 @@ export function CaminhaoModal({
                   <FormControl>
                     <Input
                       maxLength={8}
-                      placeholder="XXX0000 ou XXX0X00"
+                      placeholder="ABC1234 ou ABC1D23"
                       {...field}
+                      onChange={(e) => {
+                        const value = e.target.value.toUpperCase()
+                        field.onChange(value)
+                      }}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="tipoVeiculo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tipo de Veículo</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="(Selecione)" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="VUC">
+                        VUC - Veículo Utilitário de Carga (CNH B)
+                      </SelectItem>
+                      <SelectItem value="CAMINHAO_LEVE">
+                        Caminhão Leve (CNH C)
+                      </SelectItem>
+                      <SelectItem value="CAMINHAO_MEDIO">
+                        Caminhão Médio (CNH C)
+                      </SelectItem>
+                      <SelectItem value="CAMINHAO_PESADO">
+                        Caminhão Pesado - Truck (CNH C)
+                      </SelectItem>
+                      <SelectItem value="CAMINHAO_CARRETA">
+                        Caminhão com Reboque/Carreta (CNH E)
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
