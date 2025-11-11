@@ -81,6 +81,11 @@ const data = {
           icon: MapIcon,
         },
         {
+          name: 'Áreas Geográficas',
+          url: '/gestao/areas-geograficas',
+          icon: MapIcon,
+        },
+        {
           name: 'App Android',
           url: '/app-android',
           icon: Smartphone,

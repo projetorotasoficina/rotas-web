@@ -8,6 +8,7 @@ import { AdministradoresPage } from '@/pages/administradores'
 import { AppAndroidPage } from '@/pages/app-android'
 import { CaminhoesPage } from '@/pages/caminhoes'
 import { HomePage } from '@/pages/home'
+import { MapaAreasGeograficas } from '@/pages/mapa-areas-geograficas'
 import { MapaTrajetosPage } from '@/pages/mapa-trajetos'
 import { MotoristasPage } from '@/pages/motoristas'
 import { RotasPage } from '@/pages/rotas'
@@ -162,6 +163,20 @@ export function ProtectedRoutes() {
         element={
           <DefaultLayout
             breadcrumbs={[
+              { label: 'Gestão', href: '/' },
+              { label: 'Áreas Geográficas' },
+            ]}
+          >
+            <MapaAreasGeograficas />
+          </DefaultLayout>
+        }
+        path="/gestao/areas-geograficas"
+      />
+
+      <Route
+        element={
+          <DefaultLayout
+            breadcrumbs={[
               { label: 'Documentos' },
               { label: 'Relatório de Rotas' },
             ]}
@@ -188,10 +203,7 @@ export function ProtectedRoutes() {
       <Route
         element={
           <DefaultLayout
-            breadcrumbs={[
-              { label: 'Configurações' },
-              { label: 'Usuário' },
-            ]}
+            breadcrumbs={[{ label: 'Configurações' }, { label: 'Usuário' }]}
           >
             <UserSettings />
           </DefaultLayout>
