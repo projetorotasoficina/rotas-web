@@ -11,10 +11,12 @@ import { authCleanup } from '@/services/auth-cleanup'
 import { tokenStorage } from '@/services/token-storage'
 
 export type User = {
-  email: string
-  nome: string
-  authorities: string[]
-}
+  email: string;
+  nome: string;
+  telefone: string | null;
+  cpf: string | null;
+  authorities: string[];
+};
 
 type LogoutOptions = {
   showMessage?: boolean

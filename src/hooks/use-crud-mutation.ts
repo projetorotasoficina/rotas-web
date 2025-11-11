@@ -8,7 +8,7 @@ type UseCrudMutationOptions<TData, TVariables> = {
   queryKey: readonly string[]
   successMessage: string
   errorMessage: string
-  onSuccessCallback?: () => void
+  onSuccessCallback?: (data: TData, variables: TVariables) => void
   additionalQueryKeys?: readonly (readonly string[])[]
   refetchAdditionalQueries?: boolean
 }
@@ -34,7 +34,7 @@ export function useCrudMutation<TData, TVariables>({
         stopLoading()
       }
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey })
 
       if (additionalQueryKeys) {
@@ -49,7 +49,7 @@ export function useCrudMutation<TData, TVariables>({
 
       toast.success(successMessage)
       if (onSuccessCallback) {
-        onSuccessCallback()
+        onSuccessCallback(data, variables)
       }
     },
     onError: (error: Error) => {
