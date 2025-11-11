@@ -13,6 +13,7 @@ import { MotoristasPage } from '@/pages/motoristas'
 import { RotasPage } from '@/pages/rotas'
 import { TipoColetaPage } from '@/pages/tipo-coleta'
 import { TipoResiduoPage } from '@/pages/tipo-residuo'
+import { UserSettings } from '@/pages/user-settings'
 
 export function ProtectedRoutes() {
   const { isAuthenticated, isLoading } = useAuth()
@@ -182,6 +183,20 @@ export function ProtectedRoutes() {
           </DefaultLayout>
         }
         path="/documentos/relatorio-incidentes"
+      />
+
+      <Route
+        element={
+          <DefaultLayout
+            breadcrumbs={[
+              { label: 'Configurações' },
+              { label: 'Usuário' },
+            ]}
+          >
+            <UserSettings />
+          </DefaultLayout>
+        }
+        path="/user-settings"
       />
 
       <Route

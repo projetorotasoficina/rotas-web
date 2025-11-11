@@ -1,5 +1,5 @@
 import { ChevronsUpDown, LogOut, Settings } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -81,10 +81,12 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Settings />
-                Configurações
-              </DropdownMenuItem>
+              <Link to="/user-settings">
+                <DropdownMenuItem>
+                  <Settings />
+                  Configurações
+                </DropdownMenuItem>
+              </Link>
               <DropdownMenuItem onClick={handleLogout}>
                 <LogOut />
                 Log out

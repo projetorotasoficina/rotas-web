@@ -8,7 +8,7 @@ type UseCrudMutationOptions<TData, TVariables> = {
   queryKey: readonly string[]
   successMessage: string
   errorMessage: string
-  onSuccessCallback?: () => void
+  onSuccessCallback?: (data: TData, variables: TVariables) => void
 }
 
 export function useCrudMutation<TData, TVariables>({
@@ -30,11 +30,11 @@ export function useCrudMutation<TData, TVariables>({
         stopLoading()
       }
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey })
       toast.success(successMessage)
       if (onSuccessCallback) {
-        onSuccessCallback()
+        onSuccessCallback(data, variables)
       }
     },
     onError: (error: Error) => {

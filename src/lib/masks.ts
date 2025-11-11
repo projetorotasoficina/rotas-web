@@ -5,9 +5,6 @@ const CPF_PATTERN_1 = /(\d{3})(\d)/
 const CPF_PATTERN_2 = /(\d{3})(\d)/
 const CPF_PATTERN_3 = /(\d{3})(\d{1,2})/
 const CPF_FULL_PATTERN = /(\d{3})(\d{3})(\d{3})(\d{2})/
-const PHONE_PATTERN_1 = /(\d{2})(\d)/
-const PHONE_PATTERN_2 = /(\d{4})(\d)/
-const PHONE_MOBILE_PATTERN = /(\d{2})(\d{5})(\d{4})/
 
 export const CPF_VALIDATION_REGEX = /^\d+$/
 export const CPF_DISPLAY_REGEX = /(\d{3})(\d{3})(\d{3})(\d{2})/
@@ -28,15 +25,34 @@ export function formatCPF(value: string): string {
 }
 
 export function formatPhone(value: string): string {
-  const numericValue = value.replace(NON_NUMERIC_REGEX, '')
+  let numericValue = value.replace(NON_NUMERIC_REGEX, '');
 
-  if (numericValue.length <= 10) {
-    return numericValue
-      .replace(PHONE_PATTERN_1, '($1) $2')
-      .replace(PHONE_PATTERN_2, '$1-$2')
+  // Enforce maximum 12 digits
+  if (numericValue.length > 12) {
+    numericValue = numericValue.slice(0, 12);
   }
 
-  return numericValue.slice(0, 11).replace(PHONE_MOBILE_PATTERN, '($1) $2-$3')
+  if (numericValue.length > 11) {
+    // (DDD) 9XXXX-XXXX
+    return numericValue.replace(/(\d{3})(\d{5})(\d{4})/, '($1) $2-$3');
+  }
+
+  if (numericValue.length > 10) {
+    // (DD) 9XXXX-XXXX
+    return numericValue.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+  }
+
+  if (numericValue.length > 7) {
+    // (DD) XXXX-XXXX
+    return numericValue.replace(/(\d{2})(\d{4})(\d{1,4})/, '($1) $2-$3');
+  }
+
+  if (numericValue.length > 2) {
+    // (DD) XXXX
+    return numericValue.replace(/(\d{2})(\d{1,5})/, '($1) $2');
+  }
+
+  return numericValue;
 }
 
 export function removeCPFMask(value: string): string {
