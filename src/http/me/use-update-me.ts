@@ -3,6 +3,7 @@ import { fetchWithAuth } from "@/services/api";
 import type { User } from "@/contexts/auth-context";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth-context";
+import { removePhoneMask } from "@/lib/masks";
 
 interface UpdateMeData {
   nome: string;
@@ -28,6 +29,17 @@ export function useUpdateMe() {
   return useMutation({
     mutationFn: updateMe,
     onSuccess: (data, variables) => {
+      const hasChanged =
+        user?.nome !== variables.nome ||
+        (user?.telefone ? removePhoneMask(user.telefone) : null) !==
+          (variables.telefone ? removePhoneMask(variables.telefone) : null) ||
+        user?.cpf !== variables.cpf;
+
+      if (!hasChanged) {
+        toast.info("Nenhuma alteração foi feita.");
+        return;
+      }
+
       queryClient.setQueryData(["me"], data);
       queryClient.invalidateQueries({ queryKey: ["me"] });
       queryClient.invalidateQueries({ queryKey: ["usuarios"] });

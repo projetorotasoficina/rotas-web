@@ -5,9 +5,6 @@ const CPF_PATTERN_1 = /(\d{3})(\d)/
 const CPF_PATTERN_2 = /(\d{3})(\d)/
 const CPF_PATTERN_3 = /(\d{3})(\d{1,2})/
 const CPF_FULL_PATTERN = /(\d{3})(\d{3})(\d{3})(\d{2})/
-const PHONE_PATTERN_1 = /(\d{2})(\d)/
-const PHONE_PATTERN_2 = /(\d{4})(\d)/
-const PHONE_MOBILE_PATTERN = /(\d{2})(\d{5})(\d{4})/
 
 export const CPF_VALIDATION_REGEX = /^\d+$/
 export const CPF_DISPLAY_REGEX = /(\d{3})(\d{3})(\d{3})(\d{2})/
