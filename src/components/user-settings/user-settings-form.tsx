@@ -1,14 +1,15 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { Button } from "@/components/ui/button";
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -16,52 +17,55 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { useUpdateMe } from "@/http/me/use-update-me";
-import { useEffect } from "react";
-import { useAuth } from "@/contexts/auth-context";
-import { formatCPF, formatPhone, removeCPFMask, removePhoneMask } from "@/lib/masks";
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { useAuth } from '@/contexts/auth-context'
+import { useUpdateMe } from '@/http/me/use-update-me'
+import {
+  formatCPF,
+  formatPhone,
+  removeCPFMask,
+  removePhoneMask,
+} from '@/lib/masks'
 
 const formSchema = z.object({
-  nome: z.string().min(1, "Nome é obrigatório"),
+  nome: z.string().min(1, 'Nome é obrigatório'),
   telefone: z.string().optional().nullable(),
   cpf: z.string().optional().nullable(),
-});
+})
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<typeof formSchema>
 
 export function UserSettingsForm() {
-  const { user, isLoading } = useAuth();
-  const { mutate: updateUser, isPending } = useUpdateMe();
+  const { user, isLoading } = useAuth()
+  const { mutate: updateUser, isPending } = useUpdateMe()
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      nome: "",
-      telefone: "",
-      cpf: "",
+      nome: '',
+      telefone: '',
+      cpf: '',
     },
-  });
+  })
 
   useEffect(() => {
-    console.log("User object changed:", user);
     if (user) {
       form.reset({
         nome: user.nome,
-        telefone: user.telefone ? formatPhone(user.telefone) : "",
-        cpf: user.cpf ? formatCPF(user.cpf) : "",
-      });
+        telefone: user.telefone ? formatPhone(user.telefone) : '',
+        cpf: user.cpf ? formatCPF(user.cpf) : '',
+      })
     }
-  }, [user, form]);
+  }, [user, form])
 
   const onSubmit = (data: FormValues) => {
     updateUser({
       ...data,
       telefone: data.telefone ? removePhoneMask(data.telefone) : null,
       cpf: data.cpf ? removeCPFMask(data.cpf) : null,
-    });
-  };
+    })
+  }
 
   return (
     <div className="space-y-8">
@@ -74,7 +78,7 @@ export function UserSettingsForm() {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
+            <form className="grid gap-4" onSubmit={form.handleSubmit(onSubmit)}>
               <FormField
                 control={form.control}
                 name="nome"
@@ -98,10 +102,10 @@ export function UserSettingsForm() {
                       <Input
                         type="tel"
                         {...field}
-                        value={field.value ?? ""}
                         onChange={(e) => {
-                          field.onChange(formatPhone(e.target.value));
+                          field.onChange(formatPhone(e.target.value))
                         }}
+                        value={field.value ?? ''}
                       />
                     </FormControl>
                     <FormMessage />
@@ -117,23 +121,23 @@ export function UserSettingsForm() {
                     <FormControl>
                       <Input
                         {...field}
-                        value={field.value ?? ""}
                         onChange={(e) => {
-                          field.onChange(formatCPF(e.target.value));
+                          field.onChange(formatCPF(e.target.value))
                         }}
+                        value={field.value ?? ''}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <Button type="submit" disabled={isPending || isLoading}>
-                {isPending ? "Salvando..." : "Salvar alterações"}
+              <Button disabled={isPending || isLoading} type="submit">
+                {isPending ? 'Salvando...' : 'Salvar alterações'}
               </Button>
             </form>
           </Form>
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

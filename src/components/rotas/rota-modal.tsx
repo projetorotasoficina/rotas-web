@@ -199,7 +199,6 @@ export function RotaModal({ isOpen, onClose, rota }: RotaModalProps) {
         <Form {...form}>
           <form noValidate onSubmit={form.handleSubmit(onSubmit)}>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              {/* Coluna Esquerda - Campos do Formulário */}
               <div className="space-y-3">
                 <FormField
                   control={form.control}
@@ -411,7 +410,6 @@ export function RotaModal({ isOpen, onClose, rota }: RotaModalProps) {
                 />
               </div>
 
-              {/* Coluna Direita - Mapa */}
               <div className="flex flex-col">
                 <FormField
                   control={form.control}

@@ -24,35 +24,41 @@ export function formatCPF(value: string): string {
     .replace(CPF_FULL_PATTERN, '$1.$2.$3-$4')
 }
 
+// Regex patterns for phone number formatting
+const PHONE_REGEX_11_DIGITS = /(\d{3})(\d{5})(\d{4})/
+const PHONE_REGEX_10_DIGITS = /(\d{2})(\d{5})(\d{4})/
+const PHONE_REGEX_7_PLUS = /(\d{2})(\d{4})(\d{1,4})/
+const PHONE_REGEX_2_PLUS = /(\d{2})(\d{1,5})/
+
 export function formatPhone(value: string): string {
-  let numericValue = value.replace(NON_NUMERIC_REGEX, '');
+  let numericValue = value.replace(NON_NUMERIC_REGEX, '')
 
   // Enforce maximum 12 digits
   if (numericValue.length > 12) {
-    numericValue = numericValue.slice(0, 12);
+    numericValue = numericValue.slice(0, 12)
   }
 
   if (numericValue.length > 11) {
     // (DDD) 9XXXX-XXXX
-    return numericValue.replace(/(\d{3})(\d{5})(\d{4})/, '($1) $2-$3');
+    return numericValue.replace(PHONE_REGEX_11_DIGITS, '($1) $2-$3')
   }
 
   if (numericValue.length > 10) {
     // (DD) 9XXXX-XXXX
-    return numericValue.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    return numericValue.replace(PHONE_REGEX_10_DIGITS, '($1) $2-$3')
   }
 
   if (numericValue.length > 7) {
     // (DD) XXXX-XXXX
-    return numericValue.replace(/(\d{2})(\d{4})(\d{1,4})/, '($1) $2-$3');
+    return numericValue.replace(PHONE_REGEX_7_PLUS, '($1) $2-$3')
   }
 
   if (numericValue.length > 2) {
     // (DD) XXXX
-    return numericValue.replace(/(\d{2})(\d{1,5})/, '($1) $2');
+    return numericValue.replace(PHONE_REGEX_2_PLUS, '($1) $2')
   }
 
-  return numericValue;
+  return numericValue
 }
 
 export function removeCPFMask(value: string): string {
