@@ -13,7 +13,7 @@ export function useRouteAnimation({
 }: UseRouteAnimationProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
-  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const intervalRef = useRef<number | null>(null)
 
   const currentPoint = pontos[currentIndex]
   const progress =
