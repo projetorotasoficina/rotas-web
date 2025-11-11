@@ -1,9 +1,11 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchWithAuth } from "@/services/api";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/auth-context";
+import { useCrudMutation } from "@/hooks/use-crud-mutation";
+import { removePhoneMask } from "@/lib/masks";
+import { queryKeys } from "@/lib/query-keys";
+import { apiConfig, fetchWithAuth } from "@/services/api";
 import type { User } from "@/contexts/auth-context";
 import { toast } from "sonner";
-import { useAuth } from "@/contexts/auth-context";
-import { removePhoneMask } from "@/lib/masks";
 
 interface UpdateMeData {
   nome: string;
@@ -12,23 +14,23 @@ interface UpdateMeData {
 }
 
 async function updateMe(data: UpdateMeData): Promise<User> {
-  console.log("Data sent to server:", data);
-  const response = await fetchWithAuth("/usuarios/meu-perfil", {
+  const response = await fetchWithAuth(apiConfig.endpoints.usuarios.meuPerfil, {
     method: "PUT",
     body: JSON.stringify(data),
   });
-  const responseData = await response.json();
-  console.log("Data received from server:", responseData);
-  return responseData;
+  return await response.json();
 }
 
 export function useUpdateMe() {
   const queryClient = useQueryClient();
   const { login, user, token } = useAuth();
 
-  return useMutation({
+  return useCrudMutation({
     mutationFn: updateMe,
-    onSuccess: (data, variables) => {
+    queryKey: queryKeys.usuarios.me,
+    successMessage: "Usuário atualizado com sucesso!",
+    errorMessage: "Erro ao atualizar usuário.",
+    onSuccessCallback: (data, variables) => {
       const hasChanged =
         user?.nome !== variables.nome ||
         (user?.telefone ? removePhoneMask(user.telefone) : null) !==
@@ -40,9 +42,8 @@ export function useUpdateMe() {
         return;
       }
 
-      queryClient.setQueryData(["me"], data);
-      queryClient.invalidateQueries({ queryKey: ["me"] });
-      queryClient.invalidateQueries({ queryKey: ["usuarios"] });
+      queryClient.setQueryData(queryKeys.usuarios.me, data);
+      queryClient.invalidateQueries({ queryKey: queryKeys.usuarios.all });
       if (user && token) {
         login(token, {
           ...user,
@@ -51,10 +52,6 @@ export function useUpdateMe() {
           cpf: variables.cpf ?? null,
         });
       }
-      toast.success("Usuário atualizado com sucesso!");
-    },
-    onError: () => {
-      toast.error("Erro ao atualizar usuário.");
     },
   });
 }
