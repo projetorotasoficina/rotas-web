@@ -30,5 +30,7 @@ export function useUpdateTipoResiduo() {
     queryKey: queryKeys.tipoResiduo.all,
     successMessage: 'Tipo de Resíduo atualizado com sucesso!',
     errorMessage: 'Erro ao atualizar tipo de resíduo. Tente novamente.',
+    additionalQueryKeys: [queryKeys.trajetos.all, queryKeys.trajetos.ultimo],
+    refetchAdditionalQueries: true,
   })
 }

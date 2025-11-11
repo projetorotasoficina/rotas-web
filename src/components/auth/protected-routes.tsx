@@ -131,7 +131,7 @@ export function ProtectedRoutes() {
         element={
           <DefaultLayout
             breadcrumbs={[
-              { label: 'Cadastros', href: '/' },
+              { label: 'Gestão', href: '/' },
               { label: 'App Android' },
             ]}
           >
@@ -147,7 +147,7 @@ export function ProtectedRoutes() {
         element={
           <DefaultLayout
             breadcrumbs={[
-              { label: 'Documentos', href: '/' },
+              { label: 'Gestão', href: '/' },
               { label: 'Mapa de Trajetos' },
             ]}
           >

@@ -117,6 +117,21 @@ export function CaminhoesPage() {
       header: 'Placa',
     },
     {
+      accessorKey: 'tipoVeiculo',
+      header: 'Tipo de Veículo',
+      cell: ({ row }) => {
+        const tipoVeiculo = row.getValue('tipoVeiculo') as string
+        const tiposVeiculo: Record<string, string> = {
+          VUC: 'VUC (CNH B)',
+          CAMINHAO_LEVE: 'Caminhão Leve (CNH C)',
+          CAMINHAO_MEDIO: 'Caminhão Médio (CNH C)',
+          CAMINHAO_PESADO: 'Caminhão Pesado (CNH C)',
+          CAMINHAO_CARRETA: 'Caminhão Carreta (CNH E)',
+        }
+        return tiposVeiculo[tipoVeiculo] || tipoVeiculo
+      },
+    },
+    {
       accessorKey: 'tipoColetaId',
       header: 'Tipo de Coleta',
       cell: ({ row }) => {

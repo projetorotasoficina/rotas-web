@@ -26,5 +26,11 @@ export function useUpdateTipoColeta() {
     queryKey: queryKeys.tipoColeta.all,
     successMessage: 'Tipo de Coleta atualizado com sucesso!',
     errorMessage: 'Erro ao atualizar tipo de coleta. Tente novamente.',
+    additionalQueryKeys: [
+      queryKeys.trajetos.all,
+      queryKeys.trajetos.ultimo,
+      queryKeys.rotas.all,
+    ],
+    refetchAdditionalQueries: true,
   })
 }

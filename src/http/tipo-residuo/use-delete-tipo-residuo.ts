@@ -14,5 +14,11 @@ export function useDeleteTipoResiduo() {
     queryKey: queryKeys.tipoResiduo.all,
     successMessage: 'Tipo de Resíduo excluído com sucesso!',
     errorMessage: 'Erro ao excluir tipo de resíduo. Tente novamente.',
+    additionalQueryKeys: [
+      queryKeys.trajetos.all,
+      queryKeys.trajetos.ultimo,
+      queryKeys.rotas.all,
+    ],
+    refetchAdditionalQueries: true,
   })
 }
