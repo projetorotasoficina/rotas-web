@@ -30,7 +30,7 @@ import type { TipoColeta } from '@/http/tipo-coleta/types'
 import { useDeleteTipoColeta } from '@/http/tipo-coleta/use-delete-tipo-coleta'
 import { usePaginatedTipoColeta } from '@/http/tipo-coleta/use-paginated-tipo-coleta'
 
-export function TipoColetaPage() {
+export default function TipoColetaPage() {
   const { canEdit, canDelete, canCreate } = useRole()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingTipoColeta, setEditingTipoColeta] = useState<TipoColeta | null>(

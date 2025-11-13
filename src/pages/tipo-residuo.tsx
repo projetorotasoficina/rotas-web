@@ -30,7 +30,7 @@ import type { TipoResiduo } from '@/http/tipo-residuo/types'
 import { useDeleteTipoResiduo } from '@/http/tipo-residuo/use-delete-tipo-residuo'
 import { usePaginatedTipoResiduo } from '@/http/tipo-residuo/use-paginated-tipo-residuo'
 
-export function TipoResiduoPage() {
+export default function TipoResiduoPage() {
   const { canEdit, canDelete, canCreate } = useRole()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingTipoResiduo, setEditingTipoResiduo] =

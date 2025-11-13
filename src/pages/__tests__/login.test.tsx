@@ -7,7 +7,7 @@ import { LoadingProvider } from '@/contexts/loading-context'
 import * as useSendLoginCode from '@/http/auth/use-send-email-login'
 import * as useVerifyLoginCode from '@/http/auth/use-verify-login-code'
 import * as apiService from '@/services/api'
-import { LoginPage } from './login'
+import { LoginPage } from '../login'
 
 const queryClient = new QueryClient()
 

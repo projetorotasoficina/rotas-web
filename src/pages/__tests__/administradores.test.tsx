@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { AuthProvider } from '@/contexts/auth-context'
 import { LoadingProvider } from '@/contexts/loading-context'
 import * as usePaginatedUsuarios from '@/http/usuarios/use-paginated-usuarios'
-import { AdministradoresPage } from './administradores'
+import AdministradoresPage from '../administradores'
 
 const queryClient = new QueryClient()
 

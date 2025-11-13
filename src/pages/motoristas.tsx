@@ -32,7 +32,7 @@ import { useDeleteMotorista } from '@/http/motoristas/use-delete-motorista'
 import { usePaginatedMotoristas } from '@/http/motoristas/use-paginated-motoristas'
 import { displayCPF } from '@/lib/masks'
 
-export function MotoristasPage() {
+export default function MotoristasPage() {
   const { canEdit, canDelete, canCreate } = useRole()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingMotorista, setEditingMotorista] = useState<Motorista | null>(

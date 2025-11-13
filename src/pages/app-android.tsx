@@ -6,7 +6,7 @@ import { CodigosAtivacaoTable } from '@/components/codigos-ativacao/codigos-ativ
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { AppToken } from '@/http/app-tokens/types'
 
-export function AppAndroidPage() {
+export default function AppAndroidPage() {
   const [selectedToken, setSelectedToken] = useState<AppToken | null>(null)
   const [isTokenDetailsOpen, setIsTokenDetailsOpen] = useState(false)
 

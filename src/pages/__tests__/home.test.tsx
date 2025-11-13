@@ -6,7 +6,7 @@ import { AuthProvider } from '@/contexts/auth-context'
 import { LoadingProvider } from '@/contexts/loading-context'
 import * as useTrajetosStats from '@/http/trajeto/use-trajetos-stats'
 import * as useUltimoTrajeto from '@/http/trajeto/use-ultimo-trajeto'
-import { HomePage } from './home'
+import HomePage from '../home'
 
 const queryClient = new QueryClient()
 

@@ -7,7 +7,7 @@ import { useListTipoResiduo } from '@/http/tipo-residuo/use-list-tipo-residuo'
 import { useGetTrajetoPontos } from '@/http/trajeto/use-get-trajeto-pontos'
 import { usePaginatedTrajetos } from '@/http/trajeto/use-paginated-trajetos'
 
-export function MapaAreasGeograficas() {
+export default function MapaAreasGeograficas() {
   const [tipoResiduoId, setTipoResiduoId] = useState<number | null>(null)
   const [rotaId, setRotaId] = useState<number | null>(null)
   const [trajetoId, setTrajetoId] = useState<number | null>(null)
