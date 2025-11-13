@@ -80,7 +80,7 @@ const formatFrequencias = (frequencias: FrequenciaRota[]) => {
   return parts.join(', ')
 }
 
-export function RotasPage() {
+export default function RotasPage() {
   const { canEdit, canDelete, canCreate } = useRole()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingRota, setEditingRota] = useState<Rota | null>(null)

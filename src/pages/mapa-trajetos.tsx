@@ -42,7 +42,7 @@ const STATUS_CONFIG: Record<
 }
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Complex page component with multiple conditional renders
-export function MapaTrajetosPage() {
+export default function MapaTrajetosPage() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: addDays(new Date(), -7),
     to: new Date(),

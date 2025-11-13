@@ -15,7 +15,7 @@ import {
   type VisibilityState,
 } from '@tanstack/react-table'
 import { ChevronDown } from 'lucide-react'
-import { useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -112,7 +112,7 @@ function useTableConfig<TData, TValue>({
   })
 }
 
-export function DataTable<TData, TValue>({
+function DataTableImpl<TData, TValue>({
   columns,
   data,
   toolbar,
@@ -134,42 +134,45 @@ export function DataTable<TData, TValue>({
     serverSidePagination,
   })
 
-  const getPageNumbers = (
-    currentPage: number,
-    pageCount: number
-  ): (number | { type: 'ellipsis'; id: string })[] => {
-    const pages: (number | { type: 'ellipsis'; id: string })[] = []
-    const showEllipsisThreshold = 7
+  const getPageNumbers = useCallback(
+    (
+      currentPage: number,
+      pageCount: number
+    ): (number | { type: 'ellipsis'; id: string })[] => {
+      const pages: (number | { type: 'ellipsis'; id: string })[] = []
+      const showEllipsisThreshold = 7
 
-    if (pageCount <= showEllipsisThreshold) {
-      for (let i = 0; i < pageCount; i++) {
+      if (pageCount <= showEllipsisThreshold) {
+        for (let i = 0; i < pageCount; i++) {
+          pages.push(i)
+        }
+        return pages
+      }
+
+      pages.push(0)
+
+      if (currentPage > 2) {
+        pages.push({ type: 'ellipsis', id: 'ellipsis-start' })
+      }
+
+      const start = Math.max(1, currentPage - 1)
+      const end = Math.min(pageCount - 2, currentPage + 1)
+      for (let i = start; i <= end; i++) {
         pages.push(i)
       }
+
+      if (currentPage < pageCount - 3) {
+        pages.push({ type: 'ellipsis', id: 'ellipsis-end' })
+      }
+
+      pages.push(pageCount - 1)
+
       return pages
-    }
+    },
+    []
+  )
 
-    pages.push(0)
-
-    if (currentPage > 2) {
-      pages.push({ type: 'ellipsis', id: 'ellipsis-start' })
-    }
-
-    const start = Math.max(1, currentPage - 1)
-    const end = Math.min(pageCount - 2, currentPage + 1)
-    for (let i = start; i <= end; i++) {
-      pages.push(i)
-    }
-
-    if (currentPage < pageCount - 3) {
-      pages.push({ type: 'ellipsis', id: 'ellipsis-end' })
-    }
-
-    pages.push(pageCount - 1)
-
-    return pages
-  }
-
-  const renderPageNumbers = () => {
+  const renderPageNumbers = useMemo(() => {
     if (!isServerSide) {
       return null
     }
@@ -205,7 +208,7 @@ export function DataTable<TData, TValue>({
         </PaginationItem>
       )
     })
-  }
+  }, [isServerSide, table, getPageNumbers, isLoading])
 
   return (
     <div className="w-full">
@@ -344,7 +347,7 @@ export function DataTable<TData, TValue>({
                 onClick={() => table.previousPage()}
               />
             </PaginationItem>
-            {isServerSide && renderPageNumbers()}
+            {isServerSide && renderPageNumbers}
             <PaginationItem>
               <PaginationNext
                 disabled={!table.getCanNextPage() || isLoading}
@@ -357,3 +360,5 @@ export function DataTable<TData, TValue>({
     </div>
   )
 }
+
+export const DataTable = memo(DataTableImpl) as typeof DataTableImpl

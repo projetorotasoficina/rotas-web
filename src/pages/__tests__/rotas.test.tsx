@@ -9,7 +9,7 @@ import { usePaginatedRotas } from '@/http/rotas/use-paginated-rotas'
 import { useListTipoColeta } from '@/http/tipo-coleta/use-list-tipo-coleta'
 import { useListTipoResiduo } from '@/http/tipo-residuo/use-list-tipo-residuo'
 import { mockUseRole } from '@/test/test-utils'
-import { RotasPage } from './rotas'
+import RotasPage from '../rotas'
 
 const queryClient = new QueryClient()
 

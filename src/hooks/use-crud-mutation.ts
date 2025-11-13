@@ -27,11 +27,11 @@ export function useCrudMutation<TData, TVariables>({
 
   return useMutation({
     mutationFn: async (data: TVariables) => {
-      startLoading()
+      const loadingId = startLoading()
       try {
         return await mutationFn(data)
       } finally {
-        stopLoading()
+        stopLoading(loadingId)
       }
     },
     onSuccess: (data, variables) => {
