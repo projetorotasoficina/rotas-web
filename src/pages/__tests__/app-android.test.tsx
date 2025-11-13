@@ -6,7 +6,7 @@ import { AuthProvider } from '@/contexts/auth-context'
 import { LoadingProvider } from '@/contexts/loading-context'
 import * as usePaginatedAppTokens from '@/http/app-tokens/use-paginated-app-tokens'
 import * as usePaginatedCodigos from '@/http/codigos-ativacao/use-paginated-codigos-ativacao'
-import { AppAndroidPage } from './app-android'
+import AppAndroidPage from '../app-android'
 
 const queryClient = new QueryClient()
 

@@ -33,7 +33,7 @@ import { usePaginatedCaminhoes } from '@/http/caminhoes/use-paginated-caminhoes'
 import { useListTipoColeta } from '@/http/tipo-coleta/use-list-tipo-coleta'
 import { useListTipoResiduo } from '@/http/tipo-residuo/use-list-tipo-residuo'
 
-export function CaminhoesPage() {
+export default function CaminhoesPage() {
   const { canEdit, canDelete, canCreate } = useRole()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingCaminhao, setEditingCaminhao] = useState<Caminhao | null>(null)

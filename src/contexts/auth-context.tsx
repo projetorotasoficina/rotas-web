@@ -3,6 +3,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react'
 import { toast } from 'sonner'
@@ -98,22 +99,21 @@ export function AuthProvider({ children, queryClient }: AuthProviderProps) {
     setLogoutCallback(logout)
   }, [logout])
 
-  const isAuthenticated = Boolean(token && user)
+  const isAuthenticated = useMemo(() => Boolean(token && user), [token, user])
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        token,
-        isAuthenticated,
-        isLoading,
-        login,
-        logout,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo(
+    () => ({
+      user,
+      token,
+      isAuthenticated,
+      isLoading,
+      login,
+      logout,
+    }),
+    [user, token, isAuthenticated, isLoading, login, logout]
   )
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {

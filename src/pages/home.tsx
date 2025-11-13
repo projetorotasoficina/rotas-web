@@ -9,7 +9,7 @@ import { useTrajetosStats } from '@/http/trajeto/use-trajetos-stats'
 import { useUltimoTrajeto } from '@/http/trajeto/use-ultimo-trajeto'
 import { formatDuracao } from '@/lib/utils'
 
-export function HomePage() {
+export default function HomePage() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: addDays(new Date(), -30),
     to: new Date(),

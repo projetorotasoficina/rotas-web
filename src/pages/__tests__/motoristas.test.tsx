@@ -7,7 +7,7 @@ import { LoadingProvider } from '@/contexts/loading-context'
 import * as useRole from '@/hooks/use-role'
 import * as usePaginatedMotoristas from '@/http/motoristas/use-paginated-motoristas'
 import { mockUseRole } from '@/test/test-utils'
-import { MotoristasPage } from './motoristas'
+import MotoristasPage from '../motoristas'
 
 const queryClient = new QueryClient()
 

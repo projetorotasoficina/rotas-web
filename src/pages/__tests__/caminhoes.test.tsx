@@ -8,7 +8,7 @@ import * as useRole from '@/hooks/use-role'
 import * as usePaginatedCaminhoes from '@/http/caminhoes/use-paginated-caminhoes'
 import * as useListTipoColeta from '@/http/tipo-coleta/use-list-tipo-coleta'
 import * as useListTipoResiduo from '@/http/tipo-residuo/use-list-tipo-residuo'
-import { CaminhoesPage } from './caminhoes'
+import CaminhoesPage from '../caminhoes'
 
 const queryClient = new QueryClient()
 

@@ -55,7 +55,7 @@ const getRoleVariant = (role: string) => {
   }
 }
 
-export function AdministradoresPage() {
+export default function AdministradoresPage() {
   const { user } = useAuth()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingUsuario, setEditingUsuario] = useState<Usuario | null>(null)
