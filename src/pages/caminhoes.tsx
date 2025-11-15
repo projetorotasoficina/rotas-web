@@ -1,3 +1,21 @@
+/**
+ * @file Página de Gerenciamento de Caminhões.
+ * @description Este arquivo define o componente `CaminhoesPage`, que renderiza a interface
+ * para gerenciar os caminhões da frota. A página implementa uma funcionalidade
+ * completa de CRUD (Criar, Ler, Atualizar, Excluir) para os caminhões.
+ *
+ * Funcionalidades Principais:
+ * - **Listagem e Paginação**: Exibe os caminhões em uma tabela de dados (`DataTable`) com
+ *   suporte a paginação, ordenação e busca do lado do servidor.
+ * - **Criação e Edição**: Utiliza um modal (`CaminhaoModal`) para adicionar novos
+ *   caminhões ou editar os existentes.
+ * - **Exclusão**: Apresenta um diálogo de confirmação (`AlertDialog`) antes de excluir
+ *   um caminhão.
+ * - **Controle de Acesso**: As ações de criar, editar e excluir são controladas com base
+ *   nas permissões do usuário logado, obtidas através do hook `useRole`.
+ * - **Busca com Debounce**: O campo de busca utiliza o hook `useDebounce` para otimizar
+ *   as requisições à API.
+ */
 import type {
   ColumnDef,
   PaginationState,
@@ -33,14 +51,19 @@ import { usePaginatedCaminhoes } from '@/http/caminhoes/use-paginated-caminhoes'
 import { useListTipoColeta } from '@/http/tipo-coleta/use-list-tipo-coleta'
 import { useListTipoResiduo } from '@/http/tipo-residuo/use-list-tipo-residuo'
 
+/**
+ * @description Componente que renderiza a página de gerenciamento de caminhões.
+ */
 export function CaminhoesPage() {
   const { canEdit, canDelete, canCreate } = useRole()
+  // Estados para controlar a abertura de modais e os dados em edição/exclusão.
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingCaminhao, setEditingCaminhao] = useState<Caminhao | null>(null)
   const [deletingCaminhao, setDeletingCaminhao] = useState<Caminhao | null>(
     null
   )
 
+  // Estados para controle da tabela (paginação, ordenação, filtro).
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -49,6 +72,7 @@ export function CaminhoesPage() {
   const [searchFilter, setSearchFilter] = useState('')
   const debouncedSearch = useDebounce(searchFilter, 500)
 
+  // Hook para buscar os dados paginados da API.
   const {
     data: response,
     isLoading,
@@ -62,19 +86,32 @@ export function CaminhoesPage() {
   })
 
   const caminhoes = response?.content ?? []
+  // Busca listas de tipos para exibir nomes em vez de IDs na tabela.
   const { data: tiposColeta = [] } = useListTipoColeta()
   const { data: tiposResiduo = [] } = useListTipoResiduo()
+  // Hook de mutação para excluir um caminhão.
   const deleteMutation = useDeleteCaminhao()
 
+  /**
+   * @description Abre o modal de edição com os dados do caminhão selecionado.
+   * @param {Caminhao} caminhao - O caminhão a ser editado.
+   */
   const handleEdit = (caminhao: Caminhao) => {
     setEditingCaminhao(caminhao)
     setIsModalOpen(true)
   }
 
+  /**
+   * @description Define o caminhão a ser excluído e abre o diálogo de confirmação.
+   * @param {Caminhao} caminhao - O caminhão a ser excluído.
+   */
   const handleDelete = (caminhao: Caminhao) => {
     setDeletingCaminhao(caminhao)
   }
 
+  /**
+   * @description Confirma e executa a exclusão do caminhão.
+   */
   const confirmDelete = () => {
     if (deletingCaminhao?.id) {
       deleteMutation.mutate(deletingCaminhao.id)
@@ -82,16 +119,23 @@ export function CaminhoesPage() {
     }
   }
 
+  /**
+   * @description Abre o modal para adicionar um novo caminhão.
+   */
   const handleAdd = () => {
     setEditingCaminhao(null)
     setIsModalOpen(true)
   }
 
+  /**
+   * @description Fecha o modal de adição/edição e limpa o estado.
+   */
   const handleCloseModal = () => {
     setIsModalOpen(false)
     setEditingCaminhao(null)
   }
 
+  // Definição das colunas para a DataTable.
   const columns: ColumnDef<Caminhao>[] = [
     {
       accessorKey: 'modelo',

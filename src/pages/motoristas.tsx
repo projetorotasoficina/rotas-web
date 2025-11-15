@@ -1,3 +1,21 @@
+/**
+ * @file Página de Gerenciamento de Motoristas.
+ * @description Este arquivo define o componente `MotoristasPage`, que renderiza a interface
+ * para gerenciar os motoristas. A página implementa uma funcionalidade
+ * completa de CRUD (Criar, Ler, Atualizar, Excluir) para os motoristas.
+ *
+ * Funcionalidades Principais:
+ * - **Listagem e Paginação**: Exibe os motoristas em uma tabela de dados (`DataTable`) com
+ *   suporte a paginação, ordenação e busca do lado do servidor.
+ * - **Criação e Edição**: Utiliza um modal (`MotoristaModal`) para adicionar novos
+ *   motoristas ou editar os existentes.
+ * - **Exclusão**: Apresenta um diálogo de confirmação (`AlertDialog`) antes de excluir
+ *   um motorista.
+ * - **Controle de Acesso**: As ações de criar, editar e excluir são controladas com base
+ *   nas permissões do usuário logado, obtidas através do hook `useRole`.
+ * - **Busca com Debounce**: O campo de busca utiliza o hook `useDebounce` para otimizar
+ *   as requisições à API.
+ */
 import type {
   ColumnDef,
   PaginationState,
@@ -32,8 +50,12 @@ import { useDeleteMotorista } from '@/http/motoristas/use-delete-motorista'
 import { usePaginatedMotoristas } from '@/http/motoristas/use-paginated-motoristas'
 import { displayCPF } from '@/lib/masks'
 
+/**
+ * @description Componente que renderiza a página de gerenciamento de motoristas.
+ */
 export function MotoristasPage() {
   const { canEdit, canDelete, canCreate } = useRole()
+  // Estados para controlar a abertura de modais e os dados em edição/exclusão.
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingMotorista, setEditingMotorista] = useState<Motorista | null>(
     null
@@ -42,6 +64,7 @@ export function MotoristasPage() {
     null
   )
 
+  // Estados para controle da tabela (paginação, ordenação, filtro).
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -50,6 +73,7 @@ export function MotoristasPage() {
   const [searchFilter, setSearchFilter] = useState('')
   const debouncedSearch = useDebounce(searchFilter, 500)
 
+  // Hook para buscar os dados paginados da API.
   const {
     data: response,
     isLoading,
@@ -63,17 +87,29 @@ export function MotoristasPage() {
   })
 
   const motoristas = response?.content ?? []
+  // Hook de mutação para excluir um motorista.
   const deleteMutation = useDeleteMotorista()
 
+  /**
+   * @description Abre o modal de edição com os dados do motorista selecionado.
+   * @param {Motorista} motorista - O motorista a ser editado.
+   */
   const handleEdit = (motorista: Motorista) => {
     setEditingMotorista(motorista)
     setIsModalOpen(true)
   }
 
+  /**
+   * @description Define o motorista a ser excluído e abre o diálogo de confirmação.
+   * @param {Motorista} motorista - O motorista a ser excluído.
+   */
   const handleDelete = (motorista: Motorista) => {
     setDeletingMotorista(motorista)
   }
 
+  /**
+   * @description Confirma e executa a exclusão do motorista.
+   */
   const confirmDelete = () => {
     if (deletingMotorista?.id) {
       deleteMutation.mutate(deletingMotorista.id)
@@ -81,16 +117,23 @@ export function MotoristasPage() {
     }
   }
 
+  /**
+   * @description Abre o modal para adicionar um novo motorista.
+   */
   const handleAdd = () => {
     setEditingMotorista(null)
     setIsModalOpen(true)
   }
 
+  /**
+   * @description Fecha o modal de adição/edição e limpa o estado.
+   */
   const handleCloseModal = () => {
     setIsModalOpen(false)
     setEditingMotorista(null)
   }
 
+  // Definição das colunas para a DataTable.
   const columns: ColumnDef<Motorista>[] = [
     {
       accessorKey: 'nome',

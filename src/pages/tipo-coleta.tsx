@@ -1,3 +1,18 @@
+/**
+ * @file Página de Gerenciamento de Tipos de Coleta.
+ * @description Este arquivo define o componente `TipoColetaPage`, que renderiza a interface
+ * para gerenciar os tipos de coleta (ex: Coleta Seletiva, Coleta Orgânica). A página
+ * implementa uma funcionalidade completa de CRUD (Criar, Ler, Atualizar, Excluir).
+ *
+ * Funcionalidades Principais:
+ * - **Listagem e Paginação**: Exibe os tipos de coleta em uma `DataTable` com
+ *   suporte a paginação, ordenação e busca do lado do servidor.
+ * - **Criação e Edição**: Utiliza um modal (`TipoColetaModal`) para adicionar ou editar
+ *   tipos de coleta.
+ * - **Exclusão**: Apresenta um `AlertDialog` para confirmação antes de excluir um item.
+ * - **Controle de Acesso**: As ações são controladas pelo hook `useRole`.
+ * - **Busca com Debounce**: Otimiza a busca usando o hook `useDebounce`.
+ */
 import type {
   ColumnDef,
   PaginationState,
@@ -30,8 +45,12 @@ import type { TipoColeta } from '@/http/tipo-coleta/types'
 import { useDeleteTipoColeta } from '@/http/tipo-coleta/use-delete-tipo-coleta'
 import { usePaginatedTipoColeta } from '@/http/tipo-coleta/use-paginated-tipo-coleta'
 
+/**
+ * @description Componente que renderiza a página de gerenciamento de Tipos de Coleta.
+ */
 export function TipoColetaPage() {
   const { canEdit, canDelete, canCreate } = useRole()
+  // Estados para controlar a abertura de modais e os dados em edição/exclusão.
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingTipoColeta, setEditingTipoColeta] = useState<TipoColeta | null>(
     null
@@ -39,6 +58,7 @@ export function TipoColetaPage() {
   const [deletingTipoColeta, setDeletingTipoColeta] =
     useState<TipoColeta | null>(null)
 
+  // Estados para controle da tabela (paginação, ordenação, filtro).
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -47,6 +67,7 @@ export function TipoColetaPage() {
   const [searchFilter, setSearchFilter] = useState('')
   const debouncedSearch = useDebounce(searchFilter, 500)
 
+  // Hook para buscar os dados paginados da API.
   const {
     data: response,
     isLoading,
@@ -60,17 +81,29 @@ export function TipoColetaPage() {
   })
 
   const tiposColeta = response?.content ?? []
+  // Hook de mutação para excluir um tipo de coleta.
   const deleteMutation = useDeleteTipoColeta()
 
+  /**
+   * @description Abre o modal de edição com os dados do item selecionado.
+   * @param {TipoColeta} tipoColeta - O item a ser editado.
+   */
   const handleEdit = (tipoColeta: TipoColeta) => {
     setEditingTipoColeta(tipoColeta)
     setIsModalOpen(true)
   }
 
+  /**
+   * @description Define o item a ser excluído e abre o diálogo de confirmação.
+   * @param {TipoColeta} tipoColeta - O item a ser excluído.
+   */
   const handleDelete = (tipoColeta: TipoColeta) => {
     setDeletingTipoColeta(tipoColeta)
   }
 
+  /**
+   * @description Confirma e executa a exclusão do item.
+   */
   const confirmDelete = () => {
     if (deletingTipoColeta?.id) {
       deleteMutation.mutate(deletingTipoColeta.id)
@@ -78,16 +111,23 @@ export function TipoColetaPage() {
     }
   }
 
+  /**
+   * @description Abre o modal para adicionar um novo item.
+   */
   const handleAdd = () => {
     setEditingTipoColeta(null)
     setIsModalOpen(true)
   }
 
+  /**
+   * @description Fecha o modal de adição/edição e limpa o estado.
+   */
   const handleCloseModal = () => {
     setIsModalOpen(false)
     setEditingTipoColeta(null)
   }
 
+  // Definição das colunas para a DataTable.
   const columns: ColumnDef<TipoColeta>[] = [
     {
       accessorKey: 'id',

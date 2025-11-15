@@ -1,3 +1,20 @@
+/**
+ * @file Página do Dashboard (Home).
+ * @description Este arquivo define o componente `HomePage`, que serve como o painel principal
+ * da aplicação. O dashboard exibe uma visão geral das operações de coleta, incluindo:
+ *
+ * - **Métricas Principais**: Cards com estatísticas como trajetos finalizados, distância
+ *   percorrida, etc. Os dados são baseados em um período selecionável.
+ * - **Filtro de Período**: Um seletor de data (`DateRangeFilter`) que permite ao usuário
+ *   definir o período para as estatísticas exibidas.
+ * - **Mapa do Último Trajeto**: Um mapa (`RouteMap`) que exibe o percurso do último
+ *   trajeto finalizado, mostrando o caminho percorrido.
+ * - **Informações do Último Trajeto**: Detalhes (`RouteInfo`) sobre o último trajeto,
+ *   como motorista, caminhão, duração e distância.
+ *
+ * O componente gerencia o estado do filtro de data e utiliza hooks customizados
+ * (`useTrajetosStats`, `useUltimoTrajeto`) para buscar os dados da API de forma reativa.
+ */
 import { addDays } from 'date-fns'
 import { useMemo, useState } from 'react'
 import type { DateRange } from 'react-day-picker'
@@ -9,19 +26,26 @@ import { useTrajetosStats } from '@/http/trajeto/use-trajetos-stats'
 import { useUltimoTrajeto } from '@/http/trajeto/use-ultimo-trajeto'
 import { formatDuracao } from '@/lib/utils'
 
+/**
+ * @description Componente que renderiza a página principal do dashboard.
+ */
 export function HomePage() {
+  // Estado para controlar o período de data selecionado para as estatísticas.
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: addDays(new Date(), -30),
+    from: addDays(new Date(), -30), // Padrão: últimos 30 dias.
     to: new Date(),
   })
 
+  // Hook para buscar os dados do último trajeto finalizado.
   const { data: ultimoTrajeto, isLoading: isLoadingTrajeto } =
     useUltimoTrajeto()
+  // Hook para buscar as estatísticas dos trajetos com base no período selecionado.
   const { data: stats, isLoading: isLoadingStats } = useTrajetosStats(
     dateRange?.from,
     dateRange?.to
   )
 
+  // Memoiza as métricas para evitar recálculos desnecessários a cada renderização.
   const metrics = useMemo(
     () => [
       {
@@ -65,9 +89,11 @@ export function HomePage() {
         />
       </div>
 
+      {/* Seção de Métricas */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {isLoadingStats
-          ? [
+          ? // Exibe skeletons de carregamento enquanto as estatísticas são buscadas.
+            [
               'trajetos-finalizados',
               'em-andamento',
               'distancia',
@@ -90,6 +116,7 @@ export function HomePage() {
             ))}
       </div>
 
+      {/* Seção do Mapa e Informações do Trajeto */}
       <div className="grid gap-4 lg:grid-cols-[1fr_400px]">
         <div className="space-y-4">
           {isLoadingTrajeto && (
@@ -102,6 +129,7 @@ export function HomePage() {
             <RouteMap trajeto={ultimoTrajeto} />
           )}
 
+          {/* Mensagem exibida se não houver último trajeto e não estiver carregando. */}
           {!(isLoadingTrajeto || ultimoTrajeto) && (
             <div className="flex h-[500px] items-center justify-center rounded-lg border-2 border-muted-foreground/25 border-dashed">
               <div className="text-center">
@@ -127,6 +155,7 @@ export function HomePage() {
             <RouteInfo trajeto={ultimoTrajeto} />
           )}
 
+          {/* Mensagem exibida se não houver último trajeto e não estiver carregando. */}
           {!(isLoadingTrajeto || ultimoTrajeto) && (
             <div className="rounded-lg border-2 border-muted-foreground/25 border-dashed p-8 text-center">
               <h3 className="font-medium text-lg text-muted-foreground">

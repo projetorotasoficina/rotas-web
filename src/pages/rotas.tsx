@@ -1,3 +1,21 @@
+/**
+ * @file Página de Gerenciamento de Rotas.
+ * @description Este arquivo define o componente `RotasPage`, que renderiza a interface
+ * para gerenciar as rotas de coleta. A página implementa uma funcionalidade
+ * completa de CRUD (Criar, Ler, Atualizar, Excluir) para as rotas.
+ *
+ * Funcionalidades Principais:
+ * - **Listagem e Paginação**: Exibe as rotas em uma tabela de dados (`DataTable`) com
+ *   suporte a paginação, ordenação e busca do lado do servidor.
+ * - **Criação e Edição**: Utiliza um modal (`RotaModal`) para adicionar novas
+ *   rotas ou editar as existentes.
+ * - **Exclusão**: Apresenta um diálogo de confirmação (`AlertDialog`) antes de excluir
+ *   uma rota.
+ * - **Controle de Acesso**: As ações de criar, editar e excluir são controladas com base
+ *   nas permissões do usuário logado, obtidas através do hook `useRole`.
+ * - **Busca com Debounce**: O campo de busca utiliza o hook `useDebounce` para otimizar
+ *   as requisições à API.
+ */
 import type {
   ColumnDef,
   PaginationState,
@@ -33,12 +51,17 @@ import { usePaginatedRotas } from '@/http/rotas/use-paginated-rotas'
 import { useListTipoColeta } from '@/http/tipo-coleta/use-list-tipo-coleta'
 import { useListTipoResiduo } from '@/http/tipo-residuo/use-list-tipo-residuo'
 
+/**
+ * @description Componente que renderiza a página de gerenciamento de rotas.
+ */
 export function RotasPage() {
   const { canEdit, canDelete, canCreate } = useRole()
+  // Estados para controlar a abertura de modais e os dados em edição/exclusão.
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingRota, setEditingRota] = useState<Rota | null>(null)
   const [deletingRota, setDeletingRota] = useState<Rota | null>(null)
 
+  // Estados para controle da tabela (paginação, ordenação, filtro).
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -47,6 +70,7 @@ export function RotasPage() {
   const [searchFilter, setSearchFilter] = useState('')
   const debouncedSearch = useDebounce(searchFilter, 500)
 
+  // Hook para buscar os dados paginados da API.
   const {
     data: response,
     isLoading,
@@ -60,19 +84,32 @@ export function RotasPage() {
   })
 
   const rotas = response?.content ?? []
+  // Busca listas de tipos para exibir nomes em vez de IDs na tabela.
   const { data: tiposResiduo = [] } = useListTipoResiduo()
   const { data: tiposColeta = [] } = useListTipoColeta()
+  // Hook de mutação para excluir uma rota.
   const deleteMutation = useDeleteRota()
 
+  /**
+   * @description Abre o modal de edição com os dados da rota selecionada.
+   * @param {Rota} rota - A rota a ser editada.
+   */
   const handleEdit = (rota: Rota) => {
     setEditingRota(rota)
     setIsModalOpen(true)
   }
 
+  /**
+   * @description Define a rota a ser excluída e abre o diálogo de confirmação.
+   * @param {Rota} rota - A rota a ser excluída.
+   */
   const handleDelete = (rota: Rota) => {
     setDeletingRota(rota)
   }
 
+  /**
+   * @description Confirma e executa a exclusão da rota.
+   */
   const confirmDelete = () => {
     if (deletingRota?.id) {
       deleteMutation.mutate(deletingRota.id)
@@ -80,17 +117,23 @@ export function RotasPage() {
     }
   }
 
+  /**
+   * @description Abre o modal para adicionar uma nova rota.
+   */
   const handleAdd = () => {
     setEditingRota(null)
     setIsModalOpen(true)
   }
 
+  /**
+   * @description Fecha o modal de adição/edição e limpa o estado.
+   */
   const handleCloseModal = () => {
     setIsModalOpen(false)
     setEditingRota(null)
   }
 
-  // Helper functions to get names
+  // Funções auxiliares para obter nomes a partir de IDs.
   const getTipoResiduoNome = (id: number) => {
     const tipo = tiposResiduo.find((t) => t.id === id)
     return tipo?.nome || '-'
@@ -101,6 +144,7 @@ export function RotasPage() {
     return tipo?.nome || '-'
   }
 
+  // Definição das colunas para a DataTable.
   const columns: ColumnDef<Rota>[] = [
     {
       accessorKey: 'nome',

@@ -1,3 +1,24 @@
+/**
+ * @file Página de Gerenciamento do App Android.
+ * @description Este arquivo define o componente `AppAndroidPage`, que fornece uma interface
+ * para gerenciar o acesso e os dispositivos do aplicativo móvel Android. A página é
+ * dividida em duas seções principais usando abas (`Tabs`):
+ *
+ * 1.  **Códigos de Ativação**:
+ *     - Exibe uma tabela (`CodigosAtivacaoTable`) com os códigos de uso único gerados
+ *       para registrar novos dispositivos.
+ *     - Permite a geração, revogação e exclusão desses códigos.
+ *
+ * 2.  **Tokens Ativos**:
+ *     - Mostra uma tabela (`AppTokensTable`) com os tokens de longa duração que foram
+ *       gerados a partir de um código de ativação.
+ *     - Esses tokens representam os dispositivos registrados e autorizados a se comunicar
+ *       com a API.
+ *     - Permite visualizar detalhes, revogar ou reativar o acesso de um dispositivo.
+ *
+ * O componente também gerencia a abertura de um modal (`AppTokenDetailsModal`) para exibir
+ * informações detalhadas de um token selecionado.
+ */
 import { QrCode, Smartphone } from 'lucide-react'
 import { useState } from 'react'
 import { AppTokenDetailsModal } from '@/components/app-tokens/app-token-details-modal'
@@ -6,15 +27,26 @@ import { CodigosAtivacaoTable } from '@/components/codigos-ativacao/codigos-ativ
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { AppToken } from '@/http/app-tokens/types'
 
+/**
+ * @description Componente que renderiza a página de gerenciamento do App Android.
+ */
 export function AppAndroidPage() {
+  // Estados para controlar o modal de detalhes do token.
   const [selectedToken, setSelectedToken] = useState<AppToken | null>(null)
   const [isTokenDetailsOpen, setIsTokenDetailsOpen] = useState(false)
 
+  /**
+   * @description Abre o modal de detalhes para um token específico.
+   * @param {AppToken} token - O token a ser visualizado.
+   */
   const handleViewTokenDetails = (token: AppToken) => {
     setSelectedToken(token)
     setIsTokenDetailsOpen(true)
   }
 
+  /**
+   * @description Fecha o modal de detalhes do token e limpa o estado.
+   */
   const handleCloseTokenDetails = () => {
     setIsTokenDetailsOpen(false)
     setSelectedToken(null)
@@ -38,6 +70,7 @@ export function AppAndroidPage() {
           </TabsTrigger>
         </TabsList>
 
+        {/* Aba para gerenciar Códigos de Ativação */}
         <TabsContent className="space-y-4" value="codigos">
           <div className="rounded-lg border bg-card p-4 text-card-foreground">
             <h3 className="font-semibold text-sm">Sobre Códigos de Ativação</h3>
@@ -50,6 +83,7 @@ export function AppAndroidPage() {
           <CodigosAtivacaoTable />
         </TabsContent>
 
+        {/* Aba para gerenciar Tokens Ativos */}
         <TabsContent className="space-y-4" value="tokens">
           <div className="rounded-lg border bg-card p-4 text-card-foreground">
             <h3 className="font-semibold text-sm">Sobre Tokens Ativos</h3>
@@ -64,6 +98,7 @@ export function AppAndroidPage() {
         </TabsContent>
       </Tabs>
 
+      {/* Modal para exibir detalhes de um token */}
       <AppTokenDetailsModal
         isOpen={isTokenDetailsOpen}
         onClose={handleCloseTokenDetails}

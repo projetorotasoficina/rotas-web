@@ -1,3 +1,18 @@
+/**
+ * @file Página de Login.
+ * @description Este arquivo define o componente `LoginPage`, responsável pela interface
+ * e lógica de autenticação do usuário. O processo de login é dividido em duas etapas:
+ * 1.  **Envio de E-mail**: O usuário insere seu e-mail. O componente `EmailForm` é usado
+ *     para capturar o e-mail e a mutação `useSendLoginCode` é chamada para solicitar
+ *     um código de verificação à API.
+ * 2.  **Verificação de Código**: Após o envio do e-mail, a UI muda para o `CodeVerificationForm`.
+ *     O usuário insere o código recebido, e a mutação `useVerifyLoginCode` é chamada.
+ *     Se o código for válido, a API retorna um token JWT.
+ *
+ * Após receber o token, o componente busca os dados completos do usuário, chama a função `login`
+ * do `AuthContext` para salvar o estado de autenticação globalmente e redireciona o usuário
+ * para a página principal ('/').
+ */
 import { StatusCodes } from 'http-status-codes'
 import { Recycle } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -19,6 +34,11 @@ import type { ApiError } from '@/lib/errors'
 import { apiConfig, fetchWithAuth } from '@/services/api'
 import { tokenStorage } from '@/services/token-storage'
 
+/**
+ * @description Mapeia um erro da API para uma mensagem de erro amigável na etapa de envio de e-mail.
+ * @param {ApiError} apiError - O erro retornado pela API.
+ * @returns {string} A mensagem de erro para o usuário.
+ */
 function getEmailErrorMessage(apiError: ApiError): string {
   if (
     apiError.status === StatusCodes.NOT_FOUND ||
@@ -34,6 +54,11 @@ function getEmailErrorMessage(apiError: ApiError): string {
   return apiError.userMessage
 }
 
+/**
+ * @description Mapeia um erro da API para uma mensagem de erro amigável na etapa de verificação de código.
+ * @param {ApiError} apiError - O erro retornado pela API.
+ * @returns {string} A mensagem de erro para o usuário.
+ */
 function getCodeErrorMessage(apiError: ApiError): string {
   if (apiError.status === StatusCodes.INTERNAL_SERVER_ERROR) {
     return 'Erro interno do servidor. Tente novamente mais tarde'
@@ -46,9 +71,15 @@ function getCodeErrorMessage(apiError: ApiError): string {
   return apiError.userMessage
 }
 
+/**
+ * @description Componente que renderiza a página de login e gerencia o fluxo de autenticação.
+ */
 export function LoginPage() {
+  // Estado para controlar qual etapa do formulário é exibida (e-mail ou código).
   const [isCodeSent, setIsCodeSent] = useState(false)
+  // Armazena o e-mail do usuário após a primeira etapa.
   const [userEmail, setUserEmail] = useState('')
+  // Estados para armazenar mensagens de erro específicas para cada formulário.
   const [emailError, setEmailError] = useState<string | null>(null)
   const [codeError, setCodeError] = useState<string | null>(null)
 
@@ -57,12 +88,18 @@ export function LoginPage() {
   const sendLoginCodeMutation = useSendLoginCode()
   const verifyCodeMutation = useVerifyLoginCode()
 
+  // Efeito para redirecionar o usuário para a home se ele já estiver autenticado.
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/', { replace: true })
     }
   }, [isAuthenticated, navigate])
 
+  /**
+   * @description Lida com o envio do formulário de e-mail.
+   * Chama a mutação para enviar o código de login.
+   * @param {string} email - O e-mail fornecido pelo usuário.
+   */
   function handleSubmitEmail(email: string) {
     setEmailError(null)
     setCodeError(null)
@@ -82,6 +119,11 @@ export function LoginPage() {
     )
   }
 
+  /**
+   * @description Lida com o envio do formulário de verificação de código.
+   * Chama a mutação para verificar o código e, em caso de sucesso, autentica o usuário.
+   * @param {string} code - O código de verificação fornecido pelo usuário.
+   */
   function handleVerifyCode(code: string) {
     setCodeError(null)
 
@@ -90,15 +132,19 @@ export function LoginPage() {
       {
         onSuccess: async (data) => {
           if (data.token) {
+            // Armazena o token para a próxima requisição.
             tokenStorage.set(data.token)
             try {
+              // Busca os dados completos do usuário para salvar no contexto.
               const response = await fetchWithAuth(
                 apiConfig.endpoints.usuarios.meuPerfil
               )
               const fullUser = await response.json()
 
+              // Chama a função de login do contexto para finalizar a autenticação.
               login(data.token, fullUser)
 
+              // Redireciona para a página inicial.
               navigate('/', { replace: true })
             } catch (_error) {
               setCodeError('Falha ao buscar dados do usuário.')
@@ -112,6 +158,10 @@ export function LoginPage() {
     )
   }
 
+  /**
+   * @description Permite ao usuário voltar da etapa de verificação de código para a de e-mail.
+   * Reseta os estados relevantes.
+   */
   function handleBackToEmail() {
     setIsCodeSent(false)
     setEmailError(null)
