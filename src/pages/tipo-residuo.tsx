@@ -1,3 +1,18 @@
+/**
+ * @file Página de Gerenciamento de Tipos de Resíduo.
+ * @description Este arquivo define o componente `TipoResiduoPage`, que renderiza a interface
+ * para gerenciar os tipos de resíduo (ex: Plástico, Vidro, Metal), incluindo uma cor
+ * associada a cada tipo. A página implementa uma funcionalidade completa de CRUD.
+ *
+ * Funcionalidades Principais:
+ * - **Listagem e Paginação**: Exibe os tipos de resíduo em uma `DataTable` com
+ *   suporte a paginação, ordenação e busca do lado do servidor.
+ * - **Criação e Edição**: Utiliza um modal (`TipoResiduoModal`) para adicionar ou editar
+ *   tipos de resíduo.
+ * - **Exclusão**: Apresenta um `AlertDialog` para confirmação antes de excluir um item.
+ * - **Controle de Acesso**: As ações são controladas pelo hook `useRole`.
+ * - **Busca com Debounce**: Otimiza a busca usando o hook `useDebounce`.
+ */
 import type {
   ColumnDef,
   PaginationState,
@@ -30,14 +45,19 @@ import type { TipoResiduo } from '@/http/tipo-residuo/types'
 import { useDeleteTipoResiduo } from '@/http/tipo-residuo/use-delete-tipo-residuo'
 import { usePaginatedTipoResiduo } from '@/http/tipo-residuo/use-paginated-tipo-residuo'
 
+/**
+ * @description Componente que renderiza a página de gerenciamento de Tipos de Resíduo.
+ */
 export function TipoResiduoPage() {
   const { canEdit, canDelete, canCreate } = useRole()
+  // Estados para controlar a abertura de modais e os dados em edição/exclusão.
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingTipoResiduo, setEditingTipoResiduo] =
     useState<TipoResiduo | null>(null)
   const [deletingTipoResiduo, setDeletingTipoResiduo] =
     useState<TipoResiduo | null>(null)
 
+  // Estados para controle da tabela (paginação, ordenação, filtro).
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -46,6 +66,7 @@ export function TipoResiduoPage() {
   const [searchFilter, setSearchFilter] = useState('')
   const debouncedSearch = useDebounce(searchFilter, 500)
 
+  // Hook para buscar os dados paginados da API.
   const {
     data: response,
     isLoading,
@@ -59,17 +80,29 @@ export function TipoResiduoPage() {
   })
 
   const tiposResiduo = response?.content ?? []
+  // Hook de mutação para excluir um tipo de resíduo.
   const deleteMutation = useDeleteTipoResiduo()
 
+  /**
+   * @description Abre o modal de edição com os dados do item selecionado.
+   * @param {TipoResiduo} tipoResiduo - O item a ser editado.
+   */
   const handleEdit = (tipoResiduo: TipoResiduo) => {
     setEditingTipoResiduo(tipoResiduo)
     setIsModalOpen(true)
   }
 
+  /**
+   * @description Define o item a ser excluído e abre o diálogo de confirmação.
+   * @param {TipoResiduo} tipoResiduo - O item a ser excluído.
+   */
   const handleDelete = (tipoResiduo: TipoResiduo) => {
     setDeletingTipoResiduo(tipoResiduo)
   }
 
+  /**
+   * @description Confirma e executa a exclusão do item.
+   */
   const confirmDelete = () => {
     if (deletingTipoResiduo?.id) {
       deleteMutation.mutate(deletingTipoResiduo.id)
@@ -77,16 +110,23 @@ export function TipoResiduoPage() {
     }
   }
 
+  /**
+   * @description Abre o modal para adicionar um novo item.
+   */
   const handleAdd = () => {
     setEditingTipoResiduo(null)
     setIsModalOpen(true)
   }
 
+  /**
+   * @description Fecha o modal de adição/edição e limpa o estado.
+   */
   const handleCloseModal = () => {
     setIsModalOpen(false)
     setEditingTipoResiduo(null)
   }
 
+  // Definição das colunas para a DataTable.
   const columns: ColumnDef<TipoResiduo>[] = [
     {
       accessorKey: 'id',

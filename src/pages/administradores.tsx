@@ -1,3 +1,21 @@
+/**
+ * @file Página de Gerenciamento de Administradores.
+ * @description Este arquivo define o componente `AdministradoresPage`, que renderiza a interface
+ * para gerenciar os usuários administradores do sistema. A página implementa uma funcionalidade
+ * completa de CRUD (Criar, Ler, Atualizar, Excluir) para os administradores.
+ *
+ * Funcionalidades Principais:
+ * - **Listagem e Paginação**: Exibe os administradores em uma tabela de dados (`DataTable`) com
+ *   suporte a paginação, ordenação e busca do lado do servidor.
+ * - **Criação e Edição**: Utiliza um modal (`AdministradorModal`) para adicionar novos
+ *   administradores ou editar os existentes.
+ * - **Exclusão**: Apresenta um diálogo de confirmação (`AlertDialog`) antes de excluir
+ *   um administrador, para evitar ações acidentais.
+ * - **Controle de Acesso**: As ações de criar, editar e excluir são controladas com base
+ *   nas permissões do usuário logado, obtidas através do hook `useRole`.
+ * - **Busca com Debounce**: O campo de busca utiliza o hook `useDebounce` para otimizar
+ *   as requisições à API, evitando chamadas a cada tecla pressionada.
+ */
 import type {
   ColumnDef,
   PaginationState,
@@ -33,6 +51,11 @@ import { useDeleteUsuario } from '@/http/usuarios/use-delete-usuario'
 import { usePaginatedUsuarios } from '@/http/usuarios/use-paginated-usuarios'
 import { displayCPF } from '@/lib/masks'
 
+/**
+ * @description Retorna um rótulo legível para um papel (role) do sistema.
+ * @param {string} role - O papel (ex: 'ROLE_SUPER_ADMIN').
+ * @returns {string} O rótulo correspondente (ex: 'Super Admin').
+ */
 const getRoleLabel = (role: string) => {
   switch (role) {
     case 'ROLE_SUPER_ADMIN':
@@ -44,6 +67,11 @@ const getRoleLabel = (role: string) => {
   }
 }
 
+/**
+ * @description Retorna a variante de cor do componente `Badge` com base no papel.
+ * @param {string} role - O papel do sistema.
+ * @returns {'destructive' | 'secondary' | 'default'} A variante do badge.
+ */
 const getRoleVariant = (role: string) => {
   switch (role) {
     case 'ROLE_SUPER_ADMIN':
@@ -55,12 +83,17 @@ const getRoleVariant = (role: string) => {
   }
 }
 
+/**
+ * @description Componente que renderiza a página de gerenciamento de administradores.
+ */
 export function AdministradoresPage() {
   const { user } = useAuth()
+  // Estados para controlar a abertura de modais e os dados em edição/exclusão.
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingUsuario, setEditingUsuario] = useState<Usuario | null>(null)
   const [deletingUsuario, setDeletingUsuario] = useState<Usuario | null>(null)
 
+  // Estados para controle da tabela (paginação, ordenação, filtro).
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -69,6 +102,7 @@ export function AdministradoresPage() {
   const [searchFilter, setSearchFilter] = useState('')
   const debouncedSearch = useDebounce(searchFilter, 500)
 
+  // Hook para buscar os dados paginados da API.
   const {
     data: response,
     isLoading,
@@ -82,13 +116,23 @@ export function AdministradoresPage() {
   })
 
   const usuarios = response?.content ?? []
+  // Hook de mutação para excluir um usuário.
   const deleteMutation = useDeleteUsuario()
 
+  /**
+   * @description Abre o modal de edição com os dados do usuário selecionado.
+   * @param {Usuario} usuario - O usuário a ser editado.
+   */
   const handleEdit = (usuario: Usuario) => {
     setEditingUsuario(usuario)
     setIsModalOpen(true)
   }
 
+  /**
+   * @description Define o usuário a ser excluído e abre o diálogo de confirmação.
+   * Impede que o usuário exclua a própria conta.
+   * @param {Usuario} usuario - O usuário a ser excluído.
+   */
   const handleDelete = (usuario: Usuario) => {
     if (user?.email === usuario.email) {
       toast.error('Você não pode excluir sua própria conta!')
@@ -97,6 +141,9 @@ export function AdministradoresPage() {
     setDeletingUsuario(usuario)
   }
 
+  /**
+   * @description Confirma e executa a exclusão do usuário.
+   */
   const confirmDelete = () => {
     if (deletingUsuario?.id) {
       deleteMutation.mutate(deletingUsuario.id)
@@ -104,16 +151,23 @@ export function AdministradoresPage() {
     }
   }
 
+  /**
+   * @description Abre o modal para adicionar um novo usuário.
+   */
   const handleAdd = () => {
     setEditingUsuario(null)
     setIsModalOpen(true)
   }
 
+  /**
+   * @description Fecha o modal de adição/edição e limpa o estado.
+   */
   const handleCloseModal = () => {
     setIsModalOpen(false)
     setEditingUsuario(null)
   }
 
+  // Definição das colunas para a DataTable.
   const columns: ColumnDef<Usuario>[] = [
     {
       accessorKey: 'nome',

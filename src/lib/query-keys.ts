@@ -2,6 +2,7 @@ export const queryKeys = {
   usuarios: {
     all: ['usuarios'] as const,
     detail: (id: number) => ['usuarios', id] as const,
+    me: ['me'] as const,
   },
   motoristas: {
     all: ['motoristas'] as const,
