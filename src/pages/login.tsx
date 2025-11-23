@@ -12,6 +12,7 @@
  * Após receber o token, o componente busca os dados completos do usuário, chama a função `login`
  * do `AuthContext` para salvar o estado de autenticação globalmente e redireciona o usuário
  * para a página principal ('/').
+ * 
  */
 import { StatusCodes } from 'http-status-codes'
 import { Recycle } from 'lucide-react'
