@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -34,41 +33,12 @@ import { useCreateCaminhao } from '@/http/caminhoes/use-create-caminhao'
 import { useUpdateCaminhao } from '@/http/caminhoes/use-update-caminhao'
 import { useListTipoColeta } from '@/http/tipo-coleta/use-list-tipo-coleta'
 import { useListTipoResiduo } from '@/http/tipo-residuo/use-list-tipo-residuo'
+import { schemas } from '@/lib/validations'
 
 const getButtonText = (isEditing: boolean) =>
   isEditing ? 'Salvar' : 'Adicionar'
 
-const caminhaoSchema = z.object({
-  modelo: z.string().min(1, 'Modelo é obrigatório'),
-  placa: z
-    .string()
-    .min(1, 'Placa é obrigatória')
-    .transform((val) => val.toUpperCase().replace(/[^A-Z0-9]/g, ''))
-    .pipe(
-      z
-        .string()
-        .length(7, 'Placa deve ter 7 caracteres (sem traços)')
-        .regex(
-          /^[A-Z]{3}[0-9]{4}$|^[A-Z]{3}[0-9][A-Z][0-9]{2}$/,
-          'Placa deve estar no formato Mercosul (XXX0X00) ou no formato antigo (XXX0000)'
-        )
-    ),
-  tipoColetaId: z.number().min(1, 'Tipo de coleta é obrigatório'),
-  residuoId: z.number().min(1, 'Tipo de resíduo é obrigatório'),
-  tipoVeiculo: z.enum(
-    [
-      'VUC',
-      'CAMINHAO_LEVE',
-      'CAMINHAO_MEDIO',
-      'CAMINHAO_PESADO',
-      'CAMINHAO_CARRETA',
-    ],
-    {
-      message: 'Tipo de veículo é obrigatório',
-    }
-  ),
-  ativo: z.boolean(),
-})
+const caminhaoSchema = schemas.caminhao
 
 type CaminhaoModalProps = {
   isOpen: boolean
@@ -178,7 +148,11 @@ export function CaminhaoModal({
                 <FormItem>
                   <FormLabel>Modelo</FormLabel>
                   <FormControl>
-                    <Input placeholder="Modelo do caminhão" {...field} />
+                    <Input
+                      maxLength={100}
+                      placeholder="Modelo do caminhão"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

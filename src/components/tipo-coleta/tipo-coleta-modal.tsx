@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -24,18 +23,12 @@ import { Input } from '@/components/ui/input'
 import type { TipoColeta, TipoColetaFormData } from '@/http/tipo-coleta/types'
 import { useCreateTipoColeta } from '@/http/tipo-coleta/use-create-tipo-coleta'
 import { useUpdateTipoColeta } from '@/http/tipo-coleta/use-update-tipo-coleta'
+import { schemas } from '@/lib/validations'
 
 const getButtonText = (isEditing: boolean) =>
   isEditing ? 'Salvar' : 'Adicionar'
 
-const tipoColetaSchema = z.object({
-  nome: z
-    .string()
-    .min(1, 'Nome é obrigatório')
-    .refine((val) => val.trim().length > 0, {
-      message: 'Nome não pode conter apenas espaços',
-    }),
-})
+const tipoColetaSchema = schemas.tipoColeta
 
 type TipoColetaModalProps = {
   isOpen: boolean
@@ -131,7 +124,11 @@ export function TipoColetaModal({
                 <FormItem>
                   <FormLabel>Nome</FormLabel>
                   <FormControl>
-                    <Input placeholder="Nome do tipo de coleta" {...field} />
+                    <Input
+                      maxLength={100}
+                      placeholder="Nome do tipo de coleta"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

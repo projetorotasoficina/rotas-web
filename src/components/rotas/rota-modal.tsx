@@ -81,11 +81,14 @@ const polygonSchema = z.object({
 })
 
 const rotaSchema = z.object({
-  nome: z.string().min(1, 'Nome é obrigatório'),
+  nome: z
+    .string()
+    .min(1, 'Nome é obrigatório')
+    .max(100, 'Máximo de 100 caracteres'),
   ativo: z.boolean(),
   observacoes: z
     .string()
-    .max(400, 'Observações podem ter no máximo 400 caracteres')
+    .max(500, 'Observações podem ter no máximo 500 caracteres')
     .optional(),
   tipoResiduoId: z.number().min(1, 'Tipo de resíduo é obrigatório'),
   tipoColetaId: z.number().min(1, 'Tipo de coleta é obrigatório'),
@@ -207,7 +210,11 @@ export function RotaModal({ isOpen, onClose, rota }: RotaModalProps) {
                     <FormItem>
                       <FormLabel>Nome</FormLabel>
                       <FormControl>
-                        <Input placeholder="Nome da rota" {...field} />
+                        <Input
+                          maxLength={100}
+                          placeholder="Nome da rota"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -292,6 +299,7 @@ export function RotaModal({ isOpen, onClose, rota }: RotaModalProps) {
                       <FormLabel>Observações</FormLabel>
                       <FormControl>
                         <Textarea
+                          maxLength={500}
                           placeholder="Observações adicionais (opcional)"
                           {...field}
                         />
