@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -32,40 +31,13 @@ import {
 import type { Motorista, MotoristaFormData } from '@/http/motoristas/types'
 import { useCreateMotorista } from '@/http/motoristas/use-create-motorista'
 import { useUpdateMotorista } from '@/http/motoristas/use-update-motorista'
-import { formatCPF, isValidCPF, removeCPFMask } from '@/lib/masks'
+import { formatCPF, removeCPFMask } from '@/lib/masks'
+import { schemas } from '@/lib/validations'
 
 const getButtonText = (isEditing: boolean) =>
   isEditing ? 'Salvar' : 'Adicionar'
 
-const CNH_CATEGORIA_REGEX = /^(A|B|C|D|E|AB|AC|AD|AE)$/
-
-const motoristaSchema = z.object({
-  nome: z.string().min(1, 'Nome é obrigatório'),
-  cpf: z
-    .string()
-    .min(1, 'CPF é obrigatório')
-    .refine(isValidCPF, 'CPF deve ter 11 dígitos válidos'),
-  cnhCategoria: z
-    .string()
-    .optional()
-    .refine(
-      (val) => !val || CNH_CATEGORIA_REGEX.test(val),
-      'Categoria da CNH inválida. Aceitas: A, B, C, D, E, AB, AC, AD ou AE'
-    ),
-  cnhValidade: z
-    .string()
-    .optional()
-    .refine((val) => {
-      if (!val) {
-        return true
-      }
-      const selectedDate = new Date(val)
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-      return selectedDate > today
-    }, 'A validade da CNH deve ser uma data futura'),
-  ativo: z.boolean(),
-})
+const motoristaSchema = schemas.motorista
 
 type MotoristaModalProps = {
   isOpen: boolean
@@ -175,7 +147,11 @@ export function MotoristaModal({
                 <FormItem>
                   <FormLabel>Nome</FormLabel>
                   <FormControl>
-                    <Input placeholder="Nome completo" {...field} />
+                    <Input
+                      maxLength={100}
+                      placeholder="Nome completo"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

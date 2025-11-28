@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import { ColorPicker } from '@/components/ui/color-picker'
@@ -28,24 +27,12 @@ import type {
 } from '@/http/tipo-residuo/types'
 import { useCreateTipoResiduo } from '@/http/tipo-residuo/use-create-tipo-residuo'
 import { useUpdateTipoResiduo } from '@/http/tipo-residuo/use-update-tipo-residuo'
+import { schemas } from '@/lib/validations'
 
 const getButtonText = (isEditing: boolean) =>
   isEditing ? 'Salvar' : 'Adicionar'
 
-const tipoResiduoSchema = z.object({
-  nome: z
-    .string()
-    .min(1, 'Nome é obrigatório')
-    .refine((val) => val.trim().length > 0, {
-      message: 'Nome não pode conter apenas espaços',
-    }),
-  corHex: z
-    .string()
-    .min(1, 'Cor é obrigatória')
-    .regex(/^#[0-9A-Fa-f]{6}$/, {
-      message: 'Cor deve estar no formato hexadecimal (#RRGGBB)',
-    }),
-})
+const tipoResiduoSchema = schemas.tipoResiduo
 
 type TipoResiduoModalProps = {
   isOpen: boolean
@@ -142,7 +129,11 @@ export function TipoResiduoModal({
                 <FormItem>
                   <FormLabel>Nome</FormLabel>
                   <FormControl>
-                    <Input placeholder="Nome do tipo de resíduo" {...field} />
+                    <Input
+                      maxLength={100}
+                      placeholder="Nome do tipo de resíduo"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -158,9 +149,10 @@ export function TipoResiduoModal({
                   <div className="flex gap-2">
                     <FormControl>
                       <Input
+                        className="flex-1 font-mono"
+                        maxLength={7}
                         placeholder="#3b82f6"
                         {...field}
-                        className="flex-1 font-mono"
                       />
                     </FormControl>
                     <ColorPicker

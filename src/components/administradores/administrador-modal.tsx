@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -29,25 +28,15 @@ import { useUpdateUsuario } from '@/http/usuarios/use-update-usuario'
 import {
   formatCPF,
   formatPhone,
-  isValidCPF,
   removeCPFMask,
   removePhoneMask,
 } from '@/lib/masks'
+import { schemas } from '@/lib/validations'
 
 const getButtonText = (isEditing: boolean) =>
   isEditing ? 'Salvar' : 'Adicionar'
 
-const usuarioSchema = z.object({
-  nome: z.string().min(1, 'Nome é obrigatório'),
-  cpf: z
-    .string()
-    .min(1, 'CPF é obrigatório')
-    .refine(isValidCPF, 'CPF deve ter 11 dígitos válidos'),
-  email: z.email({ message: 'E-mail inválido' }),
-  telefone: z.string().optional(),
-  ativo: z.boolean(),
-  roles: z.array(z.enum(['ROLE_SUPER_ADMIN', 'ROLE_ADMIN_CONSULTA'])),
-})
+const usuarioSchema = schemas.usuario
 
 type AdministradorModalProps = {
   isOpen: boolean
@@ -161,7 +150,11 @@ export function AdministradorModal({
                 <FormItem>
                   <FormLabel>Nome</FormLabel>
                   <FormControl>
-                    <Input placeholder="Nome completo" {...field} />
+                    <Input
+                      maxLength={100}
+                      placeholder="Nome completo"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -199,6 +192,7 @@ export function AdministradorModal({
                   <FormControl>
                     <Input
                       disabled={isEditingSelf}
+                      maxLength={100}
                       placeholder="email@exemplo.com"
                       type="email"
                       {...field}
