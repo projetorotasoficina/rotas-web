@@ -69,7 +69,7 @@ export function CodeVerificationForm({
               <FormControl>
                 <InputOTP
                   maxLength={CODE_LENGTH}
-                  onChange={field.onChange}
+                  onChange={(value) => field.onChange(value.toUpperCase())}
                   pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
                   value={field.value}
                 >

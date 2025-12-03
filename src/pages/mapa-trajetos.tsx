@@ -135,7 +135,7 @@ export default function MapaTrajetosPage() {
     const inicio = new Date(trajeto.dataInicio).getTime()
     const fim = new Date(trajeto.dataFim).getTime()
     const duracaoMs = fim - inicio
-    return formatDuracao(Math.floor(duracaoMs / 60000))
+    return formatDuracao(Math.floor(duracaoMs / 60_000))
   }
 
   return (
