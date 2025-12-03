@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/contexts/auth-context'
+import { useRole } from '@/hooks/use-role'
 import type { Usuario, UsuarioFormData } from '@/http/usuarios/types'
 import { useCreateUsuario } from '@/http/usuarios/use-create-usuario'
 import { useUpdateUsuario } from '@/http/usuarios/use-update-usuario'
@@ -50,6 +51,7 @@ export function AdministradorModal({
   usuario,
 }: AdministradorModalProps) {
   const { user } = useAuth()
+  const { isSuperAdmin } = useRole()
   const isEditing = !!usuario
   const isEditingSelf = isEditing && user?.email === usuario?.email
 
@@ -230,6 +232,52 @@ export function AdministradorModal({
               )}
             />
 
+            {isSuperAdmin() && (
+              <FormField
+                control={form.control}
+                name="roles"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Permissão</FormLabel>
+                    <FormControl>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button
+                          disabled={isEditingSelf}
+                          onClick={() => field.onChange(['ROLE_ADMIN_CONSULTA'])}
+                          type="button"
+                          variant={
+                            field.value.includes('ROLE_ADMIN_CONSULTA')
+                              ? 'secondary'
+                              : 'outline'
+                          }
+                        >
+                          Admin Consulta
+                        </Button>
+                        <Button
+                          disabled={isEditingSelf}
+                          onClick={() => field.onChange(['ROLE_SUPER_ADMIN'])}
+                          type="button"
+                          variant={
+                            field.value.includes('ROLE_SUPER_ADMIN')
+                              ? 'destructive'
+                              : 'outline'
+                          }
+                        >
+                          Super Admin
+                        </Button>
+                      </div>
+                    </FormControl>
+                    {isEditingSelf && (
+                      <p className="pt-2 text-muted-foreground text-sm">
+                        Você não pode alterar suas próprias permissões.
+                      </p>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
             <FormField
               control={form.control}
               name="ativo"
@@ -238,13 +286,16 @@ export function AdministradorModal({
                   <FormControl>
                     <Checkbox
                       checked={field.value}
+                      disabled={isEditingSelf}
                       onCheckedChange={field.onChange}
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
                     <FormLabel>Usuário ativo</FormLabel>
                     <p className="text-muted-foreground text-sm">
-                      Usuários inativos não podem fazer login no sistema
+                      {isEditingSelf
+                        ? 'Você não pode inativar sua própria conta.'
+                        : 'Usuários inativos não podem fazer login no sistema'}
                     </p>
                   </div>
                   <FormMessage />
