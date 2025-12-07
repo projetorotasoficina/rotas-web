@@ -8,6 +8,7 @@ import {
   Popup,
   TileLayer,
   useMap,
+  GeoJSON,
 } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { format } from 'date-fns'
@@ -15,13 +16,16 @@ import { ptBR } from 'date-fns/locale'
 import markerIcon from 'leaflet/dist/images/marker-icon.png'
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
 import markerShadow from 'leaflet/dist/images/marker-shadow.png'
-import { RotateCcw } from 'lucide-react'
+import { RotateCcw, Eye, EyeOff } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { useRouteAnimation } from '@/hooks/use-route-animation'
 import type { TrajetoComPontos } from '@/http/trajeto/types'
+import { useGetAreasNaoPercorridas } from '@/http/rotas/use-get-areas-nao-percorridas'
 import { AnimationControls } from './animation-controls'
 import { MapLegend } from './map-legend'
+import * as turf from '@turf/turf'
+import type { FeatureCollection, Polygon, MultiPolygon } from 'geojson'
 
 // @ts-expect-error - Leaflet icon fix
 L.Icon.Default.prototype._getIconUrl = undefined
@@ -129,6 +133,64 @@ function ResetMapView({ center, zoom }: ResetMapViewProps) {
   )
 }
 
+type UncoveredAreasControlProps = {
+  isActive: boolean
+  onToggle: () => void
+  isLoading: boolean
+}
+
+function UncoveredAreasControl({
+  isActive,
+  onToggle,
+  isLoading,
+}: UncoveredAreasControlProps) {
+  // Prevent click/drag propagation to the map
+  const handleContainerClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+  }
+
+  const handleButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onToggle()
+  }
+
+  return (
+    <div
+      className="leaflet-top leaflet-left"
+      style={{ marginTop: '10px', marginLeft: '50px', zIndex: 1000 }}
+      onClick={handleContainerClick}
+      onDoubleClick={handleContainerClick}
+      onMouseDown={handleContainerClick}
+    >
+      <div className="leaflet-control leaflet-bar">
+        <Button
+          className={`h-[30px] px-3 rounded-sm shadow-md transition-colors ${
+            isActive
+              ? 'bg-white text-destructive hover:bg-gray-50 border-destructive border'
+              : 'bg-white text-gray-700 hover:bg-gray-50'
+          }`}
+          onClick={handleButtonClick}
+          size="sm"
+          title={
+            isActive
+              ? 'Ocultar áreas não percorridas pelo caminhão'
+              : 'Exibir áreas não percorridas pelo caminhão'
+          }
+        >
+          {isActive ? (
+            <EyeOff className="h-4 w-4 mr-2" />
+          ) : (
+            <Eye className="h-4 w-4 mr-2" />
+          )}
+          <span className="text-xs font-medium">
+            {isLoading ? 'Carregando...' : 'Ver Locais Não Percorridos'}
+          </span>
+        </Button>
+      </div>
+    </div>
+  )
+}
+
 type RouteMapProps = {
   trajeto: TrajetoComPontos
 }
@@ -136,6 +198,55 @@ type RouteMapProps = {
 export function RouteMap({ trajeto }: RouteMapProps) {
   const { pontos, incidentes = [] } = trajeto
   const [speed, setSpeed] = useState(100)
+  const [showUncovered, setShowUncovered] = useState(false)
+
+  const { data: areasNaoPercorridas, isLoading: isLoadingAreas } =
+    useGetAreasNaoPercorridas(trajeto.rotaId, trajeto.id, {
+      enabled: showUncovered,
+      refetchInterval: trajeto.status === 'EM_ANDAMENTO' ? 5000 : false,
+    })
+
+  const processedUncoveredAreas = useMemo(() => {
+    if (
+      !showUncovered ||
+      !areasNaoPercorridas?.areas_nao_cobertas ||
+      !pontos ||
+      pontos.length < 2
+    ) {
+      return areasNaoPercorridas?.areas_nao_cobertas
+    }
+
+    try {
+      // Create LineString from points (Long, Lat) for Turf
+      const lineCoords = pontos.map((p) => [p.longitude, p.latitude])
+      const line = turf.lineString(lineCoords)
+
+      // Buffer the route by 20 meters (0.02 km) to simulate truck coverage
+      const routeBuffer = turf.buffer(line, 0.02, { units: 'kilometers' })
+
+      // Prepare Area Feature from backend GeoJSON Geometry
+      const rawGeometry = areasNaoPercorridas.areas_nao_cobertas
+      // Ensure it's a Feature for Turf
+      const areaFeature =
+        rawGeometry.type === 'Feature'
+          ? rawGeometry
+          : { type: 'Feature', properties: {}, geometry: rawGeometry }
+
+      // Calculate Difference: Area - RouteBuffer
+      // turf.difference(featureCollection([poly1, poly2])) -> subtracts poly2 from poly1
+      const collection = turf.featureCollection([
+        areaFeature,
+        routeBuffer,
+      ]) as FeatureCollection<Polygon | MultiPolygon>
+      
+      const result = turf.difference(collection)
+
+      return result
+    } catch (error) {
+      console.error('Error calculating uncovered areas difference:', error)
+      return areasNaoPercorridas.areas_nao_cobertas
+    }
+  }, [showUncovered, areasNaoPercorridas, pontos])
 
   const animation = useRouteAnimation({ pontos, speed })
 
@@ -197,6 +308,24 @@ export function RouteMap({ trajeto }: RouteMapProps) {
           />
 
           <ResetMapView center={center} zoom={15} />
+          <UncoveredAreasControl
+            isActive={showUncovered}
+            isLoading={isLoadingAreas}
+            onToggle={() => setShowUncovered(!showUncovered)}
+          />
+
+          {showUncovered && processedUncoveredAreas && (
+            <GeoJSON
+              data={processedUncoveredAreas}
+              key={JSON.stringify(processedUncoveredAreas)}
+              style={{
+                color: '#ef4444',
+                weight: 1,
+                fillColor: '#ef4444',
+                fillOpacity: 0.4,
+              }}
+            />
+          )}
 
           <Polyline
             color={routeColor}
@@ -335,7 +464,7 @@ export function RouteMap({ trajeto }: RouteMapProps) {
           )}
         </MapContainer>
 
-        <MapLegend routeColor={routeColor} />
+        <MapLegend routeColor={routeColor} showUncovered={showUncovered} />
       </div>
 
       <AnimationControls
