@@ -6,6 +6,7 @@ import type {
 import { ArrowUpDown, Edit, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { MotoristaModal } from '@/components/motoristas/motorista-modal'
+import { ExportButton } from '@/components/relatorios'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,6 +31,7 @@ import { useRole } from '@/hooks/use-role'
 import type { Motorista } from '@/http/motoristas/types'
 import { useDeleteMotorista } from '@/http/motoristas/use-delete-motorista'
 import { usePaginatedMotoristas } from '@/http/motoristas/use-paginated-motoristas'
+import { useGenericReport } from '@/http/relatorios'
 import { displayCPF } from '@/lib/masks'
 
 export default function MotoristasPage() {
@@ -64,6 +66,15 @@ export default function MotoristasPage() {
 
   const motoristas = response?.content ?? []
   const deleteMutation = useDeleteMotorista()
+
+  // Export data
+  const { data: exportData } = useGenericReport(
+    {
+      entityName: 'motorista',
+      filters: debouncedSearch ? { search: debouncedSearch } : {},
+    },
+    true
+  )
 
   const handleEdit = (motorista: Motorista) => {
     setEditingMotorista(motorista)
@@ -227,10 +238,27 @@ export default function MotoristasPage() {
         }}
         sorting={sorting}
         toolbar={
-          <Button disabled={!canCreate()} onClick={handleAdd}>
-            <Plus className="h-4 w-4" />
-            Adicionar
-          </Button>
+          <div className="flex gap-2">
+            <ExportButton
+              data={exportData || []}
+              options={{
+                filename: 'motoristas',
+                title: 'Relatório de Motoristas',
+                columns: [
+                  { key: 'nome', label: 'Nome' },
+                  { key: 'cpf', label: 'CPF' },
+                  { key: 'cnhCategoria', label: 'Categoria CNH' },
+                  { key: 'cnhValidade', label: 'Validade CNH' },
+                  { key: 'ativo', label: 'Status' },
+                ],
+              }}
+              variant="outline"
+            />
+            <Button disabled={!canCreate()} onClick={handleAdd}>
+              <Plus className="h-4 w-4" />
+              Adicionar
+            </Button>
+          </div>
         }
       />
 

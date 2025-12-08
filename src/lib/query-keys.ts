@@ -23,6 +23,8 @@ export const queryKeys = {
   rotas: {
     all: ['rotas'] as const,
     detail: (id: number) => ['rotas', id] as const,
+    areasNaoPercorridas: (rotaId: number, trajetoId?: number) =>
+      ['rotas', rotaId, 'areas-nao-percorridas', trajetoId] as const,
   },
   trajetos: {
     all: ['trajetos'] as const,
