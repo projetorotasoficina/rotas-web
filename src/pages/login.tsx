@@ -35,11 +35,10 @@ function getEmailErrorMessage(apiError: ApiError): string {
 }
 
 function getCodeErrorMessage(apiError: ApiError): string {
-  if (apiError.status === StatusCodes.INTERNAL_SERVER_ERROR) {
-    return 'Erro interno do servidor. Tente novamente mais tarde'
-  }
-
-  if (apiError.status === StatusCodes.UNPROCESSABLE_ENTITY) {
+  if (
+    apiError.status === StatusCodes.UNPROCESSABLE_ENTITY ||
+    apiError.status === StatusCodes.INTERNAL_SERVER_ERROR
+  ) {
     return 'Código inválido ou expirado'
   }
 

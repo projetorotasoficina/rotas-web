@@ -1,6 +1,9 @@
+import { format } from 'date-fns'
 import { Download } from 'lucide-react'
 import { useState } from 'react'
+import type { DateRange } from 'react-day-picker'
 import { toast } from 'sonner'
+import { DateRangeFilter } from '@/components/dashboard/date-range-filter'
 import { ExportDialog } from '@/components/relatorios'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -11,7 +14,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -31,6 +33,7 @@ type IncidenteRelatorio = {
   ts: string
   latitude: number | null
   longitude: number | null
+  rotaNome?: string
 }
 
 type IncidenteAPI = {
@@ -39,18 +42,19 @@ type IncidenteAPI = {
   nome: string
   observacoes: string | null
   ts: string
-  latitude?: number | null
-  longitude?: number | null
+  lat?: number | null
+  lng?: number | null
+  rotaNome?: string
 }
 
-function getDefaultDateRange() {
+function getDefaultDateRange(): DateRange {
   const hoje = new Date()
   const umMesAtras = new Date(hoje)
   umMesAtras.setMonth(hoje.getMonth() - 1)
 
   return {
-    dataInicio: umMesAtras.toISOString().split('T')[0],
-    dataFim: hoje.toISOString().split('T')[0],
+    from: umMesAtras,
+    to: hoje,
   }
 }
 
@@ -59,16 +63,17 @@ async function fetchIncidentes(
   dataFim: string,
   rotaId: string
 ): Promise<IncidenteRelatorio[]> {
-  const filters: string[] = [
-    `ts>=${encodeURIComponent(`${dataInicio}T00:00:00`)}`,
-    `ts<=${encodeURIComponent(`${dataFim}T23:59:59`)}`,
-  ]
+  const params = new URLSearchParams()
+
+  // Add date filters
+  params.append('dataInicio', `${dataInicio}T00:00:00`)
+  params.append('dataFim', `${dataFim}T23:59:59`)
 
   if (rotaId) {
-    filters.push(`trajeto.rotaId=${encodeURIComponent(rotaId)}`)
+    params.append('rotaId', rotaId)
   }
 
-  const url = `/v1/reports/generic/incidente?${filters.join('&')}`
+  const url = `/incidentes/relatorio?${params.toString()}`
   const response = await fetchWithAuth(url)
 
   if (!response.ok) {
@@ -87,18 +92,17 @@ async function fetchIncidentes(
     nome: item.nome,
     observacoes: item.observacoes,
     ts: item.ts,
-    latitude: item.latitude ?? null,
-    longitude: item.longitude ?? null,
+    latitude: item.lat ?? null,
+    longitude: item.lng ?? null,
+    rotaNome: item.rotaNome,
   }))
 }
 
 export default function RelatorioIncidentesPage() {
-  const { dataInicio: defaultInicio, dataFim: defaultFim } =
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(
     getDefaultDateRange()
-
-  const [dataInicio, setDataInicio] = useState(defaultInicio)
-  const [dataFim, setDataFim] = useState(defaultFim)
-  const [rotaId, setRotaId] = useState('')
+  )
+  const [rotaId, setRotaId] = useState('all')
   const [showExportDialog, setShowExportDialog] = useState(false)
   const [reportData, setReportData] = useState<IncidenteRelatorio[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -106,7 +110,7 @@ export default function RelatorioIncidentesPage() {
   const { data: rotas = [], isLoading: isLoadingRotas } = useListRotas()
 
   const handleGerarRelatorio = async () => {
-    if (!(dataInicio && dataFim)) {
+    if (!(dateRange?.from && dateRange?.to)) {
       toast.error('Selecione o período (data início e fim)')
       return
     }
@@ -114,7 +118,10 @@ export default function RelatorioIncidentesPage() {
     setIsLoading(true)
 
     try {
-      const dados = await fetchIncidentes(dataInicio, dataFim, rotaId)
+      const dataInicio = format(dateRange.from, 'yyyy-MM-dd')
+      const dataFim = format(dateRange.to, 'yyyy-MM-dd')
+      const rotaIdFiltro = rotaId === 'all' ? '' : rotaId
+      const dados = await fetchIncidentes(dataInicio, dataFim, rotaIdFiltro)
 
       if (dados.length === 0) {
         toast.info('Nenhum incidente encontrado no período selecionado')
@@ -140,8 +147,8 @@ export default function RelatorioIncidentesPage() {
         data: new Date(inc.ts).toLocaleString('pt-BR'),
       }
 
-      if (inc.trajetoId) {
-        dados.trajeto = `Trajeto #${inc.trajetoId}`
+      if (inc.rotaNome) {
+        dados.rota = inc.rotaNome
       }
 
       if (inc.observacoes) {
@@ -164,8 +171,8 @@ export default function RelatorioIncidentesPage() {
       { key: 'data', label: 'Data/Hora' },
     ]
 
-    if (dadosFormatados.some((d) => d.trajeto)) {
-      columns.push({ key: 'trajeto', label: 'Trajeto' })
+    if (dadosFormatados.some((d) => d.rota)) {
+      columns.push({ key: 'rota', label: 'Rota' })
     }
 
     if (dadosFormatados.some((d) => d.observacoes)) {
@@ -181,10 +188,13 @@ export default function RelatorioIncidentesPage() {
   }
 
   const handleLimparFiltros = () => {
-    const defaults = getDefaultDateRange()
-    setDataInicio(defaults.dataInicio)
-    setDataFim(defaults.dataFim)
-    setRotaId('')
+    setDateRange(getDefaultDateRange())
+    setRotaId('all')
+  }
+
+  const getFilenameRange = () => {
+    if (!(dateRange?.from && dateRange?.to)) { return '' }
+    return `${format(dateRange.from, 'yyyy-MM-dd')}-${format(dateRange.to, 'yyyy-MM-dd')}`
   }
 
   return (
@@ -214,28 +224,10 @@ export default function RelatorioIncidentesPage() {
                 <Label className="font-semibold text-base">Período *</Label>
                 <Badge variant="secondary">Obrigatório</Badge>
               </div>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="dataInicio">Data Início</Label>
-                  <Input
-                    id="dataInicio"
-                    onChange={(e) => setDataInicio(e.target.value)}
-                    required
-                    type="date"
-                    value={dataInicio}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="dataFim">Data Fim</Label>
-                  <Input
-                    id="dataFim"
-                    onChange={(e) => setDataFim(e.target.value)}
-                    required
-                    type="date"
-                    value={dataFim}
-                  />
-                </div>
-              </div>
+              <DateRangeFilter
+                dateRange={dateRange}
+                onDateRangeChange={setDateRange}
+              />
             </div>
 
             <div className="space-y-4">
@@ -251,9 +243,10 @@ export default function RelatorioIncidentesPage() {
                     value={rotaId}
                   >
                     <SelectTrigger id="rota">
-                      <SelectValue placeholder="Todas as rotas" />
+                      <SelectValue placeholder="Selecione uma rota" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="all">Todas as rotas</SelectItem>
                       {rotas.map((r) => (
                         <SelectItem key={r.id} value={String(r.id)}>
                           {r.nome}
@@ -288,7 +281,7 @@ export default function RelatorioIncidentesPage() {
         onOpenChange={setShowExportDialog}
         open={showExportDialog}
         options={{
-          filename: `relatorio-incidentes-${dataInicio}-${dataFim}`,
+          filename: `relatorio-incidentes-${getFilenameRange()}`,
           title: 'Relatório de Incidentes',
           columns: getExportColumns(),
         }}
