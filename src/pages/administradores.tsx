@@ -7,7 +7,7 @@ import { ArrowUpDown, Edit, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { AdministradorModal } from '@/components/administradores/administrador-modal'
-import { ExportButton } from '@/components/relatorios'
+import { LazyExportButton } from '@/components/relatorios'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,7 +29,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/contexts/auth-context'
 import { useDebounce } from '@/hooks/use-debounce'
-import { useGenericReport } from '@/http/relatorios'
 import type { Usuario } from '@/http/usuarios/types'
 import { useDeleteUsuario } from '@/http/usuarios/use-delete-usuario'
 import { usePaginatedUsuarios } from '@/http/usuarios/use-paginated-usuarios'
@@ -84,16 +83,8 @@ export default function AdministradoresPage() {
   })
 
   const usuarios = response?.content ?? []
-  const deleteMutation = useDeleteUsuario()
 
-  // Export data
-  const { data: exportData } = useGenericReport(
-    {
-      entityName: 'usuario',
-      filters: debouncedSearch ? { search: debouncedSearch } : {},
-    },
-    true
-  )
+  const deleteMutation = useDeleteUsuario()
 
   const handleEdit = (usuario: Usuario) => {
     setEditingUsuario(usuario)
@@ -281,8 +272,8 @@ export default function AdministradoresPage() {
         sorting={sorting}
         toolbar={
           <div className="flex gap-2">
-            <ExportButton
-              data={exportData || []}
+            <LazyExportButton
+              enableScopeSelection
               options={{
                 filename: 'administradores',
                 title: 'Relatório de Administradores',
@@ -294,6 +285,11 @@ export default function AdministradoresPage() {
                   { key: 'ativo', label: 'Status' },
                 ],
               }}
+              reportParams={{
+                entityName: 'usuario',
+                filters: debouncedSearch ? { search: debouncedSearch } : {},
+              }}
+              totalRecords={response?.totalElements}
               variant="outline"
             />
             <Button onClick={handleAdd}>

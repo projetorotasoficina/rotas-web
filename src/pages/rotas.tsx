@@ -5,7 +5,7 @@ import type {
 } from '@tanstack/react-table'
 import { ArrowUpDown, Edit, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
-import { ExportButton } from '@/components/relatorios'
+import { LazyExportButton } from '@/components/relatorios'
 import { RotaModal } from '@/components/rotas/rota-modal'
 import {
   AlertDialog,
@@ -28,7 +28,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useDebounce } from '@/hooks/use-debounce'
 import { useRole } from '@/hooks/use-role'
-import { useGenericReport } from '@/http/relatorios'
 import type {
   DiaSemana,
   FrequenciaRota,
@@ -109,16 +108,8 @@ export default function RotasPage() {
 
   const rotas = response?.content ?? []
 
-  // Export data
-  const { data: exportData } = useGenericReport(
-    {
-      entityName: 'rota',
-      filters: debouncedSearch ? { search: debouncedSearch } : {},
-    },
-    true
-  )
-  const { data: tiposResiduo = [] } = useListTipoResiduo()
   const { data: tiposColeta = [] } = useListTipoColeta()
+  const { data: tiposResiduo = [] } = useListTipoResiduo()
   const deleteMutation = useDeleteRota()
 
   const handleEdit = (rota: Rota) => {
@@ -296,8 +287,8 @@ export default function RotasPage() {
         sorting={sorting}
         toolbar={
           <div className="flex gap-2">
-            <ExportButton
-              data={exportData || []}
+            <LazyExportButton
+              enableScopeSelection
               options={{
                 filename: 'rotas',
                 title: 'Relatório de Rotas',
@@ -307,6 +298,11 @@ export default function RotasPage() {
                   { key: 'ativo', label: 'Status' },
                 ],
               }}
+              reportParams={{
+                entityName: 'rota',
+                filters: debouncedSearch ? { search: debouncedSearch } : {},
+              }}
+              totalRecords={response?.totalElements}
               variant="outline"
             />
             <Button disabled={!canCreate()} onClick={handleAdd}>

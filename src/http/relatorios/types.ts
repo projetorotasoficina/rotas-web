@@ -14,4 +14,5 @@ export type ExportOptions = {
     key: string
     label: string
   }[]
+  totalRecords?: number
 }

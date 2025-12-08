@@ -72,8 +72,8 @@ export function RouteInfo({ trajeto }: RouteInfoProps) {
                 <p className="text-muted-foreground text-xs">Distância</p>
               </div>
               <p className="font-semibold text-lg">
-                {distanciaTotal
-                  ? `${(distanciaTotal / 1000).toFixed(1)} km`
+                {distanciaTotal != null
+                  ? `${distanciaTotal.toFixed(1)} km`
                   : '-'}
               </p>
             </div>

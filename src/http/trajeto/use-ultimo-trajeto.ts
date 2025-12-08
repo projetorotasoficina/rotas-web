@@ -26,16 +26,20 @@ async function getUltimoTrajeto(): Promise<TrajetoComPontos | null> {
     }
   )[0]
 
-  const [pontosResponse, incidentesResponse] = await Promise.all([
-    fetchWithAuth(apiConfig.endpoints.trajetos.pontos(ultimoTrajeto.id)),
-    fetchWithAuth(apiConfig.endpoints.trajetos.incidentes(ultimoTrajeto.id)),
-  ])
+  // Fetch full trajeto details, pontos and incidentes
+  const [trajetoResponse, pontosResponse, incidentesResponse] =
+    await Promise.all([
+      fetchWithAuth(apiConfig.endpoints.trajetos.byId(ultimoTrajeto.id)),
+      fetchWithAuth(apiConfig.endpoints.trajetos.pontos(ultimoTrajeto.id)),
+      fetchWithAuth(apiConfig.endpoints.trajetos.incidentes(ultimoTrajeto.id)),
+    ])
 
+  const trajetoDetalhado = await trajetoResponse.json()
   const pontos = await pontosResponse.json()
   const incidentes = await incidentesResponse.json()
 
   return {
-    ...ultimoTrajeto,
+    ...trajetoDetalhado,
     pontos,
     incidentes,
   }
