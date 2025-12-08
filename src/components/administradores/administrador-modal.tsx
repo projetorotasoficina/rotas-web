@@ -243,7 +243,9 @@ export function AdministradorModal({
                       <div className="grid grid-cols-2 gap-2">
                         <Button
                           disabled={isEditingSelf}
-                          onClick={() => field.onChange(['ROLE_ADMIN_CONSULTA'])}
+                          onClick={() =>
+                            field.onChange(['ROLE_ADMIN_CONSULTA'])
+                          }
                           type="button"
                           variant={
                             field.value.includes('ROLE_ADMIN_CONSULTA')

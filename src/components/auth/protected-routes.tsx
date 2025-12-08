@@ -20,6 +20,9 @@ const RotasPage = lazy(() => import('@/pages/rotas'))
 const TipoColetaPage = lazy(() => import('@/pages/tipo-coleta'))
 const TipoResiduoPage = lazy(() => import('@/pages/tipo-residuo'))
 const UserSettings = lazy(() => import('@/pages/user-settings'))
+const RelatorioIncidentesPage = lazy(
+  () => import('@/pages/relatorio-incidentes')
+)
 
 export function ProtectedRoutes() {
   const { isAuthenticated, isLoading } = useAuth()
@@ -188,28 +191,12 @@ export function ProtectedRoutes() {
         <Route
           element={
             <DefaultLayout
-              breadcrumbs={[
-                { label: 'Documentos' },
-                { label: 'Relatório de Rotas' },
-              ]}
+              breadcrumbs={[{ label: 'Relatórios' }, { label: 'Incidentes' }]}
             >
-              <div>Página de Relatório de Rotas em desenvolvimento...</div>
+              <RelatorioIncidentesPage />
             </DefaultLayout>
           }
-          path="/documentos/relatorio-rotas"
-        />
-        <Route
-          element={
-            <DefaultLayout
-              breadcrumbs={[
-                { label: 'Documentos' },
-                { label: 'Relatório de Incidentes' },
-              ]}
-            >
-              <div>Página de Relatório de Incidentes em desenvolvimento...</div>
-            </DefaultLayout>
-          }
-          path="/documentos/relatorio-incidentes"
+          path="/relatorios/incidentes"
         />
 
         <Route

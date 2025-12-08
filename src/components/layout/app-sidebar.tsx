@@ -96,13 +96,8 @@ const data = {
       label: 'Relatórios',
       items: [
         {
-          name: 'Relatório de Rotas',
-          url: '/documentos/relatorio-rotas',
-          icon: FileText,
-        },
-        {
-          name: 'Relatório de Incidentes',
-          url: '/documentos/relatorio-incidentes',
+          name: 'Incidentes',
+          url: '/relatorios/incidentes',
           icon: FileText,
         },
       ],
