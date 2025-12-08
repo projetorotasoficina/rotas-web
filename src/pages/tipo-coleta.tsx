@@ -5,7 +5,7 @@ import type {
 } from '@tanstack/react-table'
 import { ArrowUpDown, Edit, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
-import { ExportButton } from '@/components/relatorios'
+import { LazyExportButton } from '@/components/relatorios'
 import { TipoColetaModal } from '@/components/tipo-coleta/tipo-coleta-modal'
 import {
   AlertDialog,
@@ -27,7 +27,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useDebounce } from '@/hooks/use-debounce'
 import { useRole } from '@/hooks/use-role'
-import { useGenericReport } from '@/http/relatorios'
 import type { TipoColeta } from '@/http/tipo-coleta/types'
 import { useDeleteTipoColeta } from '@/http/tipo-coleta/use-delete-tipo-coleta'
 import { usePaginatedTipoColeta } from '@/http/tipo-coleta/use-paginated-tipo-coleta'
@@ -63,14 +62,6 @@ export default function TipoColetaPage() {
 
   const tiposColeta = response?.content ?? []
 
-  // Export data
-  const { data: exportData } = useGenericReport(
-    {
-      entityName: 'tipoColeta',
-      filters: debouncedSearch ? { search: debouncedSearch } : {},
-    },
-    true
-  )
   const deleteMutation = useDeleteTipoColeta()
 
   const handleEdit = (tipoColeta: TipoColeta) => {
@@ -200,13 +191,18 @@ export default function TipoColetaPage() {
         sorting={sorting}
         toolbar={
           <div className="flex gap-2">
-            <ExportButton
-              data={exportData || []}
+            <LazyExportButton
+              enableScopeSelection
               options={{
                 filename: 'tipos-coleta',
                 title: 'Relatório de Tipos de Coleta',
                 columns: [{ key: 'nome', label: 'Nome' }],
               }}
+              reportParams={{
+                entityName: 'tipocoleta',
+                filters: debouncedSearch ? { search: debouncedSearch } : {},
+              }}
+              totalRecords={response?.totalElements}
               variant="outline"
             />
             <Button disabled={!canCreate()} onClick={handleAdd}>

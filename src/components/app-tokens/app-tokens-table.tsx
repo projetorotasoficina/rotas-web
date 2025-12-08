@@ -13,7 +13,6 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { ExportButton } from '@/components/relatorios'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,7 +39,6 @@ import type { AppToken } from '@/http/app-tokens/types'
 import { useDeleteAppToken } from '@/http/app-tokens/use-delete-app-token'
 import { usePaginatedAppTokens } from '@/http/app-tokens/use-paginated-app-tokens'
 import { useRevogarAppToken } from '@/http/app-tokens/use-revogar-app-token'
-import { useGenericReport } from '@/http/relatorios'
 
 type AppTokensTableProps = {
   onViewDetails?: (token: AppToken) => void
@@ -73,14 +71,6 @@ export function AppTokensTable({ onViewDetails }: AppTokensTableProps) {
 
   const tokens = response?.content ?? []
 
-  // Export data
-  const { data: exportData } = useGenericReport(
-    {
-      entityName: 'appToken',
-      filters: debouncedSearch ? { search: debouncedSearch } : {},
-    },
-    true
-  )
   const deleteMutation = useDeleteAppToken()
   const revogarMutation = useRevogarAppToken()
 
@@ -341,22 +331,6 @@ export function AppTokensTable({ onViewDetails }: AppTokensTableProps) {
           onPaginationChange: setPagination,
         }}
         sorting={sorting}
-        toolbar={
-          <ExportButton
-            data={exportData || []}
-            options={{
-              filename: 'app-tokens',
-              title: 'Relatório de Tokens Ativos',
-              columns: [
-                { key: 'deviceId', label: 'Device ID' },
-                { key: 'deviceNome', label: 'Nome Dispositivo' },
-                { key: 'dataAtivacao', label: 'Data Ativação' },
-                { key: 'ativo', label: 'Status' },
-              ],
-            }}
-            variant="outline"
-          />
-        }
       />
 
       <AlertDialog

@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import type { Rota } from '@/http/rotas/types'
-import { DIA_SEMANA_LABEL, PERIODO_ICON, PERIODO_LABEL } from '@/lib/map-utils'
+import { DIA_SEMANA_LABEL, PERIODO_LABEL } from '@/lib/map-utils'
 
 type RoutePopupProps = {
   rota: Rota
@@ -84,9 +84,8 @@ export function RoutePopup({
                 <Badge
                   className="text-xs"
                   key={`${freq.diaSemana}-${freq.periodo}`}
-                  variant="outline"
+                  variant="secondary"
                 >
-                  {PERIODO_ICON[freq.periodo]}{' '}
                   {DIA_SEMANA_LABEL[freq.diaSemana]} -{' '}
                   {PERIODO_LABEL[freq.periodo]}
                 </Badge>

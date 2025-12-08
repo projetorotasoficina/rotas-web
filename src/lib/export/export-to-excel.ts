@@ -1,4 +1,5 @@
 import { format } from 'date-fns'
+// biome-ignore lint/performance/noNamespaceImport: XLSX library requires namespace import
 import * as XLSX from 'xlsx'
 import type { ExportOptions, GenericReportData } from '@/http/relatorios/types'
 
@@ -21,13 +22,16 @@ export function exportToExcel(data: GenericReportData, options: ExportOptions) {
     // Prepare data with headers
     const headers = columns.map((col) => col.label)
     const rows = data.map((row) =>
-      columns.map((col) => formatCellValue(row[col.key]))
+      columns.map((col) => formatCellValue(row[col.key], col.key))
     )
+
+    const totalRecords = options.totalRecords ?? data.length
 
     // Create worksheet
     const wsData = [
       [options.title],
       [`Gerado em: ${format(new Date(), 'dd/MM/yyyy HH:mm')}`],
+      [`Total de registros: ${totalRecords}`],
       [],
       headers,
       ...rows,
@@ -40,7 +44,7 @@ export function exportToExcel(data: GenericReportData, options: ExportOptions) {
       const maxLength = Math.max(
         col.label.length,
         ...data
-          .map((row) => String(formatCellValue(row[col.key])).length)
+          .map((row) => String(formatCellValue(row[col.key], col.key)).length)
           .slice(0, 100) // Sample first 100 rows for performance
       )
       return { wch: Math.min(maxLength + 2, 50) }
@@ -51,6 +55,7 @@ export function exportToExcel(data: GenericReportData, options: ExportOptions) {
     ws['!merges'] = [
       { s: { r: 0, c: 0 }, e: { r: 0, c: columns.length - 1 } },
       { s: { r: 1, c: 0 }, e: { r: 1, c: columns.length - 1 } },
+      { s: { r: 2, c: 0 }, e: { r: 2, c: columns.length - 1 } },
     ]
 
     XLSX.utils.book_append_sheet(wb, ws, 'Relatório')
@@ -61,7 +66,9 @@ export function exportToExcel(data: GenericReportData, options: ExportOptions) {
 }
 
 function autoDetectColumns(data: GenericReportData) {
-  if (data.length === 0) return []
+  if (data.length === 0) {
+    return []
+  }
 
   const firstRow = data[0]
   return Object.keys(firstRow)
@@ -79,19 +86,32 @@ function shouldSkipColumn(key: string): boolean {
 
 function formatColumnLabel(key: string): string {
   // Convert camelCase to Title Case
-  return key
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/^./, (str) => str.toUpperCase())
-    .trim()
+  return (
+    key
+      .replace(/([A-Z])/g, ' $1')
+      // biome-ignore lint/performance/useTopLevelRegex: não necessário
+      .replace(/^./, (str) => str.toUpperCase())
+      .trim()
+  )
 }
 
-function formatCellValue(value: unknown): string | number | boolean {
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Function handles multiple type checks which are necessary for correct formatting
+function formatCellValue(
+  value: unknown,
+  key?: string
+): string | number | boolean {
   if (value === null || value === undefined) {
     return '-'
   }
+
+  // Special handling for 'ativo' field
   if (typeof value === 'boolean') {
+    if (key === 'ativo') {
+      return value ? 'Ativo' : 'Inativo'
+    }
     return value ? 'Sim' : 'Não'
   }
+
   if (typeof value === 'number') {
     return value
   }

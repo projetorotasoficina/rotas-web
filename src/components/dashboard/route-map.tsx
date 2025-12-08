@@ -11,6 +11,7 @@ import {
   useMap,
 } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
+// biome-ignore lint/performance/noNamespaceImport: Turf.js requires namespace import for geospatial operations
 import * as turf from '@turf/turf'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
@@ -155,6 +156,9 @@ function UncoveredAreasControl({
   }
 
   return (
+    // biome-ignore lint/a11y/useKeyWithClickEvents: Container div is used for event bubbling prevention, not direct user interaction
+    // biome-ignore lint/a11y/noStaticElementInteractions: Container div is used for event bubbling prevention, not direct user interaction
+    // biome-ignore lint/a11y/noNoninteractiveElementInteractions: Container div is used for event bubbling prevention, not direct user interaction
     <div
       className="leaflet-top leaflet-left"
       onClick={handleContainerClick}
@@ -240,8 +244,8 @@ export function RouteMap({ trajeto }: RouteMapProps) {
       const result = turf.difference(collection)
 
       return result
-    } catch (error) {
-      console.error('Error calculating uncovered areas difference:', error)
+    } catch {
+      // Fallback to original areas if calculation fails
       return areasNaoPercorridas.areas_nao_cobertas
     }
   }, [showUncovered, areasNaoPercorridas, pontos])
