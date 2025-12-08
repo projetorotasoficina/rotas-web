@@ -65,7 +65,9 @@ export default function MapaTrajetosPage() {
     .filter((trajeto: Trajeto) => {
       if (dateRange?.from && dateRange?.to) {
         const trajetoData = new Date(trajeto.dataInicio)
-        if (trajetoData < dateRange.from || trajetoData > dateRange.to) {
+        const endOfDay = new Date(dateRange.to)
+        endOfDay.setHours(23, 59, 59, 999)
+        if (trajetoData < dateRange.from || trajetoData > endOfDay) {
           return false
         }
       }
