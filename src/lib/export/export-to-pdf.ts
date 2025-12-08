@@ -1,6 +1,7 @@
 import { format } from 'date-fns'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import logoImg from '@/assets/logo.png'
 import type { ExportOptions, GenericReportData } from '@/http/relatorios/types'
 
 export function exportToPDF(data: GenericReportData, options: ExportOptions) {
@@ -10,16 +11,23 @@ export function exportToPDF(data: GenericReportData, options: ExportOptions) {
     format: 'a4',
   })
 
+  // Add logo (square proportions)
+  const logoSize = 20
+  doc.addImage(logoImg, 'PNG', 14, 8, logoSize, logoSize)
+
   // Header
   doc.setFontSize(18)
   doc.setFont('helvetica', 'bold')
-  doc.text(options.title, 14, 15)
+  doc.text(options.title, 40, 15)
 
-  // Subtitle with date
+  // Subtitle with date and total records
   doc.setFontSize(10)
   doc.setFont('helvetica', 'normal')
   const dateStr = format(new Date(), 'dd/MM/yyyy HH:mm')
-  doc.text(`Gerado em: ${dateStr}`, 14, 22)
+  doc.text(`Gerado em: ${dateStr}`, 40, 21)
+
+  const totalRecords = options.totalRecords ?? data.length
+  doc.text(`Total de registros: ${totalRecords}`, 40, 26)
 
   if (data.length === 0) {
     doc.setFontSize(12)
@@ -30,12 +38,12 @@ export function exportToPDF(data: GenericReportData, options: ExportOptions) {
 
     // Extract table data
     const tableData = data.map((row) =>
-      columns.map((col) => formatCellValue(row[col.key]))
+      columns.map((col) => formatCellValue(row[col.key], col.key))
     )
 
     // Generate table
     autoTable(doc, {
-      startY: 28,
+      startY: 33,
       head: [columns.map((col) => col.label)],
       body: tableData,
       styles: {
@@ -73,7 +81,9 @@ export function exportToPDF(data: GenericReportData, options: ExportOptions) {
 }
 
 function autoDetectColumns(data: GenericReportData) {
-  if (data.length === 0) return []
+  if (data.length === 0) {
+    return []
+  }
 
   const firstRow = data[0]
   return Object.keys(firstRow)
@@ -91,19 +101,37 @@ function shouldSkipColumn(key: string): boolean {
 
 function formatColumnLabel(key: string): string {
   // Convert camelCase to Title Case
-  return key
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/^./, (str) => str.toUpperCase())
-    .trim()
+  return (
+    key
+      .replace(/([A-Z])/g, ' $1')
+      // biome-ignore lint/performance/useTopLevelRegex: não necessário
+      .replace(/^./, (str) => str.toUpperCase())
+      .trim()
+  )
 }
 
-function formatCellValue(value: unknown): string {
-  if (value === null || value === undefined) return '-'
-  if (typeof value === 'boolean') return value ? 'Sim' : 'Não'
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Function handles multiple type checks which are necessary for correct formatting
+function formatCellValue(value: unknown, key?: string): string {
+  if (value === null || value === undefined) {
+    return '-'
+  }
+
+  // Special handling for 'ativo' field
+  if (typeof value === 'boolean') {
+    if (key === 'ativo') {
+      return value ? 'Ativo' : 'Inativo'
+    }
+    return value ? 'Sim' : 'Não'
+  }
+
   if (typeof value === 'object') {
     // Handle nested objects (e.g., { id: 1, nome: "Test" } -> "Test")
-    if ('nome' in value) return String(value.nome)
-    if ('name' in value) return String(value.name)
+    if ('nome' in value) {
+      return String(value.nome)
+    }
+    if ('name' in value) {
+      return String(value.name)
+    }
     return JSON.stringify(value)
   }
   if (typeof value === 'number') {

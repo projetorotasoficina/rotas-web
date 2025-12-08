@@ -6,7 +6,7 @@ import type {
 import { ArrowUpDown, Edit, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { CaminhaoModal } from '@/components/caminhoes/caminhao-modal'
-import { ExportButton } from '@/components/relatorios'
+import { LazyExportButton } from '@/components/relatorios'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,7 +31,6 @@ import { useRole } from '@/hooks/use-role'
 import type { Caminhao } from '@/http/caminhoes/types'
 import { useDeleteCaminhao } from '@/http/caminhoes/use-delete-caminhao'
 import { usePaginatedCaminhoes } from '@/http/caminhoes/use-paginated-caminhoes'
-import { useGenericReport } from '@/http/relatorios'
 import { useListTipoColeta } from '@/http/tipo-coleta/use-list-tipo-coleta'
 import { useListTipoResiduo } from '@/http/tipo-residuo/use-list-tipo-residuo'
 
@@ -64,18 +63,10 @@ export default function CaminhoesPage() {
   })
 
   const caminhoes = response?.content ?? []
+
   const { data: tiposColeta = [] } = useListTipoColeta()
   const { data: tiposResiduo = [] } = useListTipoResiduo()
   const deleteMutation = useDeleteCaminhao()
-
-  // Export data
-  const { data: exportData } = useGenericReport(
-    {
-      entityName: 'caminhao',
-      filters: debouncedSearch ? { search: debouncedSearch } : {},
-    },
-    true
-  )
 
   const handleEdit = (caminhao: Caminhao) => {
     setEditingCaminhao(caminhao)
@@ -248,8 +239,8 @@ export default function CaminhoesPage() {
         sorting={sorting}
         toolbar={
           <div className="flex gap-2">
-            <ExportButton
-              data={exportData || []}
+            <LazyExportButton
+              enableScopeSelection
               options={{
                 filename: 'caminhoes',
                 title: 'Relatório de Caminhões',
@@ -260,6 +251,11 @@ export default function CaminhoesPage() {
                   { key: 'ativo', label: 'Status' },
                 ],
               }}
+              reportParams={{
+                entityName: 'caminhao',
+                filters: debouncedSearch ? { search: debouncedSearch } : {},
+              }}
+              totalRecords={response?.totalElements}
               variant="outline"
             />
             <Button disabled={!canCreate()} onClick={handleAdd}>

@@ -5,7 +5,7 @@ import type {
 } from '@tanstack/react-table'
 import { ArrowUpDown, Edit, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
-import { ExportButton } from '@/components/relatorios'
+import { LazyExportButton } from '@/components/relatorios'
 import { TipoResiduoModal } from '@/components/tipo-residuo/tipo-residuo-modal'
 import {
   AlertDialog,
@@ -27,7 +27,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useDebounce } from '@/hooks/use-debounce'
 import { useRole } from '@/hooks/use-role'
-import { useGenericReport } from '@/http/relatorios'
 import type { TipoResiduo } from '@/http/tipo-residuo/types'
 import { useDeleteTipoResiduo } from '@/http/tipo-residuo/use-delete-tipo-residuo'
 import { usePaginatedTipoResiduo } from '@/http/tipo-residuo/use-paginated-tipo-residuo'
@@ -62,14 +61,6 @@ export default function TipoResiduoPage() {
 
   const tiposResiduo = response?.content ?? []
 
-  // Export data
-  const { data: exportData } = useGenericReport(
-    {
-      entityName: 'tipoResiduo',
-      filters: debouncedSearch ? { search: debouncedSearch } : {},
-    },
-    true
-  )
   const deleteMutation = useDeleteTipoResiduo()
 
   const handleEdit = (tipoResiduo: TipoResiduo) => {
@@ -216,8 +207,8 @@ export default function TipoResiduoPage() {
         sorting={sorting}
         toolbar={
           <div className="flex gap-2">
-            <ExportButton
-              data={exportData || []}
+            <LazyExportButton
+              enableScopeSelection
               options={{
                 filename: 'tipos-residuo',
                 title: 'Relatório de Tipos de Resíduo',
@@ -226,6 +217,11 @@ export default function TipoResiduoPage() {
                   { key: 'corHex', label: 'Cor' },
                 ],
               }}
+              reportParams={{
+                entityName: 'tiporesiduo',
+                filters: debouncedSearch ? { search: debouncedSearch } : {},
+              }}
+              totalRecords={response?.totalElements}
               variant="outline"
             />
             <Button disabled={!canCreate()} onClick={handleAdd}>

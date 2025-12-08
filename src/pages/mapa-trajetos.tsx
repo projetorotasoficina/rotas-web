@@ -27,6 +27,7 @@ import { Separator } from '@/components/ui/separator'
 import { useListCaminhoes } from '@/http/caminhoes/use-list-caminhoes'
 import { useListMotoristas } from '@/http/motoristas/use-list-motoristas'
 import type { Incidente, Trajeto, TrajetoStatus } from '@/http/trajeto/types'
+import { useGetTrajeto } from '@/http/trajeto/use-get-trajeto'
 import { useGetTrajetoPontos } from '@/http/trajeto/use-get-trajeto-pontos'
 import { useListTrajetos } from '@/http/trajeto/use-list-trajetos'
 import { formatDuracao } from '@/lib/utils'
@@ -59,35 +60,45 @@ export default function MapaTrajetosPage() {
   const { data: motoristas = [] } = useListMotoristas()
   const { data: caminhoes = [] } = useListCaminhoes()
 
-  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Filter function with multiple conditional checks
-  const trajetosFiltrados = trajetos.filter((trajeto: Trajeto) => {
-    if (dateRange?.from && dateRange?.to) {
-      const trajetoData = new Date(trajeto.dataInicio)
-      if (trajetoData < dateRange.from || trajetoData > dateRange.to) {
+  const trajetosFiltrados = trajetos
+    // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Filter function with multiple conditional checks
+    .filter((trajeto: Trajeto) => {
+      if (dateRange?.from && dateRange?.to) {
+        const trajetoData = new Date(trajeto.dataInicio)
+        const endOfDay = new Date(dateRange.to)
+        endOfDay.setHours(23, 59, 59, 999)
+        if (trajetoData < dateRange.from || trajetoData > endOfDay) {
+          return false
+        }
+      }
+      if (
+        selectedMotoristaId !== 'all' &&
+        trajeto.motoristaId !== Number(selectedMotoristaId)
+      ) {
         return false
       }
-    }
-    if (
-      selectedMotoristaId !== 'all' &&
-      trajeto.motoristaId !== Number(selectedMotoristaId)
-    ) {
-      return false
-    }
-    if (
-      selectedCaminhaoId !== 'all' &&
-      trajeto.caminhaoId !== Number(selectedCaminhaoId)
-    ) {
-      return false
-    }
-    if (selectedStatus !== 'all' && trajeto.status !== selectedStatus) {
-      return false
-    }
-    return true
-  })
+      if (
+        selectedCaminhaoId !== 'all' &&
+        trajeto.caminhaoId !== Number(selectedCaminhaoId)
+      ) {
+        return false
+      }
+      if (selectedStatus !== 'all' && trajeto.status !== selectedStatus) {
+        return false
+      }
+      return true
+    })
+    .sort((a: Trajeto, b: Trajeto) => {
+      return new Date(b.dataInicio).getTime() - new Date(a.dataInicio).getTime()
+    })
 
-  const selectedTrajeto = trajetosFiltrados.find(
-    (t: Trajeto) => t.id === selectedTrajetoId
-  )
+  // Fetch full trajeto details (including distanciaTotal)
+  const {
+    data: selectedTrajetoDetalhado,
+    isLoading: isLoadingTrajetoDetalhes,
+  } = useGetTrajeto(selectedTrajetoId ?? 0, {
+    enabled: !!selectedTrajetoId,
+  })
 
   const { data: pontos = [], isLoading: isLoadingPontos } = useGetTrajetoPontos(
     selectedTrajetoId ?? 0,
@@ -120,12 +131,12 @@ export default function MapaTrajetosPage() {
   }
 
   const trajetoComPontos =
-    selectedTrajeto && pontos.length > 0
-      ? { ...selectedTrajeto, pontos, incidentes }
+    selectedTrajetoDetalhado && pontos.length > 0
+      ? { ...selectedTrajetoDetalhado, pontos, incidentes }
       : null
 
-  const trajetoParaDetalhes = selectedTrajeto
-    ? { ...selectedTrajeto, pontos, incidentes }
+  const trajetoParaDetalhes = selectedTrajetoDetalhado
+    ? { ...selectedTrajetoDetalhado, pontos, incidentes }
     : null
 
   const getDuracao = (trajeto: Trajeto) => {
@@ -332,11 +343,11 @@ export default function MapaTrajetosPage() {
                       </div>
 
                       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 sm:flex-col sm:items-start sm:gap-y-2">
-                        {trajeto.distanciaTotal && (
+                        {trajeto.distanciaTotal != null && (
                           <div className="flex items-center gap-1.5 text-xs sm:gap-2">
                             <MapPin className="h-3 w-3 flex-shrink-0 text-muted-foreground sm:h-3.5 sm:w-3.5" />
                             <span className="text-muted-foreground">
-                              {(trajeto.distanciaTotal / 1000).toFixed(2)} km
+                              {trajeto.distanciaTotal.toFixed(2)} km
                             </span>
                           </div>
                         )}
@@ -386,19 +397,23 @@ export default function MapaTrajetosPage() {
               </Card>
             )}
 
-            {selectedTrajetoId && (isLoadingPontos || isLoadingIncidentes) && (
-              <Card className="flex h-full w-full items-center justify-center">
-                <div className="text-center">
-                  <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent sm:h-10 sm:w-10" />
-                  <p className="font-medium text-sm">Carregando trajeto...</p>
-                  <p className="text-muted-foreground text-xs">
-                    Obtendo pontos e incidentes
-                  </p>
-                </div>
-              </Card>
-            )}
+            {selectedTrajetoId &&
+              (isLoadingTrajetoDetalhes ||
+                isLoadingPontos ||
+                isLoadingIncidentes) && (
+                <Card className="flex h-full w-full items-center justify-center">
+                  <div className="text-center">
+                    <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent sm:h-10 sm:w-10" />
+                    <p className="font-medium text-sm">Carregando trajeto...</p>
+                    <p className="text-muted-foreground text-xs">
+                      Obtendo pontos e incidentes
+                    </p>
+                  </div>
+                </Card>
+              )}
 
             {selectedTrajetoId &&
+              !isLoadingTrajetoDetalhes &&
               !isLoadingPontos &&
               !isLoadingIncidentes &&
               trajetoComPontos && (
@@ -408,6 +423,7 @@ export default function MapaTrajetosPage() {
               )}
 
             {selectedTrajetoId &&
+              !isLoadingTrajetoDetalhes &&
               !isLoadingPontos &&
               !isLoadingIncidentes &&
               !trajetoComPontos && (
@@ -444,16 +460,20 @@ export default function MapaTrajetosPage() {
               </Card>
             )}
 
-            {selectedTrajetoId && (isLoadingPontos || isLoadingIncidentes) && (
-              <Card className="flex h-full w-full items-center justify-center">
-                <div className="py-12 text-center">
-                  <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-                  <p className="font-medium text-sm">Carregando...</p>
-                </div>
-              </Card>
-            )}
+            {selectedTrajetoId &&
+              (isLoadingTrajetoDetalhes ||
+                isLoadingPontos ||
+                isLoadingIncidentes) && (
+                <Card className="flex h-full w-full items-center justify-center">
+                  <div className="py-12 text-center">
+                    <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                    <p className="font-medium text-sm">Carregando...</p>
+                  </div>
+                </Card>
+              )}
 
             {selectedTrajetoId &&
+              !isLoadingTrajetoDetalhes &&
               !isLoadingPontos &&
               !isLoadingIncidentes &&
               trajetoParaDetalhes && (
