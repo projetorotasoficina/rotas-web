@@ -2,9 +2,10 @@ import { AlertTriangle, Truck } from 'lucide-react'
 
 type MapLegendProps = {
   routeColor: string
+  showUncovered?: boolean
 }
 
-export function MapLegend({ routeColor }: MapLegendProps) {
+export function MapLegend({ routeColor, showUncovered }: MapLegendProps) {
   return (
     <div className="absolute bottom-2 left-2 z-[1000] rounded-lg border bg-card/95 p-3 shadow-lg backdrop-blur-sm">
       <h4 className="mb-2 font-semibold text-muted-foreground text-xs">
@@ -42,6 +43,12 @@ export function MapLegend({ routeColor }: MapLegendProps) {
           />
           <span className="text-xs">Trajeto</span>
         </div>
+        {showUncovered && (
+          <div className="flex items-center gap-2">
+            <div className="h-4 w-4 border border-red-500 bg-red-500/40" />
+            <span className="text-xs">Área não percorrida</span>
+          </div>
+        )}
       </div>
     </div>
   )
