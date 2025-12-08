@@ -38,6 +38,7 @@ export const apiConfig = {
     rotas: {
       list: '/rota',
       byId: (id: number) => `/rota/${id}`,
+      naoPercorridas: (id: number) => `/rota/${id}/nao-percorridas`,
     },
     trajetos: {
       list: '/trajetos',
