@@ -1,49 +1,37 @@
+import type { UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
+import { queryKeys } from '@/lib/query-keys'
 import { apiConfig, fetchWithAuth } from '@/services/api'
-
-export interface EstatisticasCobertura {
-  area_total_m2: number
-  area_coberta_m2: number
-  area_nao_coberta_m2: number
-  percentual_cobertura: number
-  quantidade_trajetos: number
-  cobertura_completa: boolean
-  status_cobertura: string
-}
-
-export interface AreasNaoPercorridasDTO {
-  rota_id: number
-  rota_nome: string
-  // biome-ignore lint/suspicious/noExplicitAny: GeoJSON structure varies
-  areas_nao_cobertas: any
-  estatisticas: EstatisticasCobertura
-  buffer_metros: number
-}
+import type { AreasNaoPercorridasDTO } from './types'
 
 async function getAreasNaoPercorridas(
   rotaId: number,
   trajetoId?: number
 ): Promise<AreasNaoPercorridasDTO> {
-  const url = new URL(
-    `${apiConfig.baseUrl}${apiConfig.endpoints.rotas.naoPercorridas(rotaId)}`
-  )
-  if (trajetoId) {
-    url.searchParams.append('trajetoId', String(trajetoId))
-  }
-  
-  const response = await fetchWithAuth(url.toString())
+  const url = apiConfig.endpoints.rotas.naoPercorridas(rotaId)
+  const fullUrl = trajetoId ? `${url}?trajetoId=${trajetoId}` : url
+
+  const response = await fetchWithAuth(fullUrl)
   return response.json()
 }
+
+type UseGetAreasNaoPercorridasOptions = Omit<
+  UseQueryOptions<AreasNaoPercorridasDTO>,
+  'queryKey' | 'queryFn'
+>
 
 export function useGetAreasNaoPercorridas(
   rotaId: number | undefined,
   trajetoId?: number,
-  options?: { enabled?: boolean; refetchInterval?: number | false }
+  options?: UseGetAreasNaoPercorridasOptions
 ) {
   return useQuery({
-    queryKey: ['areas-nao-percorridas', rotaId, trajetoId],
+    queryKey: rotaId
+      ? queryKeys.rotas.areasNaoPercorridas(rotaId, trajetoId)
+      : ['areas-nao-percorridas', undefined],
+    // biome-ignore lint/style/noNonNullAssertion: enabled garante que rotaId existe
     queryFn: () => getAreasNaoPercorridas(rotaId!, trajetoId),
-    enabled: !!rotaId && (options?.enabled ?? true),
-    refetchInterval: options?.refetchInterval,
+    enabled: !!rotaId,
+    ...options,
   })
 }

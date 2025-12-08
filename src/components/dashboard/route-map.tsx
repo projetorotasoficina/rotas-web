@@ -2,30 +2,30 @@
 import type { LatLngExpression } from 'leaflet'
 import L from 'leaflet'
 import {
+  GeoJSON,
   MapContainer,
   Marker,
   Polyline,
   Popup,
   TileLayer,
   useMap,
-  GeoJSON,
 } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
+import * as turf from '@turf/turf'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import type { FeatureCollection, MultiPolygon, Polygon } from 'geojson'
 import markerIcon from 'leaflet/dist/images/marker-icon.png'
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
 import markerShadow from 'leaflet/dist/images/marker-shadow.png'
-import { RotateCcw, Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, RotateCcw } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { useRouteAnimation } from '@/hooks/use-route-animation'
-import type { TrajetoComPontos } from '@/http/trajeto/types'
 import { useGetAreasNaoPercorridas } from '@/http/rotas/use-get-areas-nao-percorridas'
+import type { TrajetoComPontos } from '@/http/trajeto/types'
 import { AnimationControls } from './animation-controls'
 import { MapLegend } from './map-legend'
-import * as turf from '@turf/turf'
-import type { FeatureCollection, Polygon, MultiPolygon } from 'geojson'
 
 // @ts-expect-error - Leaflet icon fix
 L.Icon.Default.prototype._getIconUrl = undefined
@@ -157,16 +157,16 @@ function UncoveredAreasControl({
   return (
     <div
       className="leaflet-top leaflet-left"
-      style={{ marginTop: '10px', marginLeft: '50px', zIndex: 1000 }}
       onClick={handleContainerClick}
       onDoubleClick={handleContainerClick}
       onMouseDown={handleContainerClick}
+      style={{ marginTop: '10px', marginLeft: '50px', zIndex: 1000 }}
     >
       <div className="leaflet-control leaflet-bar">
         <Button
-          className={`h-[30px] px-3 rounded-sm shadow-md transition-colors ${
+          className={`h-[30px] rounded-sm px-3 shadow-md transition-colors ${
             isActive
-              ? 'bg-white text-destructive hover:bg-gray-50 border-destructive border'
+              ? 'border border-destructive bg-white text-destructive hover:bg-gray-50'
               : 'bg-white text-gray-700 hover:bg-gray-50'
           }`}
           onClick={handleButtonClick}
@@ -178,11 +178,11 @@ function UncoveredAreasControl({
           }
         >
           {isActive ? (
-            <EyeOff className="h-4 w-4 mr-2" />
+            <EyeOff className="mr-2 h-4 w-4" />
           ) : (
-            <Eye className="h-4 w-4 mr-2" />
+            <Eye className="mr-2 h-4 w-4" />
           )}
-          <span className="text-xs font-medium">
+          <span className="font-medium text-xs">
             {isLoading ? 'Carregando...' : 'Ver Locais Não Percorridos'}
           </span>
         </Button>
@@ -208,9 +208,7 @@ export function RouteMap({ trajeto }: RouteMapProps) {
 
   const processedUncoveredAreas = useMemo(() => {
     if (
-      !showUncovered ||
-      !areasNaoPercorridas?.areas_nao_cobertas ||
-      !pontos ||
+      !(showUncovered && areasNaoPercorridas?.areas_nao_cobertas && pontos) ||
       pontos.length < 2
     ) {
       return areasNaoPercorridas?.areas_nao_cobertas
@@ -238,7 +236,7 @@ export function RouteMap({ trajeto }: RouteMapProps) {
         areaFeature,
         routeBuffer,
       ]) as FeatureCollection<Polygon | MultiPolygon>
-      
+
       const result = turf.difference(collection)
 
       return result

@@ -5,7 +5,7 @@ import type {
 } from '@tanstack/react-table'
 import { ArrowUpDown, Edit, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
-
+import { ExportButton } from '@/components/relatorios'
 import { RotaModal } from '@/components/rotas/rota-modal'
 import {
   AlertDialog,
@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useDebounce } from '@/hooks/use-debounce'
 import { useRole } from '@/hooks/use-role'
+import { useGenericReport } from '@/http/relatorios'
 import type {
   DiaSemana,
   FrequenciaRota,
@@ -107,6 +108,15 @@ export default function RotasPage() {
   })
 
   const rotas = response?.content ?? []
+
+  // Export data
+  const { data: exportData } = useGenericReport(
+    {
+      entityName: 'rota',
+      filters: debouncedSearch ? { search: debouncedSearch } : {},
+    },
+    true
+  )
   const { data: tiposResiduo = [] } = useListTipoResiduo()
   const { data: tiposColeta = [] } = useListTipoColeta()
   const deleteMutation = useDeleteRota()
@@ -285,10 +295,25 @@ export default function RotasPage() {
         }}
         sorting={sorting}
         toolbar={
-          <Button disabled={!canCreate()} onClick={handleAdd}>
-            <Plus className="h-4 w-4" />
-            Adicionar
-          </Button>
+          <div className="flex gap-2">
+            <ExportButton
+              data={exportData || []}
+              options={{
+                filename: 'rotas',
+                title: 'Relatório de Rotas',
+                columns: [
+                  { key: 'nome', label: 'Nome' },
+                  { key: 'observacoes', label: 'Observações' },
+                  { key: 'ativo', label: 'Status' },
+                ],
+              }}
+              variant="outline"
+            />
+            <Button disabled={!canCreate()} onClick={handleAdd}>
+              <Plus className="h-4 w-4" />
+              Adicionar
+            </Button>
+          </div>
         }
       />
 

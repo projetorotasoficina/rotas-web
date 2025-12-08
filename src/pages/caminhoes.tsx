@@ -6,6 +6,7 @@ import type {
 import { ArrowUpDown, Edit, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { CaminhaoModal } from '@/components/caminhoes/caminhao-modal'
+import { ExportButton } from '@/components/relatorios'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,6 +31,7 @@ import { useRole } from '@/hooks/use-role'
 import type { Caminhao } from '@/http/caminhoes/types'
 import { useDeleteCaminhao } from '@/http/caminhoes/use-delete-caminhao'
 import { usePaginatedCaminhoes } from '@/http/caminhoes/use-paginated-caminhoes'
+import { useGenericReport } from '@/http/relatorios'
 import { useListTipoColeta } from '@/http/tipo-coleta/use-list-tipo-coleta'
 import { useListTipoResiduo } from '@/http/tipo-residuo/use-list-tipo-residuo'
 
@@ -65,6 +67,15 @@ export default function CaminhoesPage() {
   const { data: tiposColeta = [] } = useListTipoColeta()
   const { data: tiposResiduo = [] } = useListTipoResiduo()
   const deleteMutation = useDeleteCaminhao()
+
+  // Export data
+  const { data: exportData } = useGenericReport(
+    {
+      entityName: 'caminhao',
+      filters: debouncedSearch ? { search: debouncedSearch } : {},
+    },
+    true
+  )
 
   const handleEdit = (caminhao: Caminhao) => {
     setEditingCaminhao(caminhao)
@@ -236,10 +247,26 @@ export default function CaminhoesPage() {
         }}
         sorting={sorting}
         toolbar={
-          <Button disabled={!canCreate()} onClick={handleAdd}>
-            <Plus className="h-4 w-4" />
-            Adicionar
-          </Button>
+          <div className="flex gap-2">
+            <ExportButton
+              data={exportData || []}
+              options={{
+                filename: 'caminhoes',
+                title: 'Relatório de Caminhões',
+                columns: [
+                  { key: 'modelo', label: 'Modelo' },
+                  { key: 'placa', label: 'Placa' },
+                  { key: 'tipoVeiculo', label: 'Tipo Veículo' },
+                  { key: 'ativo', label: 'Status' },
+                ],
+              }}
+              variant="outline"
+            />
+            <Button disabled={!canCreate()} onClick={handleAdd}>
+              <Plus className="h-4 w-4" />
+              Adicionar
+            </Button>
+          </div>
         }
       />
 

@@ -16,6 +16,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { CodigoAtivacaoDetailsModal } from '@/components/codigos-ativacao/codigo-ativacao-details-modal'
 import { CodigoGeradoModal } from '@/components/codigos-ativacao/codigo-gerado-modal'
+import { ExportButton } from '@/components/relatorios'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,6 +44,7 @@ import { useDeleteCodigoAtivacao } from '@/http/codigos-ativacao/use-delete-codi
 import { useGerarCodigoAtivacao } from '@/http/codigos-ativacao/use-gerar-codigo-ativacao'
 import { usePaginatedCodigosAtivacao } from '@/http/codigos-ativacao/use-paginated-codigos-ativacao'
 import { useRevogarCodigoAtivacao } from '@/http/codigos-ativacao/use-revogar-codigo-ativacao'
+import { useGenericReport } from '@/http/relatorios'
 
 export function CodigosAtivacaoTable() {
   const { canEdit, canDelete, canCreate } = useRole()
@@ -83,6 +85,15 @@ export function CodigosAtivacaoTable() {
   })
 
   const codigos = response?.content ?? []
+
+  // Export data
+  const { data: exportData } = useGenericReport(
+    {
+      entityName: 'codigoAtivacao',
+      filters: debouncedSearch ? { search: debouncedSearch } : {},
+    },
+    true
+  )
   const deleteMutation = useDeleteCodigoAtivacao()
   const gerarMutation = useGerarCodigoAtivacao()
   const revogarMutation = useRevogarCodigoAtivacao()
@@ -333,13 +344,29 @@ export function CodigosAtivacaoTable() {
         }}
         sorting={sorting}
         toolbar={
-          <Button
-            disabled={!canCreate() || gerarMutation.isPending}
-            onClick={handleGerar}
-          >
-            <Plus className="h-4 w-4" />
-            {gerarMutation.isPending ? 'Gerando...' : 'Gerar Código'}
-          </Button>
+          <div className="flex gap-2">
+            <ExportButton
+              data={exportData || []}
+              options={{
+                filename: 'codigos-ativacao',
+                title: 'Relatório de Códigos de Ativação',
+                columns: [
+                  { key: 'codigo', label: 'Código' },
+                  { key: 'dataGeracao', label: 'Data Geração' },
+                  { key: 'utilizado', label: 'Utilizado' },
+                  { key: 'revogado', label: 'Revogado' },
+                ],
+              }}
+              variant="outline"
+            />
+            <Button
+              disabled={!canCreate() || gerarMutation.isPending}
+              onClick={handleGerar}
+            >
+              <Plus className="h-4 w-4" />
+              {gerarMutation.isPending ? 'Gerando...' : 'Gerar Código'}
+            </Button>
+          </div>
         }
       />
 

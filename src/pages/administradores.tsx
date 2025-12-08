@@ -7,6 +7,7 @@ import { ArrowUpDown, Edit, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { AdministradorModal } from '@/components/administradores/administrador-modal'
+import { ExportButton } from '@/components/relatorios'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +29,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/contexts/auth-context'
 import { useDebounce } from '@/hooks/use-debounce'
+import { useGenericReport } from '@/http/relatorios'
 import type { Usuario } from '@/http/usuarios/types'
 import { useDeleteUsuario } from '@/http/usuarios/use-delete-usuario'
 import { usePaginatedUsuarios } from '@/http/usuarios/use-paginated-usuarios'
@@ -83,6 +85,15 @@ export default function AdministradoresPage() {
 
   const usuarios = response?.content ?? []
   const deleteMutation = useDeleteUsuario()
+
+  // Export data
+  const { data: exportData } = useGenericReport(
+    {
+      entityName: 'usuario',
+      filters: debouncedSearch ? { search: debouncedSearch } : {},
+    },
+    true
+  )
 
   const handleEdit = (usuario: Usuario) => {
     setEditingUsuario(usuario)
@@ -269,10 +280,27 @@ export default function AdministradoresPage() {
         }}
         sorting={sorting}
         toolbar={
-          <Button onClick={handleAdd}>
-            <Plus className="h-4 w-4" />
-            Adicionar
-          </Button>
+          <div className="flex gap-2">
+            <ExportButton
+              data={exportData || []}
+              options={{
+                filename: 'administradores',
+                title: 'Relatório de Administradores',
+                columns: [
+                  { key: 'nome', label: 'Nome' },
+                  { key: 'email', label: 'E-mail' },
+                  { key: 'cpf', label: 'CPF' },
+                  { key: 'telefone', label: 'Telefone' },
+                  { key: 'ativo', label: 'Status' },
+                ],
+              }}
+              variant="outline"
+            />
+            <Button onClick={handleAdd}>
+              <Plus className="h-4 w-4" />
+              Adicionar
+            </Button>
+          </div>
         }
       />
 
