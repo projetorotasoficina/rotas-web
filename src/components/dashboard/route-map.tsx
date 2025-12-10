@@ -296,8 +296,8 @@ export function RouteMap({ trajeto }: RouteMapProps) {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="relative z-40 h-[500px] w-full overflow-hidden rounded-lg border">
+    <div className="flex h-full min-h-[620px] flex-col gap-4">
+      <div className="relative z-40 flex-1 overflow-hidden rounded-lg border">
         <MapContainer
           center={center}
           className="h-full w-full"
@@ -469,17 +469,19 @@ export function RouteMap({ trajeto }: RouteMapProps) {
         <MapLegend routeColor={routeColor} showUncovered={showUncovered} />
       </div>
 
-      <AnimationControls
-        currentIndex={animation.currentIndex}
-        isPlaying={animation.isPlaying}
-        onPause={animation.pause}
-        onPlay={animation.play}
-        onReset={animation.reset}
-        onSpeedChange={setSpeed}
-        progress={animation.progress}
-        speed={speed}
-        totalPoints={animation.totalPoints}
-      />
+      <div className="flex-shrink-0">
+        <AnimationControls
+          currentIndex={animation.currentIndex}
+          isPlaying={animation.isPlaying}
+          onPause={animation.pause}
+          onPlay={animation.play}
+          onReset={animation.reset}
+          onSpeedChange={setSpeed}
+          progress={animation.progress}
+          speed={speed}
+          totalPoints={animation.totalPoints}
+        />
+      </div>
     </div>
   )
 }
