@@ -150,7 +150,7 @@ export default function MapaTrajetosPage() {
   }
 
   return (
-    <div className="flex h-full flex-col gap-4 pb-4 lg:h-[calc(100vh-7rem)] lg:gap-4 lg:pb-0">
+    <div className="flex h-full flex-col gap-4 pb-4 xl:h-[calc(100vh-7rem)] xl:gap-4 xl:pb-0">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="font-bold text-xl tracking-tight sm:text-2xl">
@@ -164,14 +164,14 @@ export default function MapaTrajetosPage() {
 
       <Card className="py-1">
         <CardContent className="px-4 py-3">
-          <div className="flex flex-col gap-1 lg:flex-row lg:flex-wrap lg:items-center">
+          <div className="flex flex-col gap-1 xl:flex-row xl:flex-wrap xl:items-center">
             <DateRangeFilter
-              className="w-full lg:w-auto"
+              className="w-full xl:w-auto"
               dateRange={dateRange}
               onDateRangeChange={setDateRange}
             />
 
-            <Separator className="hidden h-8 lg:block" orientation="vertical" />
+            <Separator className="hidden h-8 xl:block" orientation="vertical" />
 
             <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
               <Select
@@ -230,8 +230,8 @@ export default function MapaTrajetosPage() {
         </CardContent>
       </Card>
 
-      <div className="flex flex-1 flex-col gap-4 overflow-hidden lg:grid lg:grid-cols-[360px_1fr_380px]">
-        <Card className="flex max-h-[350px] flex-col overflow-hidden lg:max-h-none">
+      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden xl:grid xl:grid-cols-[360px_1fr_380px]">
+        <Card className="flex max-h-[350px] flex-col overflow-hidden xl:max-h-none xl:min-h-0">
           <CardHeader className="flex-shrink-0 border-b px-3 sm:px-4">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">Trajetos</h3>
@@ -377,8 +377,8 @@ export default function MapaTrajetosPage() {
           </div>
         </Card>
 
-        <div className="flex flex-1 flex-col gap-4 overflow-hidden lg:contents">
-          <div className="flex flex-1 overflow-hidden">
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden xl:contents">
+          <div className="flex min-h-[500px] flex-1 flex-col overflow-hidden xl:min-h-0">
             {!selectedTrajetoId && (
               <Card className="flex h-full w-full items-center justify-center">
                 <div className="px-6 text-center">
@@ -390,7 +390,7 @@ export default function MapaTrajetosPage() {
                   </h3>
                   <p className="text-muted-foreground text-xs sm:text-sm">
                     Escolha um trajeto da lista{' '}
-                    <span className="hidden lg:inline">lateral </span>para
+                    <span className="hidden xl:inline">lateral </span>para
                     visualizar o percurso no mapa
                   </p>
                 </div>
@@ -443,7 +443,7 @@ export default function MapaTrajetosPage() {
               )}
           </div>
 
-          <div className="hidden lg:block lg:overflow-y-auto">
+          <div className="xl:overflow-y-auto">
             {!selectedTrajetoId && (
               <Card className="flex h-full w-full items-center justify-center">
                 <div className="px-6 py-12 text-center">

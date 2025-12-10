@@ -193,7 +193,9 @@ export default function RelatorioIncidentesPage() {
   }
 
   const getFilenameRange = () => {
-    if (!(dateRange?.from && dateRange?.to)) { return '' }
+    if (!(dateRange?.from && dateRange?.to)) {
+      return ''
+    }
     return `${format(dateRange.from, 'yyyy-MM-dd')}-${format(dateRange.to, 'yyyy-MM-dd')}`
   }
 
